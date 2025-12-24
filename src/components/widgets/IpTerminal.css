@@ -1,0 +1,80 @@
+/* 📂 src/components/widgets/IpTerminal.css */
+.ip-terminal {
+    background: #000;
+    border: 1px solid #444;
+    border-left: 4px solid var(--accent-gold);
+    padding: 15px;
+    font-family: 'Consolas', monospace;
+    color: var(--accent-green);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    transition: all 0.2s;
+    /* Aseguramos que la caja no crezca más que la pantalla */
+    max-width: 100%; 
+}
+
+.ip-terminal:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.2);
+}
+
+.ip-terminal.success {
+    border-left-color: var(--accent-green);
+    background: rgba(85, 255, 85, 0.1);
+}
+
+/* Contenedor del texto (flecha + IP) */
+.ip-terminal > div:first-child {
+    display: flex;
+    align-items: center;
+    /* Permite que el texto se encoja si falta espacio */
+    flex: 1; 
+    overflow: hidden;
+}
+
+.ip-prompt { 
+    color: #555; 
+    margin-right: 10px; 
+    white-space: nowrap; /* El ">_" no se rompe */
+}
+
+.ip-text {
+    font-size: 1.2rem;
+    /* 🔥 LA SOLUCIÓN MÁGICA: */
+    /* Permite romper la palabra si es muy larga para la pantalla */
+    word-break: break-all; 
+    white-space: normal;
+}
+
+.copy-hint { 
+    font-size: 0.75rem; 
+    color: #666; 
+    background: #111; 
+    padding: 2px 6px; 
+    border-radius: 3px; 
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+/* AJUSTES PARA MÓVIL */
+@media (max-width: 600px) {
+    .ip-terminal {
+        flex-direction: column; /* Poner la pista "CLIC PARA COPIAR" abajo */
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ip-text {
+        font-size: 1rem; /* Texto un poco más chico en móvil */
+    }
+
+    .copy-hint {
+        margin-left: 0;
+        align-self: flex-end; /* Alinear a la derecha abajo */
+        font-size: 0.7rem;
+    }
+}

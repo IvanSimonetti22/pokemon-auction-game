@@ -1,0 +1,178 @@
+/* 📂 src/components/ui/Carousel.css */
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 500px; /* Altura Escritorio */
+    overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    background-size: cover;
+    background-position: center;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+/* Sombra inferior para leer texto */
+.carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Alinear texto abajo */
+    height: 40%; /* El degradado ocupa el 40% inferior */
+}
+
+.carousel-caption h3 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+/* Botones Flecha */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.3s;
+    font-size: 1.2rem;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-btn:hover {
+    background: #FFAA00;
+    color: #000;
+}
+
+.carousel-btn.prev { left: 20px; }
+.carousel-btn.next { right: 20px; }
+
+/* Indicadores (Puntos) */
+.carousel-dots {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: #FFAA00;
+    transform: scale(1.2);
+}
+
+/* Toolbar (Descargar/Fullscreen) */
+.carousel-toolbar {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+}
+
+.carousel-toolbar button {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+}
+
+.carousel-toolbar button:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* --- AJUSTES MÓVILES (CRÍTICO) --- */
+@media (max-width: 600px) {
+    .carousel-container {
+        /* Reducimos altura para que parezca una foto de Instagram */
+        height: 250px; 
+    }
+
+    .carousel-caption {
+        padding: 10px;
+        height: 50%; /* Degradado más alto para asegurar legibilidad */
+    }
+
+    .carousel-caption h3 {
+        font-size: 1rem; /* Texto más pequeño */
+        letter-spacing: 1px;
+    }
+
+    /* Botones más pequeños y pegados al borde */
+    .carousel-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+        background: rgba(0,0,0,0.3); /* Más transparente */
+    }
+    .carousel-btn.prev { left: 5px; }
+    .carousel-btn.next { right: 5px; }
+
+    /* Ocultar puntos en móvil si molestan, o hacerlos más chicos */
+    .carousel-dots {
+        bottom: 10px;
+        right: 50%;
+        transform: translateX(50%); /* Centrar puntos en móvil */
+    }
+    
+    .dot {
+        width: 6px;
+        height: 6px;
+    }
+}

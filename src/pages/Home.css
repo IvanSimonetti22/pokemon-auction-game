@@ -1,0 +1,47 @@
+/* 📂 src/pages/Home.css */
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    /* Aumentamos la separación para que se vea limpio como en la referencia */
+    gap: 30px; 
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* 🔥 CORRECCIÓN CRÍTICA 🔥 */
+/* Esto fuerza a los bloques principales (Status, Grids, Terminal) a ocupar todo el ancho 
+   y apilarse verticalmente sin aplastarse. */
+.home-container > * {
+    width: 100%;
+    flex-shrink: 0; /* Evita que se encojan */
+}
+
+/* --- GRID DE ESTADÍSTICAS (4 columnas) --- */
+.stats-grid {
+    display: grid;
+    /* Usamos minmax para que sea responsivo pero mantenga estructura */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* --- GRID DE ACCIONES (2 botones grandes) --- */
+.actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* --- RESPONSIVIDAD MÓVIL --- */
+@media (max-width: 768px) {
+    /* En móvil, los grids pasan a 1 sola columna */
+    .stats-grid,
+    .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .home-container {
+        gap: 20px; /* Un poco menos de espacio en móvil */
+    }
+}

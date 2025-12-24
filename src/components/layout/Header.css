@@ -1,0 +1,231 @@
+/* 📂 src/components/layout/Header.css */
+
+/* --- ESTILOS BASE (Escritorio - Modo General) --- */
+.main-header {
+    background-color: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--accent-gold);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    /* 🔥 CORRECCIÓN 1: En escritorio está bien hidden, pero lo sobrescribiremos en móvil */
+    overflow: hidden; 
+}
+
+.header-inner {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header-top-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.header-branding {
+    text-align: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.header-branding h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 85, 255, 0.3);
+    transition: all 0.3s ease-in-out;
+    animation: scale-in-blur-bottom 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+.subtitle {
+    margin-top: 0.5rem;
+    color: var(--accent-gold);
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    transition: max-height 0.4s ease;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.nav-btn:hover,
+.nav-btn.active {
+    background: var(--accent-gold);
+    color: var(--bg-deep);
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
+}
+
+.hamburger-btn { display: none; }
+
+/* ======================================================
+   --- MODO COMPACTO (Escritorio) ---
+   ====================================================== */
+.main-header.compact { padding: 0.5rem 0; }
+.main-header.compact .header-inner { flex-direction: row; justify-content: space-between; }
+.main-header.compact .header-top-row { width: auto; align-items: flex-start; }
+.main-header.compact .header-branding { text-align: left; margin-bottom: 0; }
+
+.main-header.compact .header-branding h1 { 
+    font-size: 1.5rem; 
+    animation: slide-in-blurred-left 0.6s cubic-bezier(0.230, 1.000, 0.320, 1.000) both;
+}
+
+.main-header.compact .subtitle { display: none; } 
+.main-header.compact .nav-bar { justify-content: flex-end; width: auto; }
+
+
+/* ======================================================
+   --- MÓVIL (Pantallas < 768px) ---
+   ====================================================== */
+@media (max-width: 768px) {
+    
+    /* 🔥 CORRECCIÓN CRÍTICA: */
+    /* Permitimos que el contenido se salga de la caja para ver el menú desplegable */
+    .main-header,
+    .main-header.compact {
+        overflow: visible !important;
+    }
+
+    .main-header.compact .header-inner,
+    .header-inner {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .header-top-row,
+    .main-header.compact .header-top-row {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 0 !important;
+        padding: 0 20px !important;
+        box-sizing: border-box;
+    }
+
+    .header-branding, .main-header.compact .header-branding {
+        text-align: left !important;
+        margin-bottom: 0 !important;
+        width: auto;
+    }
+    
+    .header-branding h1, .main-header.compact .header-branding h1 { 
+        font-size: 1.3rem !important; 
+        animation: none; 
+    }
+    
+    .subtitle { display: none !important; }
+
+    .hamburger-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 21px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 101;
+    }
+
+    .hamburger-btn span {
+        width: 100%;
+        height: 3px;
+        background-color: var(--accent-gold);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+    .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(7px, -8px); }
+
+    /* MENU DESPLEGABLE */
+    .nav-bar {
+        position: absolute;
+        top: 100%; /* Justo debajo del header */
+        left: 0;
+        width: 100% !important;
+        flex-direction: column;
+        background: rgba(10, 10, 10, 0.98);
+        backdrop-filter: blur(15px);
+        border-bottom: 2px solid var(--accent-gold);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out;
+        padding: 0;
+        margin: 0;
+        z-index: 99;
+    }
+
+    .nav-bar.show-mobile {
+        max-height: 500px;
+        /* Aseguramos visibilidad al abrir */
+        overflow: visible; 
+    }
+
+    .nav-btn {
+        width: 100%;
+        text-align: left;
+        padding: 18px 25px;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0;
+        font-size: 1rem;
+        color: var(--accent-gold); 
+    }
+    
+    .nav-btn:last-child { border-bottom: none; }
+
+    .nav-btn:hover, .nav-btn.active {
+        background: color-mix(in srgb, var(--accent-gold), transparent 75%);
+        color: #fff; 
+        box-shadow: inset 4px 0 0 var(--accent-gold);
+        padding-left: 35px;
+    }
+}
+
+/* ANIMACIONES */
+@keyframes slide-in-blurred-left {
+  0% { transform: translateX(-1000px) scaleX(2) scaleY(0.2); transform-origin: 100% 50%; filter: blur(40px); opacity: 0; }
+  100% { transform: translateX(0) scaleY(1) scaleX(1); transform-origin: 50% 50%; filter: blur(0); opacity: 1; }
+}
+
+@keyframes scale-in-blur-bottom {
+  0% { transform: scaleY(0); transform-origin: 0% 100%; filter: blur(20px); opacity: 0; }
+  100% { transform: scaleY(1); transform-origin: 0% 100%; filter: blur(0); opacity: 1; }
+}

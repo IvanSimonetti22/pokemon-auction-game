@@ -1,0 +1,269 @@
+/* 📂 src/styles/index.css */
+
+/* --- 1. VARIABLES GLOBALES --- */
+:root {
+  --bg-deep: #0a0a0a;
+  --bg-panel: #1e1e1e;
+  --text-main: #e0e0e0;
+  --accent-gold: #FFAA00;
+  --accent-purple: #FF55FF;
+  --accent-aqua: #55FFFF;
+  --accent-green: #55FF55;
+  --accent-red: #FF5555;
+  --border: #333333;
+}
+
+/* TEMA NETHER */
+[data-theme="nether"] {
+    --bg-deep: #1a0505;
+    --bg-panel: #2d1010;
+    --text-main: #ffe0e0;
+    --accent-gold: #FFD700;
+    --accent-purple: #FF8C00;
+    --accent-aqua: #FF4500;
+    --accent-green: #ff6b6b;
+    --accent-red: #8B0000;
+    --border: #5c2b2b;
+}
+
+/* TEMA END */
+[data-theme="end"] {
+    --bg-deep: #050510;
+    --bg-panel: #151020;
+    --text-main: #e0e0ff;
+    --accent-gold: #fcfcde;
+    --accent-purple: #be4bdb;
+    --accent-aqua: #d0bdf4;
+    --accent-green: #9c27b0;
+    --accent-red: #ff00ff;
+    --border: #3a2a4a;
+}
+
+/* --- 2. RESET BÁSICO --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* --- 3. SCROLLBAR --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* --- 4. LAYOUT CYBERPUNK --- */
+.main-layout {
+    position: relative;
+    width: 96%;
+    max-width: 1340px;
+    margin: 20px auto 40px auto;
+    padding: 30px 30px 50px 30px;
+    background: transparent;
+    height: fit-content !important;
+    min-height: 0 !important;
+    isolation: isolate; 
+    z-index: 1; 
+}
+
+/* CAPA 1: La Forma Geométrica */
+.main-layout::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 30, 30, 0.3);
+    border-top: 3px solid var(--accent-aqua);
+    border-bottom: 3px solid var(--accent-aqua);
+    clip-path: polygon(
+        0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px, 
+        100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px
+    );
+    box-shadow: inset 0 0 20px rgba(85, 255, 255, 0.1);
+    z-index: -1; 
+}
+
+/* CAPA 2: Las Líneas Discontinuas */
+.main-layout::after {
+    content: '';
+    position: absolute;
+    top: 25px;
+    bottom: 25px;
+    left: -8px;
+    right: -8px;
+    border-left: 2px dashed rgba(255, 170, 0, 0.4);
+    border-right: 2px dashed rgba(255, 170, 0, 0.4);
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* --- 5. COMPONENTES GLOBALES UI (CARDS) --- */
+/* Esto arregla el espaciado en Sistemas, Mods, etc. */
+
+.card {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: border 0.5s;
+    
+    /* 🔥 AQUÍ ESTÁ LA CORRECCIÓN DE ESPACIADO: */
+    margin-bottom: 20px; 
+}
+
+/* Variantes de Color (Borde Izquierdo) */
+.card.type-green  { border-left: 4px solid var(--accent-green); }
+.card.type-gold   { border-left: 4px solid var(--accent-gold); }
+.card.type-purple { border-left: 4px solid var(--accent-purple); }
+.card.type-aqua   { border-left: 4px solid var(--accent-aqua); }
+
+/* Títulos dentro de las tarjetas */
+.card h3 {
+    margin-top: 0;
+    color: var(--text-main);
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+/* Cabeceras de Módulos (Usado en Mods, Sistemas, Roadmap) */
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.module-header h3 {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Etiquetas (Tags) */
+.module-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.module-tag {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    background: #000;
+    border: 1px solid #444;
+    font-weight: bold;
+    color: #aaa;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.tag-ok {
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+    box-shadow: 0 0 5px rgba(85, 255, 85, 0.2);
+}
+
+.tag-opt {
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+}
+/* 📂 src/styles/index.css (Añadir al final) */
+
+/* =========================================================
+   ANIMACIÓN DE ENTRADA "TECH REVEAL" (Estilo HUD)
+   ========================================================= */
+
+/* 📂 src/styles/index.css (Reemplazar la sección final de animación) */
+
+/* =========================================================
+   ANIMACIÓN DE ENTRADA "TECH REVEAL" (Versión Segura)
+   ========================================================= */
+
+@keyframes tech-slide-up {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98); /* Movimiento más corto */
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* Aplicamos la animación a las tarjetas */
+.card, 
+.stat-card, 
+.action-card-btn,
+.sys-card, 
+.download-step,
+.roadmap-item,
+.hero-status, /* Agregamos el Status del servidor */
+.ip-terminal { /* Agregamos la terminal */
+    /* 'both' asegura que mantenga el estado inicial (0) y final (1) */
+    animation: tech-slide-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* CASCADA (Staggering) - Orden de aparición */
+
+/* 1. Status del Servidor (Home) y Primeras Tarjetas */
+.hero-status, 
+.card:nth-child(1),
+.download-step:nth-child(1) { 
+    animation-delay: 0ms; 
+}
+
+/* 2. Grid de Stats (Home) y Segundas Tarjetas */
+.stats-grid, 
+.card:nth-child(2),
+.download-step:nth-child(2) { 
+    animation-delay: 100ms; 
+}
+
+/* 3. Acciones (Home) y Terceras Tarjetas */
+.actions-grid, 
+.card:nth-child(3),
+.download-step:nth-child(3) { 
+    animation-delay: 200ms; 
+}
+
+/* 4. Terminal IP (Home) y Resto */
+.ip-terminal,
+.card:nth-child(4) { 
+    animation-delay: 300ms; 
+}
+
+/* Items individuales dentro de grids (opcional, para más detalle) */
+.stat-card:nth-child(1) { animation-delay: 100ms; }
+.stat-card:nth-child(2) { animation-delay: 150ms; }
+.stat-card:nth-child(3) { animation-delay: 200ms; }
+.stat-card:nth-child(4) { animation-delay: 250ms; }
+
+.action-card-btn:nth-child(1) { animation-delay: 250ms; }
+.action-card-btn:nth-child(2) { animation-delay: 300ms; }

@@ -1,0 +1,108 @@
+/* 📂 src/components/widgets/ThemeToggle.css */
+
+.theme-widget {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.theme-toggle-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(10, 10, 10, 0.9);
+    border: 2px solid var(--border);
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(5px);
+}
+
+.theme-widget:hover .theme-toggle-btn {
+    border-color: var(--accent-gold);
+    transform: scale(1.1) rotate(180deg);
+    background: rgba(30, 30, 30, 0.9);
+}
+
+/* CONTENEDOR DE OPCIONES */
+.theme-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Estado Activo (Hover) */
+.theme-widget:hover .theme-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.theme-opt {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    /* IMPORTANTE: Necesario para que el tooltip se posicione respecto al botón */
+    position: relative; 
+}
+
+.theme-opt:hover {
+    transform: scale(1.25);
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* --- TOOLTIP (La etiqueta con el nombre) --- */
+.theme-opt::after {
+    /* 🔥 MAGIA: Lee el texto del atributo data-tooltip del HTML */
+    content: attr(data-tooltip);
+    
+    position: absolute;
+    left: 50px; /* Posición a la derecha del botón */
+    top: 50%;
+    transform: translateY(-50%) translateX(-10px); /* Centrado vertical + desplazaminto inicial */
+    
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    white-space: nowrap; /* Que el texto no salte de línea */
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    
+    /* Decoración: Borde izquierdo del color del tema activo */
+    border-left: 2px solid var(--accent-gold);
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Mostrar tooltip al pasar el mouse */
+.theme-opt:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0); /* Se desliza a su lugar */
+}

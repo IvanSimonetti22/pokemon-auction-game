@@ -1,0 +1,106 @@
+/* 📂 src/components/widgets/ServerStatus.css */
+
+.hero-status {
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 30px;
+    margin-bottom: 30px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgba(15, 15, 15, 0.95) 0%, rgba(30, 30, 30, 0.9) 100%);
+    border: 1px solid #333;
+    border-left: 5px solid var(--accent-green);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s ease;
+}
+
+.hero-status.offline {
+    border-left-color: var(--accent-red);
+    background: linear-gradient(90deg, rgba(40, 10, 10, 0.95) 0%, rgba(20, 10, 10, 0.9) 100%);
+    box-shadow: 0 10px 30px rgba(255, 85, 85, 0.1);
+}
+
+.hero-status.loading {
+    border-left-color: var(--accent-gold);
+    opacity: 0.8;
+}
+
+.hero-icon {
+    font-size: 3.5rem;
+    margin-right: 25px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+}
+
+.hero-info {
+    flex: 1;
+}
+
+.hero-info h2 {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.hero-info p {
+    margin: 8px 0 0 0;
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.status-badge-live {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(85, 255, 85, 0.1);
+}
+
+.status-badge-live.offline {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    background: rgba(255, 0, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.1);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: currentColor;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor;
+    animation: pulse 2s infinite;
+}
+
+.status-badge-live.offline .pulse-dot { animation: none; opacity: 0.8; }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(85, 255, 85, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(85, 255, 85, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(85, 255, 85, 0); }
+}
+
+@media (max-width: 600px) {
+    .hero-status { flex-direction: row; flex-wrap: wrap; align-items: center; padding: 20px; }
+    .hero-icon { margin-right: 15px; margin-bottom: 0; font-size: 2.5rem; }
+    .hero-info { flex: 1; min-width: 0; }
+    .hero-info h2 { font-size: 1.2rem; margin-bottom: 2px; }
+    .hero-info p { font-size: 0.8rem; }
+    .status-badge-live { position: static; margin-top: 15px; width: 100%; justify-content: center; background: rgba(0, 0, 0, 0.4); padding: 10px; order: 3; }
+}

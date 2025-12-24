@@ -1,0 +1,182 @@
+/* 📂 src/components/ChangelogTimeline.css */
+
+.timeline-wrapper {
+    position: relative;
+    padding-left: 20px;
+    margin-left: 10px;
+    padding-bottom: 50px;
+}
+
+/* LÍNEA DE ENERGÍA */
+.timeline-track {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 2px;
+    background: linear-gradient(to bottom, 
+        var(--accent-gold) 0%, 
+        rgba(255, 255, 255, 0.1) 80%, 
+        transparent 100%
+    );
+    z-index: 0;
+}
+
+.timeline-entry {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+/* ICONO FLOTANTE CON LATIDO */
+.timeline-icon {
+    position: absolute;
+    left: -21px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #0a0a0a;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* 🔥 NUEVO: Animación de latido constante */
+    animation: icon-pulse 3s infinite ease-in-out;
+}
+
+/* Colores según tipo */
+.timeline-entry.type-new .timeline-icon { border-color: var(--accent-green); color: var(--accent-green); }
+.timeline-entry.type-fix .timeline-icon { border-color: var(--accent-red); color: var(--accent-red); }
+.timeline-entry.type-change .timeline-icon { border-color: var(--accent-aqua); color: var(--accent-aqua); }
+
+/* Hover en la entrada */
+.timeline-entry:hover .timeline-icon {
+    transform: scale(1.2);
+    background: #1e1e1e;
+    animation: none; /* Detenemos el pulso al hacer hover para enfocar */
+    box-shadow: 0 0 20px currentColor; /* Brillo intenso del color del icono */
+}
+
+/* TARJETA CON EFECTO ESCÁNER */
+.timeline-card {
+    margin-left: 30px;
+    border-left: 4px solid var(--border);
+    transition: all 0.3s ease;
+    position: relative; /* Necesario para el efecto de brillo */
+    overflow: hidden;   /* Para que el brillo no se salga de la tarjeta */
+}
+
+/* El destello de luz (invisible por defecto) */
+.timeline-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%; /* Empieza fuera a la izquierda */
+    width: 100%;
+    height: 100%;
+    /* Un degradado inclinado transparente -> blanco suave -> transparente */
+    background: linear-gradient(
+        120deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.05) 40%, 
+        rgba(255, 255, 255, 0.0) 100%
+    );
+    transform: skewX(-20deg);
+    pointer-events: none;
+    transition: none;
+}
+
+/* Al pasar el mouse, el destello cruza la tarjeta */
+.timeline-card:hover::after {
+    animation: holographic-shine 0.8s ease-in-out;
+}
+
+/* Bordes reactivos en hover */
+.timeline-entry.type-new:hover .timeline-card { border-left-color: var(--accent-green); }
+.timeline-entry.type-fix:hover .timeline-card { border-left-color: var(--accent-red); }
+.timeline-entry.type-change:hover .timeline-card { border-left-color: var(--accent-aqua); }
+
+
+/* METADATOS Y TEXTOS */
+.timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.timeline-date {
+    color: var(--accent-gold);
+    font-family: 'Consolas', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.timeline-title {
+    margin: 0 0 10px 0 !important;
+    color: var(--text-main);
+    font-size: 1.4rem;
+    border: none !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.version-pill {
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: #aaa;
+    font-weight: normal;
+    font-family: 'Consolas', monospace;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.timeline-desc {
+    color: #ccc;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+/* ETIQUETAS */
+.tag-new { color: #000; background: var(--accent-green); border: none; font-weight: 800; box-shadow: 0 0 10px rgba(85,255,85,0.2); }
+.tag-fix { color: var(--accent-red); border-color: var(--accent-red); background: rgba(255,0,0,0.1); }
+.tag-change { color: var(--accent-aqua); border-color: var(--accent-aqua); background: rgba(85,255,255,0.1); }
+.tag-info { color: #888; border-color: #888; }
+
+
+/* --- NUEVAS ANIMACIONES --- */
+
+/* 1. Latido del Icono */
+@keyframes icon-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.1); transform: scale(1); }
+    50% { box-shadow: 0 0 15px 5px rgba(255,255,255,0.05); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.1); transform: scale(1); }
+}
+
+/* 2. Brillo Holográfico */
+@keyframes holographic-shine {
+    0% { left: -100%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { left: 200%; opacity: 0; }
+}
+
+
+@media (max-width: 600px) {
+    .timeline-wrapper { padding-left: 10px; margin-left: 0; }
+    .timeline-icon { width: 30px; height: 30px; font-size: 0.9rem; left: -16px; top: 25px; }
+    .timeline-card { margin-left: 25px; padding: 15px; }
+    .timeline-title { font-size: 1.2rem; }
+}

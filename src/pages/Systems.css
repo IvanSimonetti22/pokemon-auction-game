@@ -1,0 +1,98 @@
+/* 📂 src/pages/Systems.css */
+
+.systems-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* --- SNIPPET DE COMANDO --- */
+.command-snippet {
+    background: #000;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.command-label {
+    color: var(--accent-gold);
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.command-code {
+    color: var(--accent-purple); /* Color del comando */
+    font-family: 'Consolas', monospace;
+    font-size: 1rem;
+}
+
+/* --- BOTÓN TOGGLE (Rosa/Púrpura Cyberpunk) --- */
+.btn-toggle {
+    background: rgba(255, 85, 255, 0.05);
+    border: 1px solid var(--accent-purple);
+    color: var(--accent-purple);
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.2s;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-toggle:hover {
+    background: rgba(255, 85, 255, 0.2);
+    box-shadow: 0 0 10px rgba(255, 85, 255, 0.2);
+}
+
+.btn-toggle.active {
+    background: var(--accent-purple);
+    color: #000;
+}
+
+/* --- LISTA DE EFECTOS --- */
+/* Reutilizamos .list-container del CSS global, pero añadimos especificidad si hace falta */
+.list-container {
+    margin-top: 10px;
+    border-left: 3px solid var(--accent-purple); /* Borde púrpura para esta lista */
+    animation: fadeIn 0.3s ease;
+}
+
+.item-name {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.item-desc {
+    color: #888;
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+/* Listas simples (Clima/Bienvenida) */
+.sys-list {
+    padding-left: 20px;
+    margin: 0;
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .systems-grid {
+        grid-template-columns: 1fr;
+    }
+    .command-snippet {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}

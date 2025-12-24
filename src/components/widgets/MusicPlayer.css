@@ -1,0 +1,120 @@
+/* 📂 src/components/widgets/MusicPlayer.css */
+
+.music-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid #333;
+    border-radius: 30px;
+    padding: 0;
+    
+    display: flex;
+    align-items: center;
+    
+    width: 50px;       
+    height: 50px;      
+    overflow: hidden;  
+    
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
+    backdrop-filter: blur(5px);
+    
+    /* 🔥 CLAVE: El cursor de mano aparece en TODA la caja */
+    cursor: pointer;
+    user-select: none; /* Evita que se seleccione el texto al hacer clic rápido */
+}
+
+.music-widget:hover {
+    width: 300px;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 15px rgba(255, 170, 0, 0.2);
+}
+
+.music-widget.playing {
+    border-color: rgba(255, 170, 0, 0.5);
+}
+
+/* --- ICONO DE PLAY (Antes .music-btn, ahora .music-icon-container) --- */
+.music-icon-container {
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    
+    /* Dimensiones fijas para centrado perfecto */
+    min-width: 50px; 
+    height: 50px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Importante: pointer-events none asegura que el clic pase al padre */
+    pointer-events: none; 
+}
+
+.music-info {
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.music-widget:hover .music-info {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.1s;
+}
+
+.track-title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.track-artist {
+    font-size: 0.7rem;
+    color: var(--accent-gold);
+    opacity: 0.8;
+}
+
+.music-visualizer {
+    display: flex;
+    gap: 3px;
+    height: 15px;
+    align-items: flex-end;
+    margin-left: auto;
+    margin-right: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.music-widget:hover .music-visualizer {
+    opacity: 1;
+}
+
+.bar {
+    width: 3px;
+    background: var(--accent-gold);
+    height: 3px;
+    border-radius: 2px;
+}
+
+.music-widget.playing .bar {
+    animation: equalize 1s infinite ease-in-out;
+}
+
+.bar:nth-child(1) { animation-delay: 0.1s; }
+.bar:nth-child(2) { animation-delay: 0.2s; }
+.bar:nth-child(3) { animation-delay: 0.3s; }
+.bar:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes equalize {
+    0% { height: 4px; }
+    50% { height: 14px; }
+    100% { height: 4px; }
+}

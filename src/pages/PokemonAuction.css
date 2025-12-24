@@ -1,0 +1,1792 @@
+/* 📂 client/src/pages/PokemonAuction.css */
+
+/* --- LAYOUT GENERAL --- */
+.auction-container {
+    padding: 0;
+    color: white;
+    text-align: center;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+}
+
+/* Escalado para pantallas pequeñas */
+@media (max-height: 800px) {
+    .auction-container {
+        font-size: 0.8rem;
+    }
+}
+
+/* --- BOTÓN SALIR --- */
+.exit-btn-fixed {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 0, 0, 0.15);
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 5px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 2000;
+    font-size: 0.8rem;
+    transition: 0.2s;
+}
+
+.exit-btn-fixed:hover {
+    background: rgba(255, 0, 0, 0.5);
+    color: white;
+}
+
+/* --- SECCIÓN JUGADORES (ARRIBA) --- */
+.players-top-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    /* Centrados */
+    width: 100%;
+    padding: 10px;
+
+    /* 🔥 ESTILO CLÁSICO RESTAURADO: */
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap !important;
+    /* Si no entran, bajan a la siguiente línea */
+    overflow: visible;
+    /* Sin scrollbars raros */
+}
+
+.player-header-card {
+    background: #2f3640;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s ease;
+
+    /* 🔥 TAMAÑO COMPACTO ORIGINAL: */
+    width: 140px !important;
+    min-width: auto;
+    /* 🔥 TAMAÑO MODIFICADO (MAS ANCHO): */
+    width: 190px !important;
+    min-width: 190px !important;
+    height: auto;
+    flex-shrink: 1;
+    /* Permite que se adapten */
+}
+
+.player-header-card.is-me {
+    border-color: gold;
+    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0));
+}
+
+.p-name {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.p-money {
+    color: #4CAF50;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+/* SLOTS Y MOCHILA */
+.slots-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    /* Separación ideal para el nuevo tamaño */
+    margin: 8px 0;
+    /* Un poco más de aire vertical */
+    width: 100%;
+    justify-items: center;
+}
+
+.poke-slot {
+    width: 45px !important;
+    /* Aumentado de 30px a 45px */
+    height: 45px !important;
+    /* Aumentado */
+    background: #1e272e;
+    border-radius: 6px;
+    /* Un poco más redondeado */
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.poke-slot:hover {
+    border-color: #aaa;
+}
+
+.poke-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.poke-slot.filled {
+    border-color: gold;
+    box-shadow: 0 0 5px gold;
+}
+
+.mini-held-item {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 18px;
+    /* Un poco más visible */
+    height: 18px;
+    background: #222;
+    border: 1px solid #ffd700;
+    border-radius: 50%;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.p-backpack-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 0.8em;
+    color: #aaa;
+    transition: 0.2s;
+}
+
+.p-backpack-container:hover {
+    opacity: 1;
+    color: gold;
+}
+
+/* --- TABLERO CENTRAL (BAJADO PARA DAR AIRE) --- */
+.game-board {
+    background: rgba(15, 15, 20, 0.7);
+    border: 1px solid #444;
+
+    /* 🔥 MARGEN SUPERIOR AUMENTADO (60px) */
+    margin: 60px auto 10px auto;
+
+    /* 🔥 ALTURA CALCULADA */
+    height: calc(100vh - 260px);
+
+    padding: 10px 30px;
+    border-radius: 15px;
+    width: 98%;
+    max-width: 1400px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.game-board>div:first-child {
+    margin-top: 5px;
+    margin-right: 5px;
+    z-index: 10;
+}
+
+/* CONTENEDOR POKEMON + INFO */
+.pokemon-display-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
+    width: 100%;
+    margin-bottom: 20px;
+    gap: 40px;
+    /* Reducido de 60px a 40px para que estén más juntos */
+}
+
+/* CÍRCULO POKEMON */
+.pokemon-card-circle {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border-radius: 50%;
+    width: 340px;
+    height: 340px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+.pokemon-card-circle img {
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
+    z-index: 2;
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.5));
+}
+
+.rarity-badge {
+    position: absolute;
+    bottom: 15px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    z-index: 3;
+    color: #eee;
+    border: 1px solid #555;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- BADGES DE TIPOS (ARREGLADO EL ÍCONO GIGANTE) --- */
+.types-row {
+    display: flex;
+    justify-content: center;
+    /* 🔥 Corregido camelCase */
+    gap: 10px;
+    margin-top: -15px;
+    margin-bottom: 20px;
+    z-index: 5;
+    position: relative;
+}
+
+.type-badge {
+    padding: 5px 12px 5px 8px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    display: flex;
+    align-items: center;
+    /* 🔥 Corregido camelCase */
+    gap: 6px;
+}
+
+/* La jaula del ícono */
+.type-icon-wrapper {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    width: 20px !important;
+    /* 🔥 FORZADO PEQUEÑO */
+    height: 20px !important;
+    /* 🔥 FORZADO PEQUEÑO */
+    min-width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* La imagen del ícono */
+.type-icon-wrapper img {
+    width: 14px !important;
+    /* 🔥 FORZADO PEQUEÑO */
+    height: 14px !important;
+    object-fit: contain;
+}
+
+/* PANEL DERECHO */
+.info-panel-right {
+    flex: 1;
+    max-width: 600px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.info-panel-right h2 {
+    margin: 0 0 10px 0;
+    color: gold;
+    font-size: 2em;
+    text-transform: uppercase;
+    border-bottom: 2px solid #444;
+    line-height: 1.1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: #252525;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    text-align: center;
+}
+
+.stat-name {
+    font-size: 0.7em;
+    color: #aaa;
+    text-transform: uppercase;
+    display: block;
+}
+
+.stat-value {
+    font-weight: bold;
+    font-size: 1em;
+    color: white;
+}
+
+.stat-value.high-stat {
+    color: #00ff00;
+}
+
+/* HABILIDADES (CAJA GRANDE) */
+.abilities-box {
+    background: rgba(40, 40, 50, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #445;
+    overflow-y: auto;
+    height: 240px;
+    /* 🔥 ALTO FIJO GRANDE */
+    flex-grow: 0;
+}
+
+.abilities-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.abilities-box::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
+
+.ability-row {
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+}
+
+.ability-row:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.ability-name {
+    color: #64b5f6;
+    font-weight: bold;
+    font-size: 1.05em;
+    text-transform: capitalize;
+}
+
+.hidden-tag {
+    font-size: 0.7em;
+    background: #6a1b9a;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.ability-desc {
+    color: #ccc;
+    font-style: italic;
+    font-size: 0.9em;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+/* CONTROLES */
+.auction-controls {
+    margin-top: 0;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+    margin-bottom: 5px;
+}
+
+.current-price {
+    font-size: 3em;
+    color: #ffcb05;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 2px 2px 0 black;
+    margin-bottom: 5px;
+}
+
+.last-bidder {
+    color: #888;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+/* BOTONES GRISES CUANDO NO SE PUEDE PUJAR */
+.disabled-row {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(1);
+}
+
+.bid-buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.bid-btn {
+    background: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: 0.2s;
+    box-shadow: 0 3px 0 #8e0000;
+}
+
+.bid-btn:active {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+.bid-btn:hover {
+    background: #f44336;
+}
+
+.custom-bid-group {
+    display: flex;
+    align-items: center;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.custom-input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 80px;
+    text-align: center;
+    font-size: 1.1em;
+    padding: 5px;
+}
+
+.custom-input:focus {
+    outline: none;
+}
+
+.custom-confirm-btn {
+    background: gold;
+    border: none;
+    padding: 8px 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* CHAT */
+.chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    height: 320px;
+    background: linear-gradient(180deg, rgba(20, 20, 20, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
+    border: 1px solid #555;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    transition: height 0.3s ease;
+    /* Animación suave */
+    position: relative;
+    /* Asegurado */
+    overflow: hidden;
+    /* Importante para ocultar al minimizar */
+}
+
+/* Clase cuando está minimizado */
+.chat-container.minimized {
+    height: 40px !important;
+    /* Solo altura del header */
+}
+
+/* Botón de Toggle (- / +) */
+.chat-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    background: transparent;
+    border: 1px solid #777;
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chat-header {
+    background: #333;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 1px solid #555;
+    font-size: 0.95rem;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.chat-msg {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.chat-msg .user {
+    color: #4fc3f7;
+    font-weight: bold;
+}
+
+.chat-msg.system {
+    color: #ffd700;
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.chat-input-area {
+    padding: 10px;
+    border-top: 1px solid #444;
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input {
+    flex: 1;
+    background: #222;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.chat-send {
+    background: #1976d2;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* EXTRAS */
+.login-box,
+.lobby-box {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border: 2px solid gold;
+    border-radius: 20px;
+    margin: auto;
+    max-width: 500px;
+    margin-top: 15vh;
+}
+
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 3000;
+}
+
+.modal-content {
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    border: 2px solid gold;
+    text-align: center;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.inventory-item {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.inventory-item img {
+    width: 80px;
+    height: 80px;
+}
+
+.close-modal-btn {
+    background: #d32f2f;
+    color: white;
+    padding: 10px 30px;
+    margin-top: 30px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+/* COLORES TIPOS */
+.type-normal {
+    background-color: #A8A77A;
+}
+
+.type-fire {
+    background-color: #EE8130;
+}
+
+.type-water {
+    background-color: #6390F0;
+}
+
+.type-electric {
+    background-color: #F7D02C;
+    color: #333;
+}
+
+.type-grass {
+    background-color: #7AC74C;
+}
+
+.type-ice {
+    background-color: #96D9D6;
+    color: #333;
+}
+
+.type-fighting {
+    background-color: #C22E28;
+}
+
+.type-poison {
+    background-color: #A33EA1;
+}
+
+.type-ground {
+    background-color: #E2BF65;
+}
+
+.type-flying {
+    background-color: #A98FF3;
+}
+
+.type-psychic {
+    background-color: #F95587;
+}
+
+.type-bug {
+    background-color: #A6B91A;
+}
+
+.type-rock {
+    background-color: #B6A136;
+}
+
+.type-ghost {
+    background-color: #735797;
+}
+
+.type-dragon {
+    background-color: #6F35FC;
+}
+
+.type-dark {
+    background-color: #705746;
+}
+
+.type-steel {
+    background-color: #B7B7CE;
+    color: #333;
+}
+
+.type-fairy {
+    background-color: #D685AD;
+}
+
+/* 📂 client/src/pages/PokemonAuction.css */
+
+/* --- AGREGA ESTO AL FINAL DE TU ARCHIVO --- */
+
+/* Estilo específico para TU tarjeta */
+.player-header-card.is-me {
+    border: 2px solid #ffd700;
+    /* Borde Dorado */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    /* Brillo dorado */
+    transform: scale(1.05);
+    /* Un poquito más grande */
+    z-index: 10;
+    background-color: #2f3542;
+    /* Mantenemos tu fondo oscuro pero aseguramos contraste */
+}
+
+/* Tu nombre en dorado */
+.player-header-card.is-me .p-name {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* La etiqueta amarilla "TÚ" */
+.me-tag {
+    background-color: #ffd700;
+    color: #000;
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 900;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/* 📂 PokemonAuction.css - AGREGA ESTO AL FINAL */
+
+/* --- TARJETA DE OBJETO (EN SUBASTA) --- */
+.item-card-circle {
+    width: 300px !important;
+    /* Aumentado (antes ~180px) */
+    height: 300px !important;
+    /* Aumentado */
+    border-radius: 50%;
+    background: radial-gradient(circle, #444, #111);
+    border: 6px solid #a29bfe;
+    box-shadow: 0 0 30px #a29bfe;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 🔥 ESTO ES LO QUE LO CENTRA Y BAJA: */
+    margin-bottom: 70px !important;
+    /* Mismo margen que el Pokémon */
+}
+
+.item-card-circle img {
+    width: 180px !important;
+    /* Aumentado */
+    height: 180px !important;
+    image-rendering: pixelated;
+    /* Mantiene el estilo retro nítido */
+}
+
+.item-description-box {
+    background: rgba(0, 0, 0, 0.6);
+    border-left: 4px solid #a29bfe;
+    padding: 15px;
+    margin-top: 10px;
+    font-size: 1.1rem;
+    text-align: left;
+    color: #dfe6e9;
+    font-style: italic;
+}
+
+/* --- MOCHILA MEJORADA (SPLIT VIEW) --- */
+.backpack-split {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.backpack-section h3 {
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    color: #a29bfe;
+}
+
+/* GRID DE OBJETOS */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+    min-height: 80px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.item-slot {
+    background: #2d3436;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.item-slot:hover {
+    background: #353b48;
+}
+
+.item-slot.selected {
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 10px #ffd700;
+    background: #444;
+}
+
+.item-slot img {
+    width: 40px;
+    height: 40px;
+}
+
+.item-tooltip {
+    font-size: 0.7rem;
+    margin-top: 2px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+/* INDICADOR DE OBJETO EQUIPADO EN POKÉMON */
+.held-item-icon {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 25px;
+    height: 25px;
+    background: #222;
+    border-radius: 50%;
+    border: 1px solid #ffd700;
+    padding: 2px;
+    z-index: 5;
+}
+
+/* 📂 client/src/pages/PokemonAuction.css - AGREGA ESTO AL FINAL */
+
+/* --- CORRECCIÓN ICONO OBJETO EQUIPADO --- */
+.held-item-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Asegura que la imagen se vea completa dentro del círculo */
+}
+
+/* --- NOTIFICACIÓN FLOTANTE (TOAST) DE ERROR --- */
+.error-toast {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(231, 76, 60, 0.95);
+    /* Rojo intenso semi-transparente */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    font-size: 1.2rem;
+    z-index: 3000;
+    /* Muy por encima de todo */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideInDown 0.3s ease-out;
+}
+
+.error-toast span {
+    font-size: 1.5rem;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* --- PANTALLA DE TRANSICIÓN DE FASE --- */
+.phase-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    /* Fondo casi negro */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffd700;
+    /* Dorado */
+    z-index: 2500;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.phase-transition-overlay h1 {
+    font-size: 4rem;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    animation: textGlitch 0.5s infinite alternate;
+}
+
+.phase-transition-overlay p {
+    font-size: 1.5rem;
+    color: white;
+}
+
+/* Efecto visual para el texto de transición */
+@keyframes textGlitch {
+    0% {
+        text-shadow: 3px 0 0 red, -3px 0 0 blue;
+    }
+
+    100% {
+        text-shadow: -3px 0 0 red, 3px 0 0 blue;
+    }
+}
+
+/* 📂 client/src/pages/PokemonAuction.css */
+
+/* --- ÍCONO DE OBJETO EN LA TARJETA PRINCIPAL (MINI) --- */
+.mini-held-item {
+    position: absolute;
+    bottom: -2px;
+    /* Lo pegamos a la esquina inferior */
+    right: -2px;
+    /* Lo pegamos a la esquina derecha */
+    width: 14px;
+    /* Más pequeño para que no tape al Pokémon */
+    height: 14px;
+    background: #222;
+    border: 1px solid #ffd700;
+    border-radius: 50%;
+    z-index: 10;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.mini-held-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 📂 PokemonAuction.css - ESTILO RAREZA BALL */
+
+.rarity-badge-img {
+    position: absolute;
+    bottom: -15px;
+    /* Un poco salido del círculo */
+    width: 40px;
+    height: 40px;
+    z-index: 10;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rarity-badge-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.shiny-star {
+    font-size: 1.2rem;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    text-shadow: 0 0 5px yellow;
+    animation: spin 3s infinite linear;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 📂 client/src/pages/PokemonAuction.css */
+
+/* --- ARREGLO CRÍTICO PARA QUE SE VEAN LAS BALLS --- */
+.pokemon-card-circle {
+    /* Permitimos que la PokeBall se salga del círculo */
+    overflow: visible !important;
+    position: relative;
+}
+
+/* Estilo de la Ball de Rareza */
+.rarity-badge-img {
+    position: absolute;
+    bottom: -20px;
+    /* La bajamos para que quede flotando en el borde */
+    left: 50%;
+    transform: translateX(-50%);
+    /* Centrada horizontalmente */
+    width: 50px;
+    /* Tamaño decente */
+    height: 50px;
+    z-index: 100;
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.8));
+    /* Sombra para que destaque */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+    /* Sombra trasera sutil */
+    border-radius: 50%;
+}
+
+.rarity-badge-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.shiny-star {
+    font-size: 1.5rem;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    filter: drop-shadow(0 0 5px gold);
+    animation: spin 3s infinite linear;
+    z-index: 101;
+}
+
+@keyframes bounceIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- UPDATE POKEBALL Y SHINY --- */
+
+.pokemon-card-circle {
+    /* ... mantén tus estilos actuales ... */
+    position: relative;
+    /* Asegurado */
+    overflow: visible !important;
+    /* CRÍTICO: Para que la Pokéball se salga del círculo */
+    margin-bottom: 70px;
+    /* Espacio extra abajo para la ball gigante */
+}
+
+.rarity-badge-img {
+    position: absolute;
+    bottom: -45px;
+    /* Cuelga más abajo */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 90px;
+    z-index: 100;
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.8));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rarity-badge-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: bounceIn 0.5s;
+}
+
+.shiny-star {
+    font-size: 2.5rem;
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    text-shadow: 0 0 10px gold;
+    animation: spin 3s infinite linear;
+    z-index: 101;
+}
+
+@keyframes bounceIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 📂 PokemonAuction.css - AGREGA ESTO AL FINAL */
+
+/* Botones de puja bajos (Verdes) */
+.bid-btn-green {
+    background: linear-gradient(to bottom, #27ae60, #2ecc71);
+    box-shadow: 0 4px 0 #219150;
+}
+
+.bid-btn-green:active {
+    box-shadow: 0 0 0;
+    transform: translateY(4px);
+}
+
+/* Botón de puja alto (Azul/Dorado o distinto para diferenciar) */
+.bid-btn-high {
+    background: linear-gradient(to bottom, #2980b9, #3498db);
+    box-shadow: 0 4px 0 #1c5980;
+}
+
+.bid-btn-high:active {
+    box-shadow: 0 0 0;
+    transform: translateY(4px);
+}
+
+/* --- LAYOUT DE 2 COLUMNAS (Juego Izq | Chat Der) --- */
+/* 1. ELIMINAMOS LAS COLUMNAS LADO A LADO */
+.game-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    /* Volvemos a columna vertical */
+    align-items: center;
+    width: 100%;
+    margin-top: 0;
+}
+
+/* 2. EL TABLERO VUELVE A SER GRANDE Y CENTRADO */
+.game-board {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    /* 🔥 CAMBIOS DE POSICIÓN: */
+    margin: 0 auto;
+    margin-top: 30px !important;
+    /* Subir el tablero */
+    margin-bottom: 20px;
+    padding: 40px 50px;
+    /* Más relleno vertical para que se vea el fondo */
+    max-width: 1200px;
+    /* Un poco más ancho */
+    flex: none;
+    /* Asegura que no se estire de más */
+    /* Asegura que no se estire de más */
+    position: relative;
+
+    /* Mantenemos estilos previos necesarios */
+    background: rgba(15, 15, 20, 0.7);
+    border: 1px solid #444;
+    border-radius: 15px;
+    height: calc(100vh - 260px);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+/* Agrega margin-top a AMBOS círculos */
+.pokemon-card-circle,
+.item-card-circle {
+    margin-top: 30px;
+    /* Los empuja hacia abajo dentro del recuadro */
+}
+
+/* 3. EL CHAT SE VUELVE FLOTANTE (FIXED) ABAJO A LA DERECHA */
+.chat-container {
+    position: fixed;
+    /* Flotante "por encima" */
+    bottom: 0;
+    right: 20px;
+    width: 320px;
+    /* Ancho fijo cómodo */
+    height: 300px;
+    /* Altura abierta */
+    background: #222;
+    border: 1px solid #444;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    z-index: 2000;
+    /* Encima de todo */
+    transition: height 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    /* Sin márgenes externos */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 4. ESTILO CUANDO ESTÁ MINIMIZADO */
+.chat-container.minimized {
+    height: 40px !important;
+    /* Solo se ve la barra de título */
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* 5. ESTILO DEL BOTÓN TOGGLE (+ / -) */
+.chat-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    background: transparent;
+    border: 1px solid #aaa;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 6. ASEGURAR COLORES DE BOTONES */
+.bid-btn-green {
+    background: linear-gradient(to bottom, #27ae60, #2ecc71);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #219150;
+}
+
+.bid-btn-green:active {
+    box-shadow: 0 0 0;
+    transform: translateY(4px);
+}
+
+.bid-btn-high {
+    background: linear-gradient(to bottom, #2980b9, #3498db);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #1c5980;
+}
+
+.bid-btn-high:active {
+    box-shadow: 0 0 0;
+    transform: translateY(4px);
+}
+
+/* --- ANIMACIÓN DE VICTORIA EN TARJETA --- */
+
+/* Contenedor que cubre la tarjeta del ganador */
+.winner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    /* Fondo oscuro */
+    backdrop-filter: blur(4px);
+    /* Efecto borroso */
+    border-radius: 8px;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInOverlay 0.3s ease;
+}
+
+/* El sprite gigante que rebota */
+.winner-sprite-anim {
+    width: 120px !important;
+    /* Bien grande */
+    height: 120px !important;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px gold);
+    /* Resplandor dorado */
+    animation: victoryBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+/* Animación del rebote */
+@keyframes victoryBounce {
+    0% {
+        transform: scale(0) translateY(-50px);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2) translateY(10px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes fadeInOverlay {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* --- ANIMACIÓN DE DOBLE TIPO (ANILLO GIRATORIO) --- */
+
+/* Clase base */
+.dual-ring {
+    position: relative;
+    border: none !important;
+    /* Sin borde sólido */
+    background: #000 !important;
+    /* Fondo negro de seguridad */
+    z-index: 10;
+    overflow: visible !important;
+}
+
+/* 1. El Gradiente Giratorio (Atrás) */
+.dual-ring::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    /* Grosor del borde */
+    border-radius: 50%;
+    z-index: -2;
+    /* Al fondo de todo */
+    background: conic-gradient(var(--c1), var(--c2), var(--c1));
+    animation: spin-glow 3s linear infinite;
+}
+
+/* 2. La Máscara Negra (En medio) */
+.dual-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0px;
+    /* Cubre exactamente el interior del círculo */
+    border-radius: 50%;
+    background: radial-gradient(circle, #2a2a2a 30%, #000 100%);
+    /* El fondo del círculo */
+    z-index: -1;
+    /* Tapamos el centro del gradiente pero quedamos detrás de la imagen */
+}
+
+/* Sombra externa opcional para más brillo */
+.dual-ring {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    /* Sombra base */
+}
+
+@keyframes spin-glow {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- FASE DE GESTIÓN (MANAGEMENT) --- */
+.management-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    background: #111;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    /* Encima de todo */
+}
+
+.management-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr 250px;
+    /* Columnas fijas a los lados, flexible al centro */
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.mgmt-panel {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.mgmt-panel h3 {
+    color: gold;
+    border-bottom: 1px solid #555;
+    padding-bottom: 10px;
+    margin-top: 0;
+    text-align: center;
+}
+
+/* Tienda */
+.shop-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    transition: 0.2s;
+}
+
+.shop-item:hover {
+    background: #222;
+}
+
+.buy-btn {
+    background: #27ae60;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+.buy-btn:hover {
+    background: #2ecc71;
+}
+
+/* Equipo Central */
+.team-grid-mgmt {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+.mgmt-poke-card {
+    background: #222;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+
+.mgmt-poke-card:hover {
+    transform: translateY(-5px);
+    border-color: #aaa;
+}
+
+.mgmt-poke-card.waiting-item {
+    border-style: dashed;
+    border-color: cyan;
+}
+
+.mgmt-poke-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.mgmt-item-slot {
+    margin-top: 10px;
+    width: 40px;
+    height: 40px;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mgmt-item-slot img {
+    width: 25px;
+    height: 25px;
+}
+
+/* Botón Exportar */
+.export-bar {
+    margin-top: auto;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.export-btn {
+    background: linear-gradient(45deg, #ff9f43, #ff6b6b);
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    transition: transform 0.2s;
+    width: 100%;
+}
+
+.export-btn:hover {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+}
+
+/* Botón de compra desactivado/agotado */
+.buy-btn:disabled,
+.buy-btn.disabled {
+    background: #555 !important;
+    color: #888 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* --- LOBBY STYLES --- */
+.lobby-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #2c3e50, #000);
+    color: white;
+}
+
+.lobby-title {
+    font-size: 3rem;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px cyan;
+    letter-spacing: 2px;
+}
+
+/* Login Card */
+.login-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid #444;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.login-card input {
+    padding: 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    border: none;
+    text-align: center;
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+}
+
+.login-card button {
+    padding: 15px;
+    background: linear-gradient(45deg, #0984e3, #74b9ff);
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-card button:hover {
+    transform: scale(1.05);
+}
+
+/* Waiting Room */
+.waiting-room {
+    width: 800px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.lobby-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.lobby-player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background: #6c5ce7;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: 3px solid #a29bfe;
+    box-shadow: 0 0 10px #6c5ce7;
+}
+
+/* Settings Panel */
+.game-settings-panel {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #222;
+    border-radius: 5px;
+}
+
+.setting-row select {
+    padding: 8px;
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.locked-setting {
+    color: gold;
+    font-weight: bold;
+}
+
+/* Botón Start */
+.start-game-btn {
+    width: 100%;
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, #ff9f43, #ee5253);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    animation: pulse 2s infinite;
+}
+
+.waiting-msg {
+    text-align: center;
+    color: #aaa;
+    font-style: italic;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(238, 82, 83, 0.6);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

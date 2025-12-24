@@ -1,0 +1,208 @@
+/* 📂 src/pages/Downloads.css */
+
+.download-step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border: 1px solid #333;
+    transition: transform 0.2s ease;
+    
+    /* Aseguramos que el contenedor no se desborde */
+    max-width: 100%;
+    overflow: hidden; 
+}
+
+/* El paso 3 tiene un borde verde especial */
+.download-step.final {
+    border-color: var(--accent-green);
+    background: rgba(85, 255, 85, 0.05);
+}
+
+.step-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #444;
+    min-width: 50px;
+}
+
+.download-step.final .step-number,
+.download-step.final h4 {
+    color: var(--accent-green);
+}
+
+.step-content {
+    flex: 1; /* Ocupa el espacio restante */
+    min-width: 0; /* Permite que el flex item se encoja más allá de su contenido */
+}
+
+.step-content h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: var(--accent-gold);
+}
+
+.step-desc {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 10px;
+    
+    /* 🔥 CORRECCIÓN CLAVE: Romper rutas largas (como %appdata%...) */
+    word-break: break-word; 
+    overflow-wrap: break-word;
+}
+
+/* --- BOTONES ANIMADOS --- */
+.download-btn {
+    padding: 10px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    border: none;
+    cursor: pointer;
+    text-align: center; /* Centrar texto en botón móvil */
+}
+
+.download-btn.primary {
+    background: var(--accent-green);
+    color: #000;
+    box-shadow: 0 0 10px rgba(85, 255, 85, 0.1);
+}
+
+.download-btn.primary:hover {
+    background: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(85, 255, 85, 0.4);
+}
+
+.download-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+}
+
+.download-btn.secondary:hover {
+    background: var(--accent-green);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(85, 255, 85, 0.2);
+}
+
+/* --- BADGE DE IP INTERACTIVO (CORREGIDO PARA MÓVIL) --- */
+.ip-mini-badge {
+    margin-top: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px dashed var(--accent-green);
+    color: var(--accent-green);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    position: relative;
+    
+    /* 🔥 CORRECCIÓN CLAVE: Romper la IP si no cabe */
+    max-width: 100%;
+    word-break: break-all; 
+    white-space: normal;
+}
+
+.ip-mini-badge:hover {
+    background: rgba(85, 255, 85, 0.15);
+    border-style: solid;
+    transform: translateX(5px);
+    box-shadow: -5px 5px 0 rgba(0,0,0,0.2);
+}
+
+.ip-mini-badge span {
+    color: #666;
+    font-size: 0.75rem;
+    margin-left: 10px;
+    font-family: 'Segoe UI', sans-serif;
+    transition: color 0.2s;
+    white-space: nowrap; 
+}
+
+.ip-mini-badge:hover span {
+    color: #aaa;
+}
+
+/* RESPONSIVIDAD */
+@media (max-width: 600px) {
+    .download-step {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 15px; /* Menos padding en móvil */
+    }
+    
+    .step-number {
+        font-size: 1.5rem;
+        min-width: auto; /* Que no ocupe espacio extra verticalmente */
+    }
+    
+    /* En pantallas muy chicas, la pista "(Clic para copiar)" baja de línea */
+    .ip-mini-badge span {
+        display: block;
+        margin-left: 0;
+        margin-top: 5px;
+        font-size: 0.7rem;
+        opacity: 0.7;
+    }
+    
+    .download-btn {
+        width: 100%; /* Botones ancho completo en móvil para fácil clic */
+    }
+    /* Agrega esto al final de client/src/pages/PokemonAuction.css */
+
+/* --- BADGES DE TIPOS --- */
+.types-row {
+    display: flex;
+    gap: 8px;
+    margin-top: -15px; /* Lo subimos para que quede pegado al círculo */
+    margin-bottom: 20px;
+    z-index: 5;
+    position: relative;
+}
+
+.type-badge {
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* COLORES OFICIALES POKÉMON */
+.type-normal { background-color: #A8A77A; }
+.type-fire { background-color: #EE8130; }
+.type-water { background-color: #6390F0; }
+.type-electric { background-color: #F7D02C; color: #333; }
+.type-grass { background-color: #7AC74C; }
+.type-ice { background-color: #96D9D6; color: #333; }
+.type-fighting { background-color: #C22E28; }
+.type-poison { background-color: #A33EA1; }
+.type-ground { background-color: #E2BF65; }
+.type-flying { background-color: #A98FF3; }
+.type-psychic { background-color: #F95587; }
+.type-bug { background-color: #A6B91A; }
+.type-rock { background-color: #B6A136; }
+.type-ghost { background-color: #735797; }
+.type-dragon { background-color: #6F35FC; }
+.type-dark { background-color: #705746; }
+.type-steel { background-color: #B7B7CE; color: #333; }
+.type-fairy { background-color: #D685AD; }
+}
