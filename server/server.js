@@ -11,7 +11,13 @@ app.use(cors());
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+  cors: {
+    // 🔥 CAMBIO CRÍTICO: Permitir que Vercel se conecte
+    origin: "*", // El asterisco permite acceso desde cualquier lugar (Vercel)
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
+  }
 });
 
 // 🔥 CONFIGURACIÓN DE PRUEBAS
@@ -742,4 +748,9 @@ io.on('connection', (socket) => {
   socket.on('leave_game', () => handleDisconnect(socket.id));
 });
 
-server.listen(3001, () => console.log("🔥 SERVER 3001 OK (SIN COVERT CLOAK)"));
+// 🔥 CAMBIO CRÍTICO: Render nos da el puerto en process.env.PORT
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+});

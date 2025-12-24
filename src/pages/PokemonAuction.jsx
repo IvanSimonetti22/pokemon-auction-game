@@ -4,10 +4,16 @@ import { io } from 'socket.io-client';
 import './PokemonAuction.css';
 import PokeballImage from '../components/ui/PokeballImage';
 
-// Instancia del socket
-const socket = io('http://127.0.0.1:3001', {
-    transports: ['websocket', 'polling'],
-    autoConnect: false
+// 1. Define la URL del Backend (¡Pega tu link de Render aquí!)
+// 🛑 IMPORTANTE: Sin barra "/" al final.
+const SOCKET_URL = process.env.NODE_ENV === 'production'
+    ? 'https://pokemon-auction-server.onrender.com'
+    : 'http://localhost:3000';
+
+// 2. Conectar Socket
+const socket = io(SOCKET_URL, {
+    transports: ['websocket', 'polling'], // Mejora la compatibilidad
+    reconnectionAttempts: 5 // Intenta reconectar si Render se duerme
 });
 
 const CURRENCY_SYMBOL = '₽';
