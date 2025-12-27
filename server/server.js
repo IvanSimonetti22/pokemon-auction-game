@@ -22,7 +22,7 @@ const io = new Server(server, {
 
 // 🔥 CONFIGURACIÓN DE PRUEBAS
 const TEST_MODE = false;
-const FORCED_SPAWNS = ['nihilego', 'buzzwole', 'pheromosa', 'regigigas'];
+const FORCED_SPAWNS = ['charizard', 'gengar', 'lucario', 'salamence', 'metagross'];
 
 const PSEUDO_LEGENDARIES = [
   'dragonite', 'tyranitar', 'salamence', 'metagross', 'garchomp',
@@ -54,6 +54,57 @@ const MASTER_ITEM_LIST = [
   'sitrus-berry', 'lum-berry', 'salac-berry', 'liechi-berry', 'petaya-berry',
   'apicot-berry', 'custap-berry', 'chesto-berry'
 ];
+
+// 🔥 SISTEMA DE DUPLICADOS
+const seenPokemonNames = new Set();
+const MEGA_STONES = {
+  'venusaur': ['venusaurite'],
+  'charizard': ['charizardite-x', 'charizardite-y'],
+  'blastoise': ['blastoisinite'],
+  'beedrill': ['beedrillite'],
+  'pidgeot': ['pidgeotite'],
+  'alakazam': ['alakazite'],
+  'slowbro': ['slowbronite'],
+  'gengar': ['gengarite'],
+  'kangaskhan': ['kangaskhanite'],
+  'pinsir': ['pinsirite'],
+  'gyarados': ['gyaradosite'],
+  'aerodactyl': ['aerodactylite'],
+  'mewtwo': ['mewtwonite-x', 'mewtwonite-y'],
+  'ampharos': ['ampharosite'],
+  'steelix': ['steelixite'],
+  'scizor': ['scizorite'],
+  'heracross': ['heracronite'],
+  'houndoom': ['houndoominite'],
+  'tyranitar': ['tyranitarite'],
+  'sceptile': ['sceptilite'],
+  'blaziken': ['blazikenite'],
+  'swampert': ['swampertite'],
+  'gardevoir': ['gardevoirite'],
+  'sableye': ['sablenite'],
+  'mawile': ['mawilite'],
+  'aggron': ['aggronite'],
+  'medicham': ['medichamite'],
+  'manectric': ['manectite'],
+  'sharpedo': ['sharpedonite'],
+  'camerupt': ['cameruptite'],
+  'altaria': ['altarianite'],
+  'banette': ['banettite'],
+  'absol': ['absolite'],
+  'glalie': ['glalitite'],
+  'salamence': ['salamencite'],
+  'metagross': ['metagrossite'],
+  'latias': ['latiasite'],
+  'latios': ['latiosite'],
+  'rayquaza': ['dragon-scale'], // Hack: Rayquaza no usa piedra, pero por flavor
+  'lopunny': ['lopunnite'],
+  'garchomp': ['garchompite'],
+  'lucario': ['lucarionite'],
+  'abomasnow': ['abomasite'],
+  'gallade': ['galladite'],
+  'audino': ['audinite'],
+  'diancie': ['diancite']
+};
 
 let persistentData = {};
 let activeSockets = {};
@@ -123,6 +174,7 @@ const stopGameFull = () => {
     pokemonPool: [], itemPool: [], timer: 0, highestBid: 0, highestBidder: null
   };
   persistentData = {};
+  seenPokemonNames.clear(); // 🔥 LIMPIAR LISTA DE VISTOS
   Object.keys(playersState).forEach(nick => { playersState[nick].isReady = false; });
   activeSockets = {};
   io.emit('game_reset');
@@ -131,73 +183,85 @@ const stopGameFull = () => {
 // --- FUNCIÓN DE GENERACIÓN (Un solo Pokémon) ---
 const fetchPokemonData = async (mode = 'competitivo', region = 'all') => {
   try {
-    let targetNameOrId;
-    // Lógica simplificada de selección (puedes ampliarla con 'mode' y 'region' real si quieres)
-    if (TEST_MODE && Math.random() < 0.3) {
-      targetNameOrId = FORCED_SPAWNS[Math.floor(Math.random() * FORCED_SPAWNS.length)];
-    } else {
-      targetNameOrId = Math.floor(Math.random() * 905) + 1;
-    }
+    // Intentos para encontrar uno no repetido
+    for (let i = 0; i < 5; i++) {
+      let targetNameOrId;
+      if (TEST_MODE && Math.random() < 0.3) {
+        targetNameOrId = FORCED_SPAWNS[Math.floor(Math.random() * FORCED_SPAWNS.length)];
+      } else {
+        targetNameOrId = Math.floor(Math.random() * 905) + 1;
+      }
 
-    const speciesRes = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${targetNameOrId}`);
-    const baseSpeciesData = speciesRes.data;
-    let finalName = baseSpeciesData.name;
+      const speciesRes = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${targetNameOrId}`);
+      const baseSpeciesData = speciesRes.data;
+      let finalName = baseSpeciesData.name;
 
-    // Evolución final (Simplificada para el ejemplo)
-    const isLegendary = baseSpeciesData.is_legendary || baseSpeciesData.is_mythical || ULTRA_BEASTS.includes(baseSpeciesData.name);
-    if (!isLegendary) {
+      // 🔥 FIX COSMOEM: SIEMPRE buscamos la evolución final, incluso para legendarios
+      // Esto arregla que slaga Cosmog/Cosmoem en lugar de Solgaleo/Lunala
+      // Y asegura que siempre tengamos la forma más fuerte disponible.
       const evoRes = await axios.get(baseSpeciesData.evolution_chain.url);
       const possibleFinals = getAllFinalEvolutions(evoRes.data.chain);
       finalName = possibleFinals[Math.floor(Math.random() * possibleFinals.length)];
+
+      // 🔥 VALIDAR DUPLICADOS
+      if (seenPokemonNames.has(finalName)) {
+        console.log(`♻️ Duplicado evitado: ${finalName}`);
+        continue; // Reintentar otro
+      }
+
+      // Si pasamos la validación, procedemos
+      const finalPokemonRes = await axios.get(`https://pokeapi.co/api/v2/pokemon/${finalName}`);
+      const finalData = finalPokemonRes.data;
+      const finalSpeciesRes = await axios.get(finalData.species.url);
+
+      const nameEntry = finalSpeciesRes.data.names.find(n => n.language.name === 'es');
+      const finalDisplayName = nameEntry ? nameEntry.name : finalData.name;
+
+      const stats = finalData.stats.map(s => ({
+        name: s.stat.name.replace('hp', 'HP').replace('attack', 'Ataque').replace('defense', 'Defensa').replace('special-attack', 'Atq. Esp').replace('special-defense', 'Def. Esp').replace('speed', 'Velocidad'),
+        value: s.base_stat
+      }));
+
+      const abilities = await Promise.all(finalData.abilities.map(async (a) => {
+        try {
+          const abRes = await axios.get(a.ability.url);
+          const abilityData = abRes.data;
+          const spaEntry = abilityData.names.find(n => n.language.name === 'es');
+          const displayName = spaEntry ? spaEntry.name : abilityData.name;
+          const engEntry = abilityData.names.find(n => n.language.name === 'en');
+          const engName = engEntry ? engEntry.name : abilityData.name;
+          const flavor = abilityData.flavor_text_entries.find(f => f.language.name === 'es');
+          return { name: displayName, engName: engName, isHidden: a.is_hidden, description: flavor ? flavor.flavor_text : "..." };
+        } catch { return { name: a.ability.name, engName: a.ability.name, description: "...", isHidden: a.is_hidden }; }
+      }));
+
+      const types = finalData.types.map(t => ({ original: t.type.name, translated: TYPE_TRANSLATIONS[t.type.name] || t.type.name }));
+      const sprites = finalData.sprites.other['official-artwork'];
+      let isShiny = TEST_MODE ? true : Math.floor(Math.random() * 4096) === 0;
+
+      let price = 100;
+      let rarity = 'comun';
+      if (ULTRA_BEASTS.includes(finalData.name)) { price = 800; rarity = 'ultraente'; }
+      else if (finalSpeciesRes.data.is_mythical) { price = 1500; rarity = 'singular'; }
+      else if (finalSpeciesRes.data.is_legendary) { price = 1000; rarity = 'legendario'; }
+      else if (PSEUDO_LEGENDARIES.includes(finalData.name)) { price = 500; rarity = 'pseudolegendario'; }
+
+      // 🔥 REGISTRAR COMO VISTO
+      seenPokemonNames.add(finalName);
+
+      return {
+        id: `poke-${Date.now()}-${Math.random()}`,
+        type: 'pokemon',
+        name: finalData.name,
+        displayName: finalDisplayName,
+        sprite: isShiny ? (sprites.front_shiny || sprites.front_default) : sprites.front_default,
+        miniSprite: isShiny ? (finalData.sprites.front_shiny || finalData.sprites.front_default) : finalData.sprites.front_default,
+        rarity, basePrice: price, stats, abilities, types,
+        cry: finalData.cries ? finalData.cries.latest : null,
+        isShiny, heldItem: null
+      };
     }
-
-    const finalPokemonRes = await axios.get(`https://pokeapi.co/api/v2/pokemon/${finalName}`);
-    const finalData = finalPokemonRes.data;
-    const finalSpeciesRes = await axios.get(finalData.species.url);
-
-    const nameEntry = finalSpeciesRes.data.names.find(n => n.language.name === 'es');
-    const finalDisplayName = nameEntry ? nameEntry.name : finalData.name;
-
-    const stats = finalData.stats.map(s => ({
-      name: s.stat.name.replace('hp', 'HP').replace('attack', 'Ataque').replace('defense', 'Defensa').replace('special-attack', 'Atq. Esp').replace('special-defense', 'Def. Esp').replace('speed', 'Velocidad'),
-      value: s.base_stat
-    }));
-
-    const abilities = await Promise.all(finalData.abilities.map(async (a) => {
-      try {
-        const abRes = await axios.get(a.ability.url);
-        const abilityData = abRes.data;
-        const spaEntry = abilityData.names.find(n => n.language.name === 'es');
-        const displayName = spaEntry ? spaEntry.name : abilityData.name;
-        const engEntry = abilityData.names.find(n => n.language.name === 'en');
-        const engName = engEntry ? engEntry.name : abilityData.name;
-        const flavor = abilityData.flavor_text_entries.find(f => f.language.name === 'es');
-        return { name: displayName, engName: engName, isHidden: a.is_hidden, description: flavor ? flavor.flavor_text : "..." };
-      } catch { return { name: a.ability.name, engName: a.ability.name, description: "...", isHidden: a.is_hidden }; }
-    }));
-
-    const types = finalData.types.map(t => ({ original: t.type.name, translated: TYPE_TRANSLATIONS[t.type.name] || t.type.name }));
-    const sprites = finalData.sprites.other['official-artwork'];
-    let isShiny = TEST_MODE ? true : Math.floor(Math.random() * 4096) === 0;
-
-    let price = 100;
-    let rarity = 'comun';
-    if (ULTRA_BEASTS.includes(finalData.name)) { price = 800; rarity = 'ultraente'; }
-    else if (finalSpeciesRes.data.is_mythical) { price = 1500; rarity = 'singular'; }
-    else if (finalSpeciesRes.data.is_legendary) { price = 1000; rarity = 'legendario'; }
-    else if (PSEUDO_LEGENDARIES.includes(finalData.name)) { price = 500; rarity = 'pseudolegendario'; }
-
-    return {
-      id: `poke-${Date.now()}-${Math.random()}`,
-      type: 'pokemon',
-      name: finalData.name,
-      displayName: finalDisplayName,
-      sprite: isShiny ? (sprites.front_shiny || sprites.front_default) : sprites.front_default,
-      miniSprite: isShiny ? (finalData.sprites.front_shiny || finalData.sprites.front_default) : finalData.sprites.front_default,
-      rarity, basePrice: price, stats, abilities, types,
-      cry: finalData.cries ? finalData.cries.latest : null,
-      isShiny, heldItem: null
-    };
+    return null; // Falló tras 5 intentos (raro)
   } catch (e) {
     console.error("Error fetching pokemon:", e.message);
     return null;
@@ -218,10 +282,10 @@ async function fillPokemonBuffer() {
     while (pokemonBuffer.length < BUFFER_SIZE) {
       const newPokemon = await fetchPokemonData(gameSettings.mode, gameSettings.region);
       if (newPokemon) {
-        // Evitamos duplicados en el buffer actual (opcional)
-        if (!pokemonBuffer.find(p => p.name === newPokemon.name)) {
-          pokemonBuffer.push(newPokemon);
-        }
+        pokemonBuffer.push(newPokemon);
+      } else {
+        // Breve pausa si falló (para no saturar si hay error de red)
+        await new Promise(r => setTimeout(r, 500));
       }
     }
     console.log(`[BUFFER] Listo. Pokémon en espera: ${pokemonBuffer.length}`);
@@ -264,120 +328,7 @@ const getAllFinalEvolutions = (chain, finals = []) => {
   return finals;
 };
 
-const generateCompetitivePool = async (numPlayers) => {
-  const poolSize = numPlayers * 6 + 4;
-  const maxLegendaries = Math.floor(numPlayers / 2);
-  let currentLegendaries = 0;
-  let pool = [];
-
-  console.log(`🎲 Generando POKÉMON (${poolSize})... TEST_MODE: ${TEST_MODE}`);
-  let attempts = 0; const MAX_ATTEMPTS = poolSize * 12;
-
-  while (pool.length < poolSize && attempts < MAX_ATTEMPTS) {
-    attempts++;
-    try {
-      let targetNameOrId;
-      if (TEST_MODE && pool.length < FORCED_SPAWNS.length) {
-        targetNameOrId = FORCED_SPAWNS[pool.length];
-      } else {
-        targetNameOrId = Math.floor(Math.random() * 905) + 1;
-      }
-
-      const speciesRes = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${targetNameOrId}`);
-      const baseSpeciesData = speciesRes.data;
-      let finalName = baseSpeciesData.name;
-
-      if (!TEST_MODE || pool.length >= FORCED_SPAWNS.length) {
-        const isLegendary = baseSpeciesData.is_legendary || baseSpeciesData.is_mythical || ULTRA_BEASTS.includes(baseSpeciesData.name);
-        if (isLegendary && currentLegendaries >= maxLegendaries) continue;
-
-        const evoRes = await axios.get(baseSpeciesData.evolution_chain.url);
-        const possibleFinals = getAllFinalEvolutions(evoRes.data.chain);
-        finalName = possibleFinals[Math.floor(Math.random() * possibleFinals.length)];
-
-        if (isLegendary) currentLegendaries++;
-      }
-
-      const finalPokemonRes = await axios.get(`https://pokeapi.co/api/v2/pokemon/${finalName}`);
-      const finalData = finalPokemonRes.data;
-      const finalSpeciesRes = await axios.get(finalData.species.url);
-
-      if (pool.find(p => p.name === finalData.name)) continue;
-
-      const nameEntry = finalSpeciesRes.data.names.find(n => n.language.name === 'es');
-      const finalDisplayName = nameEntry ? nameEntry.name : finalData.name;
-
-      const stats = finalData.stats.map(s => ({
-        name: s.stat.name.replace('hp', 'HP').replace('attack', 'Ataque').replace('defense', 'Defensa').replace('special-attack', 'Atq. Esp').replace('special-defense', 'Def. Esp').replace('speed', 'Velocidad'),
-        value: s.base_stat
-      }));
-
-      const abilities = await Promise.all(finalData.abilities.map(async (a) => {
-        try {
-          const abRes = await axios.get(a.ability.url);
-          const abilityData = abRes.data;
-
-          // 1. Buscar nombre en ESPAÑOL (para mostrar en el juego)
-          const spaEntry = abilityData.names.find(n => n.language.name === 'es');
-          const displayName = spaEntry ? spaEntry.name : abilityData.name;
-
-          // 2. Buscar nombre en INGLÉS (PARA SHOWDOWN) 🔥
-          const engEntry = abilityData.names.find(n => n.language.name === 'en');
-          const engName = engEntry ? engEntry.name : abilityData.name;
-
-          const flavor = abilityData.flavor_text_entries.find(f => f.language.name === 'es');
-
-          return {
-            name: displayName, // Nombre para UI (Español)
-            engName: engName,  // Nombre para Exportar (Inglés) 🔥
-            isHidden: a.is_hidden,
-            description: flavor ? flavor.flavor_text : "..."
-          };
-        } catch (err) {
-          console.error("Error fetching ability details:", err);
-          return { name: a.ability.name, engName: a.ability.name, description: "...", isHidden: a.is_hidden };
-        }
-      }));
-
-      const types = finalData.types.map(t => ({ original: t.type.name, translated: TYPE_TRANSLATIONS[t.type.name] || t.type.name }));
-      const sprites = finalData.sprites.other['official-artwork'];
-
-      let isShiny = TEST_MODE ? true : Math.floor(Math.random() * 4096) === 0;
-
-      let price = 100;
-      let rarity = 'comun';
-
-      if (ULTRA_BEASTS.includes(finalData.name)) {
-        price = 800;
-        rarity = 'ultraente';
-      } else if (finalSpeciesRes.data.is_mythical) {
-        price = 1500;
-        rarity = 'singular';
-      } else if (finalSpeciesRes.data.is_legendary) {
-        price = 1000;
-        rarity = 'legendario';
-      } else if (PSEUDO_LEGENDARIES.includes(finalData.name)) {
-        price = 500;
-        rarity = 'pseudolegendario';
-      }
-
-      pool.push({
-        id: `poke-${pool.length}`,
-        type: 'pokemon',
-        name: finalData.name,
-        displayName: finalDisplayName,
-        sprite: isShiny ? (sprites.front_shiny || sprites.front_default) : sprites.front_default,
-        miniSprite: isShiny ? (finalData.sprites.front_shiny || finalData.sprites.front_default) : finalData.sprites.front_default,
-        rarity, basePrice: price, stats, abilities, types,
-        cry: finalData.cries ? finalData.cries.latest : null,
-        isShiny,
-        heldItem: null
-      });
-      console.log(`✅ Poke: ${finalDisplayName} [${rarity}]`);
-    } catch (e) { console.log(e.message); }
-  }
-  return pool;
-};
+// (El generador de pool se eliminó a favor del buffer)
 
 const generateItemPool = async (numPlayers) => {
   const poolSize = numPlayers * 4;
@@ -546,7 +497,30 @@ const startRound = async () => {
   }
 };
 
-const endRound = () => {
+// 🔥 GENERAR MEGAPÍEDRA (Helper)
+const createMegaStoneItem = async (stoneId) => {
+  try {
+    const res = await axios.get(`https://pokeapi.co/api/v2/item/${stoneId}`);
+    const data = res.data;
+    const nameEntry = data.names.find(n => n.language.name === 'es');
+    return {
+      id: `item-mega-${Date.now()}`,
+      type: 'item',
+      name: data.name,
+      displayName: nameEntry ? nameEntry.name : data.name, // "Megapiedra X"
+      sprite: data.sprites.default,
+      description: "Permite la Mega Evolución de un Pokémon específico durante el combate.",
+      basePrice: 2000,
+      rarity: 'legendario', // Para que brille
+      isShiny: true // Para que destaque
+    };
+  } catch (e) {
+    console.error("Error creating Mega Stone:", stoneId);
+    return null;
+  }
+};
+
+const endRound = async () => {
   clearInterval(timerInterval);
   if (Object.keys(activeSockets).length === 0) return;
   let msg = "Nadie ofertó.";
@@ -557,8 +531,28 @@ const endRound = () => {
     if (persistentData[key]) {
       persistentData[key].money -= gameState.highestBid;
       if (gameState.currentAuction.type === 'pokemon') {
-        persistentData[key].inventory.push(gameState.currentAuction);
-        msg = `¡${persistentData[key].originalName} ganó a ${gameState.currentAuction.displayName}!`;
+        const wonPokemon = gameState.currentAuction;
+        persistentData[key].inventory.push(wonPokemon);
+        msg = `¡${persistentData[key].originalName} ganó a ${wonPokemon.displayName}!`;
+
+        // 🔥 CHECK DE MEGAPÍEDRA
+        // Si el Pokémon ganado tiene Mega, inyectamos la piedra al POOL DE ITEMS
+        if (MEGA_STONES[wonPokemon.name]) {
+          const possibleStones = MEGA_STONES[wonPokemon.name];
+          const selectedStone = possibleStones[Math.floor(Math.random() * possibleStones.length)];
+
+          console.log(`💎 Detectado Mega-Pokémon (${wonPokemon.name}). Inyectando ${selectedStone}...`);
+          const megaItem = await createMegaStoneItem(selectedStone);
+          if (megaItem) {
+            // Lo ponemos en una posición aleatoria asegurada dentro del pool
+            const randomIndex = Math.floor(Math.random() * gameState.itemPool.length);
+            gameState.itemPool.splice(randomIndex, 0, megaItem);
+
+            // Opcional: Avisar al chat
+            io.emit('chat_message', { user: 'SISTEMA', text: `✨ ¡La presencia de ${wonPokemon.displayName} ha invocado una Megapiedra en algún lugar del mercado!`, type: 'system' });
+          }
+        }
+
       } else {
         persistentData[key].items.push(gameState.currentAuction);
         msg = `¡${persistentData[key].originalName} ganó: ${gameState.currentAuction.displayName}!`;
@@ -749,7 +743,7 @@ io.on('connection', (socket) => {
 });
 
 // 🔥 CAMBIO CRÍTICO: Render nos da el puerto en process.env.PORT
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);

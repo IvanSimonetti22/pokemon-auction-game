@@ -8,7 +8,7 @@ import PokeballImage from '../components/ui/PokeballImage';
 // 🛑 IMPORTANTE: Sin barra "/" al final.
 const SOCKET_URL = process.env.NODE_ENV === 'production'
     ? 'https://pokemon-auction-server.onrender.com'
-    : 'http://localhost:3000';
+    : 'http://localhost:3001';
 
 // 2. Conectar Socket
 const socket = io(SOCKET_URL, {
@@ -572,7 +572,7 @@ export const PokemonAuction = ({ onBack }) => {
 
             {screen === 'lobby' && (
                 <div className="lobby-container fade-in">
-                    <h1 className="lobby-title">POKÉMON AUCTION <span style={{ color: 'gold' }}>LIVE</span></h1>
+                    <h1 className="lobby-title">SUBASTA <span style={{ color: 'gold' }}>POKÉMON</span></h1>
 
                     {!isJoined ? (
                         /* --- PASO 1: PONER NOMBRE --- */
@@ -655,7 +655,7 @@ export const PokemonAuction = ({ onBack }) => {
                 </div>
             )}
 
-            {screen !== 'login' && screen !== 'lobby' && (
+            {screen !== 'login' && screen !== 'lobby' && screen !== 'management' && (
                 <>
                     <div className="players-top-section">
                         {players.map(p => {

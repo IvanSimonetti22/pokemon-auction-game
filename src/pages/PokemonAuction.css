@@ -13,7 +13,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    background: transparent;
 }
 
 /* Escalado para pantallas pequeñas */
@@ -138,9 +138,11 @@
 }
 
 .poke-slot img {
-    width: 100%;
     height: 100%;
     object-fit: cover;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
 }
 
 .poke-slot.filled {
@@ -201,7 +203,9 @@
     flex-direction: column;
     justify-content: flex-start;
     overflow: hidden;
-    backdrop-filter: blur(10px);
+    overflow: hidden;
+    /* backdrop-filter: blur(10px); REMOVED FOR PERFORMANCE (v13) */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .game-board>div:first-child {
@@ -1348,33 +1352,38 @@
 /* --- ANIMACIÓN DE VICTORIA EN TARJETA --- */
 
 /* Contenedor que cubre la tarjeta del ganador */
+/* Contenedor que cubre la tarjeta del ganador */
+/* Contenedor que cubre la tarjeta del ganador */
 .winner-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    /* Fondo oscuro */
-    backdrop-filter: blur(4px);
-    /* Efecto borroso */
-    border-radius: 8px;
-    z-index: 50;
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: fadeInOverlay 0.3s ease;
+    z-index: 150;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.2);
+    /* Oscurece un poco para resaltar */
+    backdrop-filter: blur(5px);
+    /* 🔥 EFECTO FLUR SOLICITADO */
+    border-radius: 6px;
+    /* Coincide con el borde de la tarjeta */
 }
 
 /* El sprite gigante que rebota */
 .winner-sprite-anim {
-    width: 120px !important;
-    /* Bien grande */
-    height: 120px !important;
+    width: 80px;
+    /* Un poco más grande para celebrar */
+    height: 80px;
     object-fit: contain;
-    filter: drop-shadow(0 0 15px gold);
-    /* Resplandor dorado */
-    animation: victoryBounce 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 0 10px gold);
+    animation: bounceIn 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000);
 }
 
 /* Animación del rebote */
@@ -1466,7 +1475,7 @@
     width: 100%;
     height: 100vh;
     padding: 20px;
-    background: #111;
+    background: transparent;
     position: absolute;
     top: 0;
     left: 0;
@@ -1630,7 +1639,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: radial-gradient(circle at center, #2c3e50, #000);
+    background: transparent;
+    /* 🔥 FIX: Transparente para ver el fondo animado */
     color: white;
 }
 
@@ -1788,5 +1798,268 @@
 
     100% {
         transform: scale(1);
+    }
+}
+
+/* 📂 client/src/pages/PokemonAuction.css - ESTILOS LOBBY REDISEÑADO */
+/* 1. LOBBY CONTAINER & TITLE */
+.lobby-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    animation: fadeIn 0.5s ease-out;
+    padding-bottom: 50px;
+    z-index: 100;
+    position: relative;
+    background: transparent;
+    /* Importante para ver el fondo animado */
+}
+
+.lobby-title {
+    font-size: 3.5rem;
+    color: white;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    -webkit-text-stroke: 1.5px #3b4cca;
+    text-stroke: 1.5px #3b4cca;
+}
+
+.lobby-title span {
+    color: #ffde00;
+    -webkit-text-stroke: 1.5px #3b5ba7;
+}
+
+/* 2. LOGIN CARD */
+.login-card {
+    background: rgba(20, 20, 30, 0.85);
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid #00f2ff;
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 380px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+    animation: scanLine 2s infinite;
+}
+
+@keyframes scanLine {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.login-card h3 {
+    margin: 0;
+    color: #00f2ff;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.login-card input {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-bottom: 2px solid #00f2ff;
+    color: white;
+    padding: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    border-radius: 4px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.login-card input:focus {
+    background: rgba(0, 242, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+.login-card button {
+    background: linear-gradient(135deg, #ffde00 0%, #d4a017 100%);
+    color: #333;
+    border: none;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 5px 0 #b38812;
+    margin-top: 10px;
+}
+
+.login-card button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.login-card button:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0;
+}
+
+/* 3. WAITING ROOM */
+.waiting-room {
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid #555;
+    border-radius: 15px;
+    padding: 30px;
+    width: 90%;
+    max-width: 900px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    position: relative;
+    backdrop-filter: blur(15px);
+}
+
+.players-list-lobby h3 {
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 10px;
+    margin-top: 0;
+    color: #4CAF50;
+    text-transform: uppercase;
+}
+
+.lobby-avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.lobby-player-card {
+    background: #252525;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: popIn 0.3s ease;
+}
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #1e90ff, #00bfff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 0 10px rgba(30, 144, 255, 0.4);
+}
+
+.game-settings-panel h3 {
+    border-bottom: 2px solid #ff4d4d;
+    padding-bottom: 10px;
+    margin-top: 0;
+    color: #ff4d4d;
+    text-transform: uppercase;
+}
+
+.setting-row select,
+.locked-setting {
+    background: #111;
+    border: 1px solid #444;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    width: 100%;
+    display: block;
+}
+
+.lobby-footer {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+    text-align: center;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.start-game-btn {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    padding: 15px 50px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
+    animation: pulseBtn 2s infinite;
+    transition: 0.3s;
+}
+
+.start-game-btn:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 800px) {
+    .waiting-room {
+        grid-template-columns: 1fr;
+    }
+
+    .lobby-title {
+        font-size: 2.5rem;
+    }
+}
+
+/* Animations */
+@keyframes popIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulseBtn {
+    0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(231, 76, 60, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
     }
 }

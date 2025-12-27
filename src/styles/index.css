@@ -2,15 +2,15 @@
 
 /* --- 1. VARIABLES GLOBALES --- */
 :root {
-  --bg-deep: #0a0a0a;
-  --bg-panel: #1e1e1e;
-  --text-main: #e0e0e0;
-  --accent-gold: #FFAA00;
-  --accent-purple: #FF55FF;
-  --accent-aqua: #55FFFF;
-  --accent-green: #55FF55;
-  --accent-red: #FF5555;
-  --border: #333333;
+    --bg-deep: #0a0a0a;
+    --bg-panel: #1e1e1e;
+    --text-main: #e0e0e0;
+    --accent-gold: #FFAA00;
+    --accent-purple: #FF55FF;
+    --accent-aqua: #55FFFF;
+    --accent-green: #55FF55;
+    --accent-red: #FF5555;
+    --border: #333333;
 }
 
 /* TEMA NETHER */
@@ -40,34 +40,40 @@
 }
 
 /* --- 2. RESET BÁSICO --- */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--bg-deep);
-  color: var(--text-main);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow-x: hidden;
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-deep);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 /* --- 3. SCROLLBAR --- */
 ::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--bg-deep);
+    background: var(--bg-deep);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 4px;
+    background: #444;
+    border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-gold);
+    background: var(--accent-gold);
 }
 
 /* --- 4. LAYOUT CYBERPUNK --- */
@@ -80,8 +86,8 @@ html, body {
     background: transparent;
     height: fit-content !important;
     min-height: 0 !important;
-    isolation: isolate; 
-    z-index: 1; 
+    isolation: isolate;
+    z-index: 1;
 }
 
 /* CAPA 1: La Forma Geométrica */
@@ -95,12 +101,10 @@ html, body {
     background: rgba(30, 30, 30, 0.3);
     border-top: 3px solid var(--accent-aqua);
     border-bottom: 3px solid var(--accent-aqua);
-    clip-path: polygon(
-        0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px, 
-        100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px
-    );
+    clip-path: polygon(0 20px, 20px 0, calc(100% - 20px) 0, 100% 20px,
+            100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
     box-shadow: inset 0 0 20px rgba(85, 255, 255, 0.1);
-    z-index: -1; 
+    z-index: -1;
 }
 
 /* CAPA 2: Las Líneas Discontinuas */
@@ -127,16 +131,27 @@ html, body {
     border-radius: 6px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     transition: border 0.5s;
-    
+
     /* 🔥 AQUÍ ESTÁ LA CORRECCIÓN DE ESPACIADO: */
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
 }
 
 /* Variantes de Color (Borde Izquierdo) */
-.card.type-green  { border-left: 4px solid var(--accent-green); }
-.card.type-gold   { border-left: 4px solid var(--accent-gold); }
-.card.type-purple { border-left: 4px solid var(--accent-purple); }
-.card.type-aqua   { border-left: 4px solid var(--accent-aqua); }
+.card.type-green {
+    border-left: 4px solid var(--accent-green);
+}
+
+.card.type-gold {
+    border-left: 4px solid var(--accent-gold);
+}
+
+.card.type-purple {
+    border-left: 4px solid var(--accent-purple);
+}
+
+.card.type-aqua {
+    border-left: 4px solid var(--accent-aqua);
+}
 
 /* Títulos dentro de las tarjetas */
 .card h3 {
@@ -192,6 +207,7 @@ html, body {
     color: var(--accent-gold);
     border-color: var(--accent-gold);
 }
+
 /* 📂 src/styles/index.css (Añadir al final) */
 
 /* =========================================================
@@ -207,9 +223,11 @@ html, body {
 @keyframes tech-slide-up {
     0% {
         opacity: 0;
-        transform: translateY(20px) scale(0.98); /* Movimiento más corto */
+        transform: translateY(20px) scale(0.98);
+        /* Movimiento más corto */
         filter: blur(5px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -218,14 +236,16 @@ html, body {
 }
 
 /* Aplicamos la animación a las tarjetas */
-.card, 
-.stat-card, 
+.card,
+.stat-card,
 .action-card-btn,
-.sys-card, 
+.sys-card,
 .download-step,
 .roadmap-item,
-.hero-status, /* Agregamos el Status del servidor */
-.ip-terminal { /* Agregamos la terminal */
+.hero-status,
+/* Agregamos el Status del servidor */
+.ip-terminal {
+    /* Agregamos la terminal */
     /* 'both' asegura que mantenga el estado inicial (0) y final (1) */
     animation: tech-slide-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -233,37 +253,108 @@ html, body {
 /* CASCADA (Staggering) - Orden de aparición */
 
 /* 1. Status del Servidor (Home) y Primeras Tarjetas */
-.hero-status, 
+.hero-status,
 .card:nth-child(1),
-.download-step:nth-child(1) { 
-    animation-delay: 0ms; 
+.download-step:nth-child(1) {
+    animation-delay: 0ms;
 }
 
 /* 2. Grid de Stats (Home) y Segundas Tarjetas */
-.stats-grid, 
+.stats-grid,
 .card:nth-child(2),
-.download-step:nth-child(2) { 
-    animation-delay: 100ms; 
+.download-step:nth-child(2) {
+    animation-delay: 100ms;
 }
 
 /* 3. Acciones (Home) y Terceras Tarjetas */
-.actions-grid, 
+.actions-grid,
 .card:nth-child(3),
-.download-step:nth-child(3) { 
-    animation-delay: 200ms; 
+.download-step:nth-child(3) {
+    animation-delay: 200ms;
 }
 
 /* 4. Terminal IP (Home) y Resto */
 .ip-terminal,
-.card:nth-child(4) { 
-    animation-delay: 300ms; 
+.card:nth-child(4) {
+    animation-delay: 300ms;
 }
 
 /* Items individuales dentro de grids (opcional, para más detalle) */
-.stat-card:nth-child(1) { animation-delay: 100ms; }
-.stat-card:nth-child(2) { animation-delay: 150ms; }
-.stat-card:nth-child(3) { animation-delay: 200ms; }
-.stat-card:nth-child(4) { animation-delay: 250ms; }
+.stat-card:nth-child(1) {
+    animation-delay: 100ms;
+}
 
-.action-card-btn:nth-child(1) { animation-delay: 250ms; }
-.action-card-btn:nth-child(2) { animation-delay: 300ms; }
+.stat-card:nth-child(2) {
+    animation-delay: 150ms;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 200ms;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 250ms;
+}
+
+.action-card-btn:nth-child(1) {
+    animation-delay: 250ms;
+}
+
+.action-card-btn:nth-child(2) {
+    animation-delay: 300ms;
+}
+
+/* =========================================
+   ESTILOS ESPECÍFICOS: MODO POKÉMON (v13)
+   ========================================= */
+.pokemon-mode-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f4f4f9;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.pokemon-mode-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    z-index: 0;
+
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%239ca3af' stroke-width='4' stroke-opacity='0.2'%3E%3Ccircle cx='50' cy='50' r='30' /%3E%3Cpath d='M20 50h20 M60 50h20' /%3E%3Ccircle cx='50' cy='50' r='10' /%3E%3Ccircle cx='50' cy='50' r='4' fill='%239ca3af' fill-opacity='0.2' /%3E%3C/g%3E%3C/svg%3E");
+    background-size: 120px 120px;
+
+    animation: background-scroll 2s linear infinite;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}
+
+.pokemon-mode-wrapper>* {
+    z-index: 1;
+    position: relative;
+}
+
+@keyframes background-scroll {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: translate3d(120px, 120px, 0);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .pokemon-mode-wrapper {
+        background-color: #111827;
+    }
+
+    .pokemon-mode-wrapper::before {
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%234b5563' stroke-width='4' stroke-opacity='0.3'%3E%3Ccircle cx='50' cy='50' r='30' /%3E%3Cpath d='M20 50h20 M60 50h20' /%3E%3Ccircle cx='50' cy='50' r='10' /%3E%3Ccircle cx='50' cy='50' r='4' fill='%234b5563' fill-opacity='0.3' /%3E%3C/g%3E%3C/svg%3E");
+    }
+}
