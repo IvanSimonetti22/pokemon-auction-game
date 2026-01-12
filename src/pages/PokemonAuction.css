@@ -16,10 +16,18 @@
     background: transparent;
 }
 
-/* Escalado para pantallas pequeñas */
-@media (max-height: 800px) {
+/* Escalado Mágico para Monitores Pequeños (Laptop / 768p) */
+/* FORMULA: Si la altura es poca, hacemos zoom out a todo el contenedor */
+@media (max-height: 900px) {
     .auction-container {
-        font-size: 0.8rem;
+        zoom: 0.8;
+        /* El zoom funciona perfecto en Chrome/Edge y simula bajar resolución */
+    }
+}
+
+@media (max-height: 720px) {
+    .auction-container {
+        zoom: 0.7;
     }
 }
 

@@ -22,7 +22,7 @@ const io = new Server(server, {
 
 // 🔥 CONFIGURACIÓN DE PRUEBAS
 // 🔥 CONFIGURACIÓN DE PRUEBAS
-const TEST_MODE = true; // Activo para pruebas
+const TEST_MODE = false; // Activo para pruebas
 // Ciclo de prueba: Común -> Pseudo -> Legendario -> Repetir
 const TEST_SPAWN_CYCLE = ['comun', 'pseudolegendario', 'legendario'];
 let testSpawnIndex = 0;
@@ -509,7 +509,7 @@ const getAllFinalEvolutions = (chain, finals = []) => {
 // (El generador de pool se eliminó a favor del buffer)
 
 const generateItemPool = async (numPlayers) => {
-  const poolSize = numPlayers * 4;
+  const poolSize = numPlayers * 8;
   let pool = [];
   console.log(`💎 Generando OBJETOS...`);
   const shuffled = MASTER_ITEM_LIST.sort(() => 0.5 - Math.random()).slice(0, poolSize);
@@ -545,7 +545,7 @@ const generateItemPool = async (numPlayers) => {
         id: `item-${pool.length}-${itemName}`,
         type: 'item',
         name: data.name,
-        displayName: displayNameResult,
+        displayName: displayName,
         sprite: sprite,
         description: description,
         basePrice: price,
@@ -609,7 +609,7 @@ const startRound = async () => {
     // Verificar condiciones de fin de fase:
     // A) Todos tienen 6 pokémon (Inventario lleno)
     const allFull = activePlayerIds.every(id =>
-      persistentData[activeSockets[id]].inventory.length >= 6
+      persistentData[activeSockets[id]].inventory.length >= 8
     );
     // B) Se alcanzó el límite de rondas
     const limitReached = gameState.roundsPlayed >= MAX_ROUNDS;
@@ -967,9 +967,9 @@ io.on('connection', (socket) => {
     if (gameState.status !== 'playing') return;
     const key = activeSockets[socket.id];
     const p = persistentData[key];
-    if ((gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) && gameState.phase !== 'management') return socket.emit('error_message', "Equipo Lleno"); // Only block if pokemon phase? Actually items don't have limit per se in auction
+    if ((gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 8) && gameState.phase !== 'management') return socket.emit('error_message', "Equipo Lleno"); // Only block if pokemon phase? Actually items don't have limit per se in auction
     // Logic fix: Item phase is fine. Pokemon phase checks inventory.
-    if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) return socket.emit('error_message', "Equipo Lleno");
+    if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 8) return socket.emit('error_message', "Equipo Lleno");
 
     if (p.money < amt) return socket.emit('error_message', "Sin Fondos");
 
@@ -980,8 +980,14 @@ io.on('connection', (socket) => {
     // TRACK BIDDER for Saver's Bonus
     activeBidders.add(socket.id);
 
-    // Reset timer on bid (snipe protection)
-    if (gameState.timer < 5) gameState.timer = 10; else gameState.timer += 2; // Slight bump
+    // Reset timer on bid (snipe protection) with DECAY
+    // 1st reset: 8s, 2nd: 7s, 3rd: 6s, 4th+: 5s.
+    const resetTarget = Math.max(5, 8 - gameState.extensions);
+
+    if (gameState.timer < resetTarget) {
+      gameState.timer = resetTarget;
+      gameState.extensions++; // Count this as an extension
+    }
 
     io.emit('bid_update', { amount: amt, bidder: p.nickname, timer: gameState.timer });
   });
