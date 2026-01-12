@@ -596,8 +596,8 @@ const startRound = async () => {
   const playerCount = activePlayerIds.length;
   if (playerCount === 0) return;
 
-  // LÍMITE DE RONDAS: 8 por cada jugador conectado (o 6 TOTAL en Test Mode)
-  let MAX_ROUNDS = playerCount * 8;
+  // LÍMITE DE RONDAS: 9 por cada jugador conectado (o 6 TOTAL en Test Mode)
+  let MAX_ROUNDS = playerCount * 9;
   if (TEST_MODE) MAX_ROUNDS = 6;
 
   let nextThing = null;
@@ -609,7 +609,7 @@ const startRound = async () => {
     // Verificar condiciones de fin de fase:
     // A) Todos tienen 6 pokémon (Inventario lleno)
     const allFull = activePlayerIds.every(id =>
-      persistentData[activeSockets[id]].inventory.length >= 8
+      persistentData[activeSockets[id]].inventory.length >= 6
     );
     // B) Se alcanzó el límite de rondas
     const limitReached = gameState.roundsPlayed >= MAX_ROUNDS;
@@ -967,9 +967,9 @@ io.on('connection', (socket) => {
     if (gameState.status !== 'playing') return;
     const key = activeSockets[socket.id];
     const p = persistentData[key];
-    if ((gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 8) && gameState.phase !== 'management') return socket.emit('error_message', "Equipo Lleno"); // Only block if pokemon phase? Actually items don't have limit per se in auction
+    if ((gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) && gameState.phase !== 'management') return socket.emit('error_message', "Equipo Lleno"); // Only block if pokemon phase? Actually items don't have limit per se in auction
     // Logic fix: Item phase is fine. Pokemon phase checks inventory.
-    if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 8) return socket.emit('error_message', "Equipo Lleno");
+    if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) return socket.emit('error_message', "Equipo Lleno");
 
     if (p.money < amt) return socket.emit('error_message', "Sin Fondos");
 
