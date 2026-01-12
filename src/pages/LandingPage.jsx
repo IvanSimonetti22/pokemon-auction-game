@@ -1,45 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import './LandingPage.css';
-
 export const LandingPage = ({ onNavigate }) => {
-
-    const audioRefs = useRef({});
-
-    useEffect(() => {
-        // Preload sounds
-        const sounds = {
-            minecraft: '/sounds/minecraft_click.mp3',
-            pokemon: '/sounds/Boton_A.mp3'
-        };
-
-        Object.entries(sounds).forEach(([key, path]) => {
-            const audio = new Audio(path);
-            audio.preload = 'auto'; // Force preload
-            audio.volume = 0.5;
-            audioRefs.current[key] = audio;
-        });
-    }, []);
-
-    const playSound = (key) => {
-        try {
-            const audio = audioRefs.current[key];
-            if (audio) {
-                // 🔥 HACK: Adelantamos el audio de Minecraft porque tiene silencio al inicio
-                const startTime = key === 'minecraft' ? 0.5 : 0;
-                audio.currentTime = startTime;
-                audio.play().catch(e => console.warn("Audio play failed", e));
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    const handleNav = (target, soundKey) => {
-        playSound(soundKey);
-        // Small delay to let sound start before unmounting (optional but recommended)
-        setTimeout(() => onNavigate(target), 50);
-    };
-
+    const [showHytaleModal, setShowHytaleModal] = useState(false);
     return (
         <div className="landing-container">
             {/* Título Decorado */}
@@ -49,13 +11,12 @@ export const LandingPage = ({ onNavigate }) => {
                 </h1>
                 <div className="title-decoration-line"></div>
             </div>
-
             {/* Grid de Tarjetas */}
             <div className="cards-wrapper">
                 {/* TARJETA MINECRAFT */}
                 <div
                     className="landing-card minecraft"
-                    onClick={() => handleNav('general', 'minecraft')}
+                    onClick={() => onNavigate('general')}
                     role="button"
                     tabIndex={0}
                 >
@@ -69,16 +30,14 @@ export const LandingPage = ({ onNavigate }) => {
                         </p>
                     </div>
                 </div>
-
                 {/* TARJETA POKÉMON */}
                 <div
                     className="landing-card pokemon"
-                    onClick={() => handleNav('pokemon_auction', 'pokemon')}
+                    onClick={() => onNavigate('pokemon_auction')}
                     role="button"
                     tabIndex={0}
                 >
                     <div className="card-content">
-                        {/* PURE CSS POKEBALL */}
                         <div className="poke-ball-css"></div>
                         <h2 className="card-title">Pokémon</h2>
                         <p className="card-desc">
@@ -86,7 +45,51 @@ export const LandingPage = ({ onNavigate }) => {
                         </p>
                     </div>
                 </div>
+                {/* --- NUEVA TARJETA 1: HYTALE (Work In Progress) --- */}
+                <div
+                    className="landing-card hytale-card"
+                    onClick={() => setShowHytaleModal(true)}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <div className="card-content">
+                        <div className="card-icon-box">⚔️</div>
+                        <h2 className="card-title">HYTALE SERVER</h2>
+                        <p className="card-desc">Próximamente - 13 de Enero</p>
+                        <div className="status-badge warning">EN DESARROLLO</div>
+                    </div>
+                </div>
+                {/* --- NUEVA TARJETA 2: ZZZ (Zenless Zone Zero) --- */}
+                <div
+                    className="landing-card zzz-card"
+                    onClick={() => onNavigate('zzz')}
+                    role="button"
+                    tabIndex={0}
+                >
+                    <div className="card-content">
+                        <div className="card-icon-box">📺</div>
+                        <h2 className="card-title">ZZZ CALCULADORA</h2>
+                        <p className="card-desc">Calculadora de Tiradas y Probabilidades</p>
+                        <div className="status-badge new">NUEVO</div>
+                    </div>
+                </div>
             </div>
+            {/* --- HYTALE POPUP MODAL --- */}
+            {showHytaleModal && (
+                <div className="modal-overlay" onClick={() => setShowHytaleModal(false)}>
+                    <div className="modal-content hytale-theme" onClick={(e) => e.stopPropagation()}>
+                        <div className="card-icon-box" style={{ fontSize: '3rem', marginBottom: '10px' }}>⚔️</div>
+                        <h2 className="modal-title">Proyecto Hytale</h2>
+                        <p className="modal-text">
+                            Estoy preparando el servidor oficial. <br />
+                            ¡Estará disponible este <strong>13 de Enero</strong>!
+                        </p>
+                        <button className="modal-close-btn" onClick={() => setShowHytaleModal(false)}>
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

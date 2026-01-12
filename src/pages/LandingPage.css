@@ -12,7 +12,7 @@
     overflow: hidden;
 }
 
-/* --- 1. TITLE STYLING --- */
+/* --- 1. TITLE STYLING (Premium & Decorative) --- */
 .landing-title-wrapper {
     margin-bottom: 80px;
     position: relative;
@@ -31,6 +31,7 @@
     animation: floatTitle 6s ease-in-out infinite;
 }
 
+/* Gradient Text Effect */
 .landing-title span {
     background: linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%);
     -webkit-background-clip: text;
@@ -39,6 +40,7 @@
     display: inline-block;
 }
 
+/* Glowing Line Under Title */
 .title-decoration-line {
     width: 200px;
     height: 4px;
@@ -75,16 +77,18 @@
     }
 }
 
-/* --- 2. CARDS --- */
+/* --- 2. CARDS CONTAINER --- */
 .cards-wrapper {
     display: flex;
     justify-content: center;
     gap: 60px;
     perspective: 1200px;
+    /* For 3D transforms */
     flex-wrap: wrap;
     padding: 20px;
 }
 
+/* --- 3. THEME CARD (General) --- */
 .landing-card {
     width: 320px;
     height: 480px;
@@ -100,6 +104,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
+    /* In case we use 'a' tags later */
     backdrop-filter: blur(15px);
 }
 
@@ -108,6 +114,7 @@
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
 }
 
+/* Inner Content Layout */
 .card-content {
     position: relative;
     z-index: 5;
@@ -149,6 +156,7 @@
     line-height: 1.5;
 }
 
+/* Hover States */
 .landing-card:hover .card-icon-box {
     transform: scale(1.15) translateY(-10px);
 }
@@ -159,7 +167,7 @@
     transform: translateY(0);
 }
 
-/* MINECRAFT THEME */
+/* --- 4. MINECRAFT THEME --- */
 .landing-card.minecraft {
     border-bottom: 6px solid #4CAF50;
 }
@@ -171,6 +179,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    /* Gradient verde sutil desde abajo */
     background: linear-gradient(to top, rgba(76, 175, 80, 0.3) 0%, transparent 60%);
     opacity: 0.3;
     transition: 0.5s;
@@ -181,11 +190,15 @@
     box-shadow: 0 20px 50px rgba(76, 175, 80, 0.3);
 }
 
+.landing-card.minecraft:hover .card-icon-box {
+    filter: drop-shadow(0 0 25px #4CAF50);
+}
+
 .landing-card.minecraft .card-title {
     color: #a8e6cf;
 }
 
-/* POKEMON THEME */
+/* --- 5. POKEMON THEME --- */
 .landing-card.pokemon {
     border-bottom: 6px solid #ff4d4d;
 }
@@ -197,6 +210,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    /* Gradient rojo sutil desde abajo */
     background: linear-gradient(to top, rgba(235, 77, 75, 0.3) 0%, transparent 60%);
     opacity: 0.3;
     transition: 0.5s;
@@ -232,23 +246,50 @@
     }
 }
 
+/* RESPONSIVE */
+@media (max-width: 800px) {
+    .landing-title {
+        font-size: 3rem;
+        letter-spacing: 5px;
+    }
+
+    .cards-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .landing-card {
+        width: 100%;
+        max-width: 320px;
+        height: 380px;
+    }
+}
+
 /* --- PURE CSS POKEBALL --- */
 .poke-ball-css {
     width: 100px;
     height: 100px;
-    /* Capas: Botón Radial Transparente + Cuerpo Lineal */
+    /* Capas de fondo: Botón Central (Radial) + Cuerpo (Lineal) */
     background:
+        /* Botón Central: Blanco -> Borde Negro -> Transparente (para ver el fondo) */
         radial-gradient(circle, white 14px, #333 15px, #333 18px, transparent 19px),
+        /* Cuerpo: Rojo Arriba | Negro Medio | Blanco Abajo */
         linear-gradient(to bottom, #ff3f3f 0%, #ff3f3f 46%, #333 46%, #333 54%, white 54%, white 100%);
     border-radius: 50%;
     border: 4px solid #333;
-    box-shadow: inset -10px -10px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow:
+        inset -10px -10px 15px rgba(0, 0, 0, 0.3),
+        /* Sombra interna 3D */
+        0 0 20px rgba(0, 0, 0, 0.5);
+    /* Sombra externa */
     position: relative;
     margin-bottom: 30px;
     transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     animation: floatBall 3s ease-in-out infinite;
 }
 
+/* Efecto de brillo de plástico */
 .poke-ball-css::before {
     content: '';
     position: absolute;
@@ -261,6 +302,7 @@
     transform: rotate(-45deg);
 }
 
+/* Hover: Girar y abrirse un poco (Efecto sutil) */
 .landing-card.pokemon:hover .poke-ball-css {
     transform: scale(1.15) rotate(360deg);
     box-shadow: 0 0 25px rgba(255, 77, 77, 0.6);
@@ -278,6 +320,7 @@
     }
 }
 
+/* RESPONSIVE */
 @media (max-width: 800px) {
     .landing-title {
         font-size: 3rem;
@@ -286,6 +329,7 @@
 
     .cards-wrapper {
         flex-direction: column;
+        align-items: center;
         gap: 30px;
     }
 
@@ -293,5 +337,78 @@
         width: 100%;
         max-width: 320px;
         height: 380px;
+    }
+}
+
+/* --- ESTILOS TARJETAS NUEVAS --- */
+/* 1. Hytale: Estilo Fantasía/Naturaleza */
+/* 1. Hytale: Estilo Fantasía/Naturaleza */
+.hytale-card {
+    border-bottom: 6px solid #4cd137;
+    /* Verde vibrante - Cambiado a Bottom */
+    background: linear-gradient(145deg, rgba(76, 209, 55, 0.1), rgba(0, 0, 0, 0.4));
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efecto hover suave para Hytale */
+.hytale-card:hover {
+    box-shadow: 0 0 15px rgba(76, 209, 55, 0.2);
+    border-color: #55efc4;
+}
+
+/* 2. ZZZ: Estilo Urbano/Cyberpunk */
+.zzz-card {
+    border-bottom: 6px solid #ff9f43;
+    /* Naranja ZZZ - Cambiado a Bottom */
+    background: linear-gradient(145deg, rgba(255, 159, 67, 0.1), rgba(0, 0, 0, 0.4));
+    /* Un patrón de líneas estilo TV antigua o scanlines opcional */
+    background-image: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.2) 3px,
+            rgba(0, 0, 0, 0.2) 4px);
+}
+
+.zzz-card:hover {
+    box-shadow: 0 0 15px rgba(255, 159, 67, 0.3);
+    border-color: #ffc048;
+}
+
+/* Badges para el estado */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.status-badge.warning {
+    background: rgba(255, 200, 0, 0.2);
+    color: #ffd700;
+    border: 1px solid #ffd700;
+}
+
+.status-badge.new {
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border: 1px solid #00ffff;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 5px #00ffff;
+    }
+
+    100% {
+        opacity: 0.7;
     }
 }
