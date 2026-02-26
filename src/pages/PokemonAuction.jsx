@@ -385,6 +385,20 @@ export const PokemonAuction = ({ onBack }) => {
         socket.on('phase_transition', (data) => {
             setPhaseTransitionMsg(data.phaseName);
             playTimedSound(GAME_SFX.teleport, 0.6, 2000);
+
+            // 🔥 FIXED: Auto-ocultar transición si se queda pegada (especialmente para Test Mode -> Management)
+            // Normalmente 'new_pokemon' lo limpia, pero si vamos a Mesa de Trabajo, no hay 'new_pokemon'.
+            if (data.phaseName.includes("MESA") || data.phaseName.includes("TRABAJO")) {
+                setTimeout(() => setPhaseTransitionMsg(null), 4000);
+            }
+        });
+
+        // 🔥 CRITICAL: Si el juego se actualiza y estamos en management, quitar overlays
+        socket.on('update_game', (gameState) => {
+            if (gameState.phase === 'management') {
+                setPhaseTransitionMsg(null);
+                setShowTransition(false); // Por si acaso
+            }
         });
 
         socket.on('chat_message', (msg) => {
@@ -771,8 +785,8 @@ export const PokemonAuction = ({ onBack }) => {
                                 <div className="auction-controls">
                                     <p className="last-bidder">Líder actual: <strong>{lastBidder || 'Nadie'}</strong></p>
                                     <div className="current-price">{CURRENCY_SYMBOL} {currentBid.toLocaleString()}</div>
-                                    {isPokemonAuction && isFullTeam && <div style={{ color: 'red', fontWeight: 'bold' }}>🚫 EQUIPO COMPLETO</div>}
-                                    {!isFullTeam && isMyBid && <div style={{ color: 'gold', fontWeight: 'bold' }}>👑 VAS GANANDO</div>}
+                                    {isPokemonAuction && isFullTeam && <div className="status-floating-msg team-full">🚫 EQUIPO COMPLETO</div>}
+                                    {!isFullTeam && isMyBid && <div className="status-floating-msg winning">👑 VAS GANANDO</div>}
                                     <div className={`bid-buttons-row ${disableBidding ? 'disabled-row' : ''}`}>
                                         <button className="bid-btn bid-btn-green" onClick={() => handleBid(100)} disabled={disableBidding}>+ {CURRENCY_SYMBOL} 100</button>
                                         <button className="bid-btn bid-btn-green" onClick={() => handleBid(500)} disabled={disableBidding}>+ {CURRENCY_SYMBOL} 500</button>
@@ -1039,6 +1053,61 @@ export const PokemonAuction = ({ onBack }) => {
                                 )
                             })}
                         </div>
+
+                        {/* 🔥 ZONA DE LABORATORIO (REROLL) 🔥 */}
+                        {screen === 'management' && (
+                            <div className="reroll-section" style={{
+                                marginTop: '15px', padding: '15px',
+                                border: '1px solid #e74c3c', borderRadius: '8px',
+                                background: 'rgba(231, 76, 60, 0.1)', textAlign: 'center'
+                            }}>
+                                <h4 style={{ color: '#e74c3c', margin: '0 0 10px 0' }}>🧬 RECOMBINADOR GENÉTICO</h4>
+
+                                {viewingPokemon.wasRerolled ? (
+                                    <div style={{ color: '#ff6b6b', fontStyle: 'italic', fontWeight: 'bold' }}>
+                                        ⚠️ Genoma inestable. No admite más cambios.
+                                    </div>
+                                ) : (
+                                    <>
+                                        {(() => {
+                                            // 🔥 CÁLCULO DINÁMICO DE COSTO (Frontend)
+                                            // Debe coincidir con server.js
+                                            const myPlayer = players.find(p => p.id === socket.id) || {};
+                                            const myRerollCount = myPlayer.rerollCount || 0;
+                                            const isLegend = ['legendario', 'singular', 'ultraente'].includes(viewingPokemon.rarity);
+                                            const basePrice = isLegend ? 5000 : 2000;
+                                            const finalPrice = basePrice + (myRerollCount * 1000);
+
+                                            return (
+                                                <>
+                                                    <p style={{ fontSize: '0.8rem', color: '#aaa', marginBottom: '10px' }}>
+                                                        Coste actual: <span style={{ color: '#ffdd57', fontWeight: 'bold' }}>${finalPrice}</span> <br />
+                                                        <span style={{ fontSize: '0.7em' }}>(Base: ${basePrice} + Uso #{myRerollCount}: ${myRerollCount * 1000})</span>
+                                                    </p>
+                                                    <button
+                                                        className="reroll-btn"
+                                                        onClick={() => {
+                                                            if (window.confirm(`¿Gastar $${finalPrice} para recombinar a ${viewingPokemon.name}? (Irreversible)`)) {
+                                                                if (socket) socket.emit('reroll_pokemon', { pokemonIndex: viewingIndex });
+                                                                closePokemonDetails();
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            background: '#c0392b', color: 'white', border: 'none',
+                                                            padding: '10px 20px', borderRadius: '5px',
+                                                            cursor: 'pointer', fontWeight: 'bold',
+                                                            boxShadow: '0 0 10px #c0392b'
+                                                        }}
+                                                    >
+                                                        ♻️ RECOMBINAR (${finalPrice})
+                                                    </button>
+                                                </>
+                                            );
+                                        })()}
+                                    </>
+                                )}
+                            </div>
+                        )}
 
                         <div className="modal-actions" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                             <button

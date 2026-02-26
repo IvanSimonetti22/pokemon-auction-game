@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     /* Aumentamos la separación para que se vea limpio como en la referencia */
-    gap: 30px; 
+    gap: 30px;
     width: 100%;
     margin: 0 auto;
 }
@@ -12,9 +12,11 @@
 /* 🔥 CORRECCIÓN CRÍTICA 🔥 */
 /* Esto fuerza a los bloques principales (Status, Grids, Terminal) a ocupar todo el ancho 
    y apilarse verticalmente sin aplastarse. */
-.home-container > * {
-    width: 100%;
-    flex-shrink: 0; /* Evita que se encojan */
+/* .home-container children default to stretch in column flex */
+.home-container>* {
+    /* width: 100%; removed to prevent overflow */
+    min-width: 0;
+    /* allows shrinking if needed */
 }
 
 /* --- GRID DE ESTADÍSTICAS (4 columnas) --- */
@@ -34,6 +36,7 @@
 
 /* --- RESPONSIVIDAD MÓVIL --- */
 @media (max-width: 768px) {
+
     /* En móvil, los grids pasan a 1 sola columna */
     .stats-grid,
     .actions-grid {
@@ -42,6 +45,7 @@
     }
 
     .home-container {
-        gap: 20px; /* Un poco menos de espacio en móvil */
+        gap: 20px;
+        /* Un poco menos de espacio en móvil */
     }
 }

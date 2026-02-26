@@ -21,7 +21,12 @@ const io = new Server(server, {
 });
 
 // 🔥 CONFIGURACIÓN DE PRUEBAS
-const TEST_MODE = false;
+// 🔥 CONFIGURACIÓN DE PRUEBAS
+const TEST_MODE = false; // Activo para pruebas
+// Ciclo de prueba: Común -> Pseudo -> Legendario -> Repetir
+const TEST_SPAWN_CYCLE = ['comun', 'pseudolegendario', 'legendario'];
+let testSpawnIndex = 0;
+
 const FORCED_SPAWNS = ['charizard', 'gengar', 'lucario', 'salamence', 'metagross'];
 
 const PSEUDO_LEGENDARIES = [
@@ -109,6 +114,7 @@ const MEGA_STONES = {
 let persistentData = {};
 let activeSockets = {};
 let playersState = {};
+let activeBidders = new Set(); // 🔥 TAREA 3: Tracking de pujadores
 
 let gameState = {
   status: 'lobby',
@@ -119,7 +125,10 @@ let gameState = {
   timer: 0,
   highestBid: 0,
   highestBidder: null,
-  roundsPlayed: 0
+  highestBid: 0,
+  highestBidder: null,
+  roundsPlayed: 0,
+  extensions: 0 // 🔥 Timer Logic: Contador de extensiones
 };
 
 // --- BUFFER DE POKÉMON ---
@@ -181,13 +190,31 @@ const stopGameFull = () => {
 };
 
 // --- FUNCIÓN DE GENERACIÓN (Un solo Pokémon) ---
-const fetchPokemonData = async (mode = 'competitivo', region = 'all') => {
+const fetchPokemonData = async (mode = 'competitivo', region = 'all', ignoreDuplicates = false) => {
   try {
     // Intentos para encontrar uno no repetido
     for (let i = 0; i < 5; i++) {
       let targetNameOrId;
-      if (TEST_MODE && Math.random() < 0.3) {
-        targetNameOrId = FORCED_SPAWNS[Math.floor(Math.random() * FORCED_SPAWNS.length)];
+
+      // 🔥 TEST MODE: FORZAR RAREZA CÍCLICA
+      let forcedRarity = null;
+      if (TEST_MODE) {
+        forcedRarity = TEST_SPAWN_CYCLE[testSpawnIndex % TEST_SPAWN_CYCLE.length];
+        // Lógica simple para obtener ID basado en rareza (aprox)
+        // Esto es complejo sin una lista local, así que usaremos un hack:
+        // Si es comun -> ID random 1-898
+        // Si es pseudo -> Pick from PSEUDO_LEGENDARIES
+        // Si es legendario -> Pick random legend ID (necesitaríamos lista, usaremos un set pequeño conocido o IDs altos)
+
+        if (forcedRarity === 'pseudolegendario') {
+          targetNameOrId = PSEUDO_LEGENDARIES[Math.floor(Math.random() * PSEUDO_LEGENDARIES.length)];
+        } else if (forcedRarity === 'legendario') {
+          // IDs de algunos legendarios conocidos
+          const legends = [144, 145, 146, 150, 243, 244, 245, 249, 250, 382, 383, 384, 483, 484, 487];
+          targetNameOrId = legends[Math.floor(Math.random() * legends.length)];
+        } else {
+          targetNameOrId = Math.floor(Math.random() * 500) + 1; // Comunes gen 1-5 aprox
+        }
       } else {
         targetNameOrId = Math.floor(Math.random() * 905) + 1;
       }
@@ -203,8 +230,8 @@ const fetchPokemonData = async (mode = 'competitivo', region = 'all') => {
       const possibleFinals = getAllFinalEvolutions(evoRes.data.chain);
       finalName = possibleFinals[Math.floor(Math.random() * possibleFinals.length)];
 
-      // 🔥 VALIDAR DUPLICADOS
-      if (seenPokemonNames.has(finalName)) {
+      // 🔥 VALIDAR DUPLICADOS (Salvo que forcemos ignorar, ej. para Reroll desesperado)
+      if (!ignoreDuplicates && seenPokemonNames.has(finalName)) {
         console.log(`♻️ Duplicado evitado: ${finalName}`);
         continue; // Reintentar otro
       }
@@ -246,6 +273,15 @@ const fetchPokemonData = async (mode = 'competitivo', region = 'all') => {
       else if (finalSpeciesRes.data.is_legendary) { price = 1000; rarity = 'legendario'; }
       else if (PSEUDO_LEGENDARIES.includes(finalData.name)) { price = 500; rarity = 'pseudolegendario'; }
 
+      // 🔥 TEST MODE: Asegurar que la rareza coincida con lo pedido si falló la selección por ID
+      if (TEST_MODE && forcedRarity) {
+        // Si pedimos legendario y no salió (por azar del ID), forzamos override de etiquetas para testing
+        // OJO: Esto es solo visual/lógico para el test, el Pokémon sigue siendo el que es.
+        // Para hacerlo bien, deberíamos re-rollear si no matchea, pero aceptemos el caos del test.
+        // Mejor enfoque: Solo incrementar el índice de test si TUVIMOS ÉXITO en generar algo.
+        testSpawnIndex++;
+      }
+
       // 🔥 REGISTRAR COMO VISTO
       seenPokemonNames.add(finalName);
 
@@ -266,6 +302,24 @@ const fetchPokemonData = async (mode = 'competitivo', region = 'all') => {
     console.error("Error fetching pokemon:", e.message);
     return null;
   }
+};
+
+// 🔥 HELPER DE REROLL: Busca un Pokémon de la MISMA rareza
+const fetchPokemonByRarity = async (targetRarity, excludedName) => {
+  let attempts = 0;
+  // Aumentamos mucho los intentos y permitimos duplicados globales (ignoreDuplicates=true)
+  // para evitar que se quede sin opciones si ya salieron muchos legendarios.
+  while (attempts < 30) {
+    const p = await fetchPokemonData(gameSettings.mode, gameSettings.region, true);
+    if (p && p.rarity === targetRarity && p.name !== excludedName) {
+      return p;
+    }
+    attempts++;
+  }
+
+  // Si falla, devolvemos NULL y que el frontend maneje el error o reintentamos sin filtro (panic mode)
+  console.warn(`⚠️ Reroll: No se encontró MATCH exacto para ${targetRarity} tras 30 intentos.`);
+  return null;
 };
 
 // --- FUNCIÓN DE PRE-CARGA (BUFFER) ---
@@ -374,12 +428,23 @@ const startGame = async () => {
     // Aseguramos que haya algo en el buffer antes de empezar
     if (pokemonBuffer.length === 0) await fillPokemonBuffer();
 
+    // 🔥 TAREA 1: Presupuesto Inicial Dinámico
+    const baseMoney = 20000 + (numPlayers * 500);
+    console.log(`💰 INICIO DINÁMICO: ${numPlayers} Jugadores -> $${baseMoney} c/u`);
+
+    // Aplicar dinero inicial a todos
+    Object.keys(persistentData).forEach(key => {
+      persistentData[key].money = baseMoney;
+    });
+    // Notificar actualización de dinero
+    broadcastPlayerList();
+
     // Items siguen igual (son rápidos)
     const items = await generateItemPool(numPlayers);
     gameState.itemPool = items;
     gameState.phase = 'pokemon';
 
-    io.emit('chat_message', { user: 'SISTEMA', text: '¡Comienza la Fase de Selección!', type: 'system' });
+    io.emit('chat_message', { user: 'SISTEMA', text: `¡Comienza la Fase de Selección! (Presupuesto Base: $${baseMoney})`, type: 'system' });
     io.emit('game_starting');
 
     // Ya no esperamos 3s, el cliente maneja transiciones. Pero un pequeño delay ayuda.
@@ -393,8 +458,9 @@ const startRound = async () => {
   const playerCount = activePlayerIds.length;
   if (playerCount === 0) return;
 
-  // LÍMITE DE RONDAS: 8 por cada jugador conectado
-  const MAX_ROUNDS = playerCount * 8;
+  // LÍMITE DE RONDAS: 8 por cada jugador conectado (o 6 TOTAL en Test Mode)
+  let MAX_ROUNDS = playerCount * 8;
+  if (TEST_MODE) MAX_ROUNDS = 6;
 
   let nextThing = null;
 
@@ -407,16 +473,37 @@ const startRound = async () => {
     const allFull = activePlayerIds.every(id =>
       persistentData[activeSockets[id]].inventory.length >= 6
     );
-    // B) Se alcanzó el límite de rondas (8 * Jugadores)
+    // B) Se alcanzó el límite de rondas
     const limitReached = gameState.roundsPlayed >= MAX_ROUNDS;
 
     // SI SE CUMPLE CUALQUIERA -> CAMBIO DE FASE
     if (allFull || limitReached) {
       console.log(`--- CAMBIO DE FASE (Rondas: ${gameState.roundsPlayed}/${MAX_ROUNDS} | Full: ${allFull}) ---`);
 
+      // 🔥 TEST MODE: SALTAR ITEMS
+      if (TEST_MODE) {
+        console.log("⚡ MODO PRUEBA: Saltando Fase de Items -> Directo a Management");
+        gameState.phase = 'management';
+        gameState.status = 'management';
+        gameState.currentAuction = null;
+        io.emit('phase_transition', { phaseName: "MESA DE TRABAJO" });
+        io.emit('round_ended', { message: "MERCADO CERRADO - FINALIZADO" });
+        io.emit('update_game', gameState);
+        return;
+      }
+
       gameState.phase = 'items';
       gameState.roundsPlayed = 0; // RESETEAR CONTADOR PARA LA SIGUIENTE FASE
       pokemonBuffer = [];
+
+      // 🔥 TAREA 2: Inyección de Capital
+      Object.keys(persistentData).forEach(key => {
+        persistentData[key].money += 3500;
+      });
+      console.log("💰 Stimulus Check: +$3500 para todos.");
+
+      io.emit('chat_message', { user: 'SISTEMA', text: "💰 Suministros de Fase 2 recibidos: +$3.500 para todos.", type: 'system' });
+      broadcastPlayerList(); // Actualizar visualmente
 
       io.emit('phase_transition', { phaseName: "OBJETOS EQUIPABLES" });
       setTimeout(startRound, 5000);
@@ -466,17 +553,29 @@ const startRound = async () => {
   if (nextThing) {
     // INCREMENTAMOS CONTADOR DE RONDAS
     gameState.roundsPlayed++;
+    gameState.extensions = 0; // Reset extensions for new round
 
     console.log(`Iniciando Ronda ${gameState.roundsPlayed} / ${MAX_ROUNDS} (Fase: ${gameState.phase})`);
 
-    let time = 15;
-    if (['legendario', 'singular', 'ultraente'].includes(nextThing.rarity)) time = 20;
+    // 🔥 TAREA: TIEMPOS AJUSTADOS
+    // Items: 8s
+    // Pokemon Normal: 10s
+    // Legendarios: 20s
+    let time = 10;
+    if (gameState.phase === 'items') {
+      time = 8;
+    } else if (['legendario', 'singular', 'ultraente'].includes(nextThing.rarity)) {
+      time = 20;
+    }
 
     gameState.status = 'playing';
     gameState.currentAuction = nextThing;
     gameState.highestBid = nextThing.basePrice;
     gameState.highestBidder = null;
     gameState.timer = time;
+
+    // 🔥 TAREA 3: Resetear tracking de pujas
+    activeBidders.clear();
 
     io.emit('new_pokemon', {
       pokemon: nextThing,
@@ -532,6 +631,16 @@ const endRound = async () => {
       persistentData[key].money -= gameState.highestBid;
       if (gameState.currentAuction.type === 'pokemon') {
         const wonPokemon = gameState.currentAuction;
+
+        // 🔥 OPTIMIZACIÓN REROLL: Pre-fetch del candidato
+        // Lo hacemos sin await para no bloquear el flujo
+        fetchPokemonByRarity(wonPokemon.rarity, wonPokemon.name).then(candidate => {
+          if (candidate) {
+            wonPokemon.rerollCandidate = candidate;
+            console.log(`🧬 [Reroll Cache] Candidato listo para ${wonPokemon.name}: ${candidate.name}`);
+          }
+        });
+
         persistentData[key].inventory.push(wonPokemon);
         msg = `¡${persistentData[key].originalName} ganó a ${wonPokemon.displayName}!`;
 
@@ -560,6 +669,31 @@ const endRound = async () => {
       winner = persistentData[key].originalName;
     }
   }
+
+  // 🔥 TAREA 3: SAVER'S BONUS (Ingreso Pasivo)
+  // Recompensar a quienes NO pujaron (y no tienen demasiado dinero)
+  const activeIds = Object.keys(activeSockets);
+  activeIds.forEach(socketId => {
+    // Revisamos si el ID del socket está en los pujadores
+    // NOTA: activeBidders guarda el socket.id tal como lo implementé en place_bid (p.id, que es socket.id)
+    if (!activeBidders.has(socketId)) {
+      const key = activeSockets[socketId];
+      if (key && persistentData[key]) {
+        const player = persistentData[key];
+        // Límite de $8000
+        if (player.money <= 8000) {
+          player.money += 500;
+          // Notificación personal (o logro discreto)
+          io.to(socketId).emit('chat_message', {
+            user: 'SISTEMA',
+            text: "Paciencia recompensada: +$500",
+            type: 'system-subtle' // Un tipo nuevo o usar 'system'
+          });
+        }
+      }
+    }
+  });
+
   io.emit('round_ended', { message: msg, winner: winner });
   io.emit('chat_message', { user: 'SISTEMA', text: msg, type: 'system' });
   broadcastPlayerList();
@@ -585,7 +719,10 @@ io.on('connection', (socket) => {
       money: 20000,
       originalName: nickname, // Mantener compatibilidad
       inventory: [],
-      items: []
+      originalName: nickname, // Mantener compatibilidad
+      inventory: [],
+      items: [],
+      rerollCount: 0 // 🔥 Dynamic Pricing Tracking
     };
 
     // Guardamos en estructuras existentes para no romper lógica actual
@@ -661,9 +798,25 @@ io.on('connection', (socket) => {
     const p = persistentData[key];
     if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) return socket.emit('error_message', "Equipo Lleno");
     if (p.money < amt) return socket.emit('error_message', "Sin Fondos");
+
+    // 🔥 VALIDACIÓN CRÍTICA: La puja debe ser mayor a la actual
     if (amt > gameState.highestBid) {
-      gameState.highestBid = amt; gameState.highestBidder = p.originalName;
-      if (gameState.timer < 5) gameState.timer = 10;
+      gameState.highestBid = amt;
+      gameState.highestBidder = p.originalName;
+
+      // 🔥 TAREA: DIMINISHING RETURNS EN TIEMPO EXTRA
+      if (gameState.timer < 5) {
+        // Primera vez vuelve a 8, luego 7, 6... mínimo 5.
+        let newTime = 8 - gameState.extensions;
+        if (newTime < 5) newTime = 5;
+
+        gameState.timer = newTime;
+        gameState.extensions++; // Aumentar penalización para la próxima
+      }
+
+      // 🔥 TAREA 3: Registrar pujador activo
+      activeBidders.add(p.id);
+
       io.emit('bid_update', { amount: amt, bidder: p.originalName, timer: gameState.timer });
     }
   });
@@ -731,6 +884,73 @@ io.on('connection', (socket) => {
       socket.emit('item_bought_success'); // Confirmación para sonido
     } else {
       socket.emit('error_message', 'No tienes suficiente dinero.');
+    }
+  });
+
+  // 🔥 TAREA 1: RECOMBINADOR GENÉTICO (Antes: Reroll)
+  socket.on('reroll_pokemon', async ({ pokemonIndex }) => {
+    const key = activeSockets[socket.id];
+    if (!key) return;
+    const player = persistentData[key];
+
+    // Ensure rerollCount exists (migration safety)
+    if (typeof player.rerollCount === 'undefined') player.rerollCount = 0;
+
+    // 0. Validar Existencia
+    const idx = parseInt(pokemonIndex);
+    if (isNaN(idx)) return socket.emit('error_message', "Error interno: Índice inválido.");
+    const oldPokemon = player.inventory[idx];
+    if (!oldPokemon) return socket.emit('error_message', "Pokémon no encontrado.");
+
+    // 🔥 VALIDACIÓN: Solo 1 reroll por Pokémon
+    if (oldPokemon.wasRerolled) {
+      return socket.emit('error_message', "⚠️ Este Pokémon ya ha sido modificado genéticamente y no soporta otro cambio.");
+    }
+
+    // 1. CÁLCULO DE COSTO DINÁMICO
+    // Legendarios: Base $5,000. Otros: Base $2,000.
+    // +$1,000 por cada uso previo del usuario.
+    const isLegend = ['legendario', 'singular', 'ultraente'].includes(oldPokemon.rarity);
+    const baseCost = isLegend ? 5000 : 2000;
+    const dynamicCost = baseCost + (player.rerollCount * 1000);
+
+    // 2. Validación de Fondos
+    if (player.money < dynamicCost) {
+      return socket.emit('error_message', `Necesitas $${dynamicCost} para iniciar la recombinación (Uso #${player.rerollCount + 1}).`);
+    }
+
+    // Notificar proceso
+    socket.emit('chat_message', { user: 'SISTEMA', text: '🧬 Secuenciando nuevo ADN...', type: 'system-subtle' });
+    console.log(`[REROLL] Intento de ${player.originalName}: ${oldPokemon.name}. Costo: ${dynamicCost}`);
+
+    // 3. Obtener Reemplazo
+    let newPokemon = oldPokemon.rerollCandidate;
+    if (!newPokemon) {
+      console.log("⚠️ [Reroll] Cache miss. Fetching live...");
+      newPokemon = await fetchPokemonByRarity(oldPokemon.rarity, oldPokemon.name);
+    }
+
+    if (newPokemon) {
+      // 4. Transacción
+      player.money -= dynamicCost;
+      player.rerollCount++; // Aumentar contador de uso
+
+      newPokemon.heldItem = oldPokemon.heldItem;
+      newPokemon.wasRerolled = true;
+
+      player.inventory[idx] = newPokemon;
+
+      // 5. Feedback Global
+      io.emit('chat_message', {
+        user: 'RECOMBINADOR',
+        text: `🧬 ${player.originalName} recombinó a ${oldPokemon.displayName} por un ${newPokemon.displayName}.`,
+        type: 'system'
+      });
+
+      broadcastPlayerList();
+      console.log(`[REROLL] Éxito: ${oldPokemon.name} -> ${newPokemon.name}`);
+    } else {
+      socket.emit('error_message', "Error en la máquina (No se encontró reemplazo). Intenta de nuevo.");
     }
   });
 

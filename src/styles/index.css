@@ -1,15 +1,35 @@
 /* 📂 src/styles/index.css */
 
+/* --- GLOBAL FONTS & RESET --- */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@1,800;1,900&family=Rajdhani:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 /* --- 1. VARIABLES GLOBALES --- */
 :root {
+    /* --- THEME: MINECRAFT (DEFAULT / 'overworld') --- */
     --bg-deep: #0a0a0a;
+    --bg-dark: #121212;
+    --text-main: #ffffff;
+    --text-muted: #aaaaaa;
+    --accent-gold: #ffaa00;
+    --accent-purple: #ff55ff;
+    --accent-green: #55ff55;
+    --accent-red: #ff5555;
+    --accent-cyan: #55ffff;
+
+    /* --- THEME: ZZZ (CYBERPUNK) --- */
+    --zzz-acid: #ccff00;
+    --zzz-orange: #ff6600;
+    --zzz-dark-metal: #1a1a1a;
+    --zzz-panel-bg: #151515;
+    --zzz-border: #333;
+    --zzz-screw: #555;
+    --zzz-black: #0a0a0a;
+    --zzz-white: #f0f0f0;
+
+    /* COMPATIBILIDAD CON STYLES EXISTENTES */
     --bg-panel: #1e1e1e;
-    --text-main: #e0e0e0;
-    --accent-gold: #FFAA00;
-    --accent-purple: #FF55FF;
     --accent-aqua: #55FFFF;
-    --accent-green: #55FF55;
-    --accent-red: #FF5555;
     --border: #333333;
 }
 
@@ -40,22 +60,25 @@
 }
 
 /* --- 2. RESET BÁSICO --- */
-html,
 body {
     margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
     background-color: var(--bg-deep);
+    font-family: 'Inter', sans-serif;
     color: var(--text-main);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow-x: hidden;
 }
 
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
+/* TV Static Overlay (Persistent) */
+.tv-noise {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
 }
 
 /* --- 3. SCROLLBAR --- */
@@ -64,16 +87,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-deep);
+    background: #000;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #444;
+    background: #333;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-gold);
+    background: #555;
 }
 
 /* --- 4. LAYOUT CYBERPUNK --- */

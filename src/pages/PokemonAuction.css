@@ -67,22 +67,19 @@
     background: #2f3640;
     border: 1px solid #555;
     border-radius: 6px;
-    padding: 5px 10px;
+    padding: 4px 8px;
+    /* Reducido */
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
     transition: all 0.3s ease;
 
-    /* 🔥 TAMAÑO COMPACTO ORIGINAL: */
-    width: 140px !important;
-    min-width: auto;
-    /* 🔥 TAMAÑO MODIFICADO (MAS ANCHO): */
-    width: 190px !important;
-    min-width: 190px !important;
+    /* 🔥 TAMAÑO COMPACTO REDUCIDO: */
+    width: 150px !important;
+    min-width: 150px !important;
     height: auto;
     flex-shrink: 1;
-    /* Permite que se adapten */
 }
 
 .player-header-card.is-me {
@@ -92,39 +89,40 @@
 
 .p-name {
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    /* Reducido */
     color: #fff;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .p-money {
     color: #4CAF50;
     font-weight: bold;
     font-family: monospace;
-    font-size: 1rem;
-    margin-bottom: 6px;
+    font-size: 0.9rem;
+    /* Reducido */
+    margin-bottom: 4px;
 }
 
 /* SLOTS Y MOCHILA */
 .slots-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    /* Separación ideal para el nuevo tamaño */
-    margin: 8px 0;
-    /* Un poco más de aire vertical */
+    gap: 3px;
+    /* Reducido */
+    margin: 4px 0;
+    /* Menos margen */
     width: 100%;
     justify-items: center;
 }
 
 .poke-slot {
-    width: 45px !important;
-    /* Aumentado de 30px a 45px */
-    height: 45px !important;
-    /* Aumentado */
+    width: 35px !important;
+    /* Reducido de 45px */
+    height: 35px !important;
+    /* Reducido */
     background: #1e272e;
     border-radius: 6px;
-    /* Un poco más redondeado */
     border: 1px solid #444;
     display: flex;
     align-items: center;
@@ -1229,6 +1227,13 @@
     align-items: center;
     width: 100%;
     margin-top: 0;
+
+    /* 🔥 FIX: FLEX GROW para ocupar el espacio restante */
+    flex: 1;
+    overflow: hidden;
+    /* Evita que empuje el layout */
+    padding-bottom: 20px;
+    /* Margen visual inferior garantizado */
 }
 
 /* 2. EL TABLERO VUELVE A SER GRANDE Y CENTRADO */
@@ -1241,24 +1246,29 @@
     width: 100%;
 
     /* 🔥 CAMBIOS DE POSICIÓN: */
-    margin: 0 auto;
-    margin-top: 30px !important;
-    /* Subir el tablero */
-    margin-bottom: 20px;
-    padding: 40px 50px;
-    /* Más relleno vertical para que se vea el fondo */
+    margin: 10px auto 0 auto !important;
+    /* Margin top y centrado, sin margin-bottom excesivo */
+
+    padding: 20px 50px;
+    /* Menos relleno vertical */
     max-width: 1200px;
     /* Un poco más ancho */
-    flex: none;
-    /* Asegura que no se estire de más */
-    /* Asegura que no se estire de más */
+
+    /* 🔥 FLEXIBLE HEIGHT */
+    flex: 1;
+    /* Ocupa el espacio del wrapper */
+    height: auto !important;
+    /* Anula calc */
+    width: 98%;
+    /* Ancho relativo */
+
     position: relative;
 
     /* Mantenemos estilos previos necesarios */
     background: rgba(15, 15, 20, 0.7);
     border: 1px solid #444;
     border-radius: 15px;
-    height: calc(100vh - 260px);
+
     overflow: hidden;
     backdrop-filter: blur(10px);
 }
@@ -1266,30 +1276,27 @@
 /* Agrega margin-top a AMBOS círculos */
 .pokemon-card-circle,
 .item-card-circle {
-    margin-top: 30px;
-    /* Los empuja hacia abajo dentro del recuadro */
+    margin-top: 20px;
+    /* Menos margen superior */
 }
 
-/* 3. EL CHAT SE VUELVE FLOTANTE (FIXED) ABAJO A LA DERECHA */
+/* 3. EL CHAT SE VUELVE FLOTANTE */
 .chat-container {
     position: fixed;
     /* Flotante "por encima" */
-    bottom: 0;
+    bottom: 20px;
+    /* Un poco separado del borde inferior */
     right: 20px;
     width: 320px;
-    /* Ancho fijo cómodo */
     height: 300px;
-    /* Altura abierta */
     background: #222;
     border: 1px solid #444;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     z-index: 2000;
-    /* Encima de todo */
     transition: height 0.3s ease, transform 0.3s ease;
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.8);
     margin: 0;
-    /* Sin márgenes externos */
     display: flex;
     flex-direction: column;
 }
@@ -1297,12 +1304,11 @@
 /* 4. ESTILO CUANDO ESTÁ MINIMIZADO */
 .chat-container.minimized {
     height: 40px !important;
-    /* Solo se ve la barra de título */
     overflow: hidden;
     cursor: pointer;
 }
 
-/* 5. ESTILO DEL BOTÓN TOGGLE (+ / -) */
+/* 5. ESTILO DEL BOTÓN TOGGLE */
 .chat-toggle-btn {
     position: absolute;
     right: 10px;
@@ -1351,8 +1357,6 @@
 
 /* --- ANIMACIÓN DE VICTORIA EN TARJETA --- */
 
-/* Contenedor que cubre la tarjeta del ganador */
-/* Contenedor que cubre la tarjeta del ganador */
 /* Contenedor que cubre la tarjeta del ganador */
 .winner-overlay {
     position: absolute;
@@ -1485,14 +1489,20 @@
 
 .management-grid {
     display: grid;
-    grid-template-columns: 250px 1fr 250px;
-    /* Columnas fijas a los lados, flexible al centro */
-    gap: 20px;
+    grid-template-columns: 280px 1fr 280px;
+    /* Paneles laterales un poco más anchos */
+    gap: 30px;
+    /* Más espacio entre paneles */
     flex: 1;
     overflow: hidden;
-    max-width: 1600px;
+    max-width: 95vw;
+    /* 🔥 AMPLITUD SOLICITADA: Ocupar casi toda la pantalla */
     margin: 0 auto;
     width: 100%;
+
+    /* Alineación superior */
+    justify-content: center;
+    /* Asegurar centrado total */
 }
 
 .mgmt-panel {
@@ -1502,8 +1512,19 @@
     padding: 15px;
     display: flex;
     flex-direction: column;
+
+    /* 🔥 FIX: ELIMINAR SCROLL HORIZONTAL */
     overflow-y: auto;
+    overflow-x: hidden;
+
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+
+    /* 🔥 FIX: ALINEAR CON EL FONDO */
+    /* Ocupar más espacio vertical como antes */
+    height: calc(100vh - 140px);
+    margin-bottom: 20px;
+
+    /* Ya no es necesario margen si limitamos bien la altura */
 }
 
 .mgmt-panel h3 {
@@ -1542,12 +1563,7 @@
 }
 
 /* Equipo Central */
-.team-grid-mgmt {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 10px;
-}
+/* 🔥 OLD STYLE REMOVED (Consolidated at the end) */
 
 .mgmt-poke-card {
     background: #222;
@@ -2062,4 +2078,103 @@
     100% {
         box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
     }
+}
+
+/* 🔥 ESTILOS MESA DE TRABAJO (GRID) - Solicitado por Usuario */
+.team-grid-mgmt {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+    /* Centrar la grilla en sí */
+    align-content: center;
+}
+
+.mgmt-poke-card {
+    background: #2f3640;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Centrado vertical */
+    text-align: center;
+    min-height: 140px;
+    /* Tamaño uniforme vertical */
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mgmt-poke-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    border-color: #666;
+}
+
+.mgmt-poke-card img {
+    width: 80px;
+    /* Tamaño de imagen controlado */
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+/* 🔥 ÍTEMS EN CÍRCULO (Visual Fix) */
+.mgmt-item-slot {
+    width: 40px;
+    height: 40px;
+    background: #111;
+    border: 1px solid #555;
+    border-radius: 50%;
+    /* Círculo perfecto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    position: relative;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+.mgmt-item-slot img {
+    width: 24px !important;
+
+    /* Más pequeño para que entre en el círculo */
+    /* 🔥 FIX: POSICIONAMIENTO MENSAJES DE ESTADO (NO DESPLAZAR BOTONES) */
+    .auction-controls {
+        position: relative;
+        margin-top: auto;
+        /* Empuja los controles al fondo si hay espacio */
+        width: 100%;
+    }
+
+    .status-floating-msg {
+        position: absolute;
+        top: -40px;
+        /* Se sitúa ENCIMA de los controles, en el hueco libre */
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-weight: 900;
+        font-size: 1.3rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+        pointer-events: none;
+        /* Click through */
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .status-floating-msg.team-full {
+        color: #ff4d4d;
+    }
+
+    .status-floating-msg.winning {
+        color: #ffd700;
+    }
+
+    margin: 0 !important;
+    /* Reset del margen general */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
 }

@@ -1,0 +1,1029 @@
+/* 📂 client/src/styles/Cinema.css */
+.cinema-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--zzz-dark-metal);
+    color: var(--zzz-white);
+    font-family: 'Kanit', sans-serif;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    /* PREVENT SELECTION AND HIGHLIGHTING */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* SCANLINES OVERLAY */
+.cinema-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom,
+            transparent 0px,
+            transparent 2px,
+            rgba(0, 0, 0, 0.1) 3px,
+            rgba(0, 0, 0, 0.1) 4px);
+    z-index: 5;
+    mix-blend-mode: overlay;
+}
+
+.cinema-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.8) 100%);
+    z-index: 6;
+}
+
+/* HEADER & CONTROLS */
+.cinema-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--zzz-border);
+    padding-bottom: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.cinema-title {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    font-style: italic;
+    font-weight: 900;
+    margin: 0;
+    color: var(--zzz-white);
+    text-shadow: 2px 2px 0 var(--zzz-acid);
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid var(--zzz-acid);
+    color: var(--zzz-acid);
+    font-family: 'Rajdhani', monospace;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 15px;
+    transition: 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--zzz-acid);
+    color: #000;
+}
+
+.current-month-display {
+    font-family: 'Rajdhani';
+    font-size: 2rem;
+    color: var(--zzz-white);
+    text-transform: uppercase;
+    width: 250px;
+    text-align: center;
+}
+
+.cinema-clock {
+    font-family: 'Rajdhani', monospace;
+    font-size: 1.2rem;
+    color: var(--zzz-orange);
+    border: 1px solid var(--zzz-orange);
+    padding: 5px 10px;
+    font-variant-numeric: tabular-nums;
+    width: 130px;
+    text-align: center;
+}
+
+/* CALENDAR GRID (7 Columns) */
+.calendar-grid-wrapper {
+    position: relative;
+    z-index: 10;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Week Header */
+.week-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.day-name {
+    text-align: center;
+    font-family: 'Rajdhani';
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Days Grid */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.empty-slot {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed #333;
+    min-height: 0;
+}
+
+/* MOVIE CARD (Calendar Cell) */
+.movie-card {
+    position: relative;
+    background: #000;
+    border: 1px solid var(--zzz-border);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    /* Changed from hidden so badges can pop out */
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+    z-index: 20;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    border-color: var(--zzz-white);
+}
+
+/* Date Number (Day of Month) */
+.calendar-day-number {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-family: 'Rajdhani';
+    font-size: 1.2rem;
+    color: #666;
+    z-index: 50;
+    font-weight: bold;
+}
+
+.movie-card:hover .calendar-day-number {
+    color: #fff;
+    text-shadow: 0 0 5px var(--zzz-acid);
+}
+
+/* POSTER */
+.movie-poster-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Degradado para difuminar el corte del póster con el título */
+.movie-poster-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, #000 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.movie-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    /* Concentrar el foco en las caras y títulos */
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.movie-card:hover .movie-poster {
+    opacity: 1;
+}
+
+/* STATES */
+.redacted-slot-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.redacted-text {
+    font-family: 'Rajdhani';
+    font-style: italic;
+    color: #444;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.locked-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 17, 17, 0.7);
+    /* Translucent so poster is visible */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.no-signal {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.2;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, #222 1px, #222 2px);
+    pointer-events: none;
+}
+
+.lock-msg {
+    font-family: 'Rajdhani';
+    font-size: 0.9rem;
+    color: #555;
+    z-index: 2;
+}
+
+/* THURSDAY */
+.maintenance-overlay {
+    background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.maintenance-x {
+    color: #333;
+    font-size: 3rem;
+    font-weight: 900;
+}
+
+/* THEMATIC WEEK STYLES (CONTINUOUS BOUNDING BOX) */
+.movie-card.in-theme-week {
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+}
+
+.movie-card.in-theme-week::before {
+    content: '';
+    position: absolute;
+    /* Adjust these so the border lines up exactly with the card edge */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    /* Width includes the 10px grid gap to seamlessly connect to the next card */
+    width: calc(100% + 10px);
+    border-top: 3px solid;
+    border-bottom: 3px solid;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.movie-card.in-theme-week.theme-edge-left::before {
+    border-left: 3px solid;
+}
+
+.movie-card.in-theme-week.theme-edge-right::before {
+    width: 100%;
+    /* Ends the theme sequence or hits grid wall */
+    border-right: 3px solid;
+}
+
+.movie-card.in-theme-week:hover::before {
+    z-index: 20;
+}
+
+/* Base Theme Elevations to defeat grid stacking context */
+.movie-card.in-theme-week {
+    z-index: 20;
+}
+
+.movie-card.in-theme-week.theme-edge-left {
+    z-index: 50;
+    /* Force badge owners to paint on top of previous rows */
+}
+
+/* Base Theme Configurations */
+.movie-card.in-theme-week.border-prologue::before {
+    border-color: #00bfff;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.15), inset 0 0 15px rgba(0, 191, 255, 0.1);
+}
+
+.movie-card.in-theme-week.border-prologue:hover::before {
+    box-shadow: 0 0 25px rgba(0, 191, 255, 0.4), inset 0 0 20px rgba(0, 191, 255, 0.2);
+}
+
+.movie-card.in-theme-week.border-cyberpunk::before {
+    border-color: #ff00ff;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.15), inset 0 0 15px rgba(255, 0, 255, 0.1);
+}
+
+.movie-card.in-theme-week.border-cyberpunk:hover::before {
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.4), inset 0 0 20px rgba(255, 0, 255, 0.2);
+}
+
+.movie-card.in-theme-week.border-psychological::before {
+    border-color: #ff1493;
+    box-shadow: 0 0 15px rgba(255, 20, 147, 0.15), inset 0 0 15px rgba(255, 20, 147, 0.1);
+}
+
+.movie-card.in-theme-week.border-psychological:hover::before {
+    box-shadow: 0 0 25px rgba(255, 20, 147, 0.4), inset 0 0 20px rgba(255, 20, 147, 0.2);
+}
+
+.movie-card.in-theme-week.border-action::before {
+    border-color: #ff4500;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.15), inset 0 0 15px rgba(255, 69, 0, 0.1);
+}
+
+.movie-card.in-theme-week.border-action:hover::before {
+    box-shadow: 0 0 25px rgba(255, 69, 0, 0.4), inset 0 0 20px rgba(255, 69, 0, 0.2);
+}
+
+.movie-card.in-theme-week.border-fantasy-east::before {
+    border-color: #00fa9a;
+    box-shadow: 0 0 15px rgba(0, 250, 154, 0.15), inset 0 0 15px rgba(0, 250, 154, 0.1);
+}
+
+.movie-card.in-theme-week.border-fantasy-east:hover::before {
+    box-shadow: 0 0 25px rgba(0, 250, 154, 0.4), inset 0 0 20px rgba(0, 250, 154, 0.2);
+}
+
+.movie-card.in-theme-week.border-romance::before {
+    border-color: #ffb6c1;
+    box-shadow: 0 0 15px rgba(255, 182, 193, 0.15), inset 0 0 15px rgba(255, 182, 193, 0.1);
+}
+
+.movie-card.in-theme-week.border-romance:hover::before {
+    box-shadow: 0 0 25px rgba(255, 182, 193, 0.4), inset 0 0 20px rgba(255, 182, 193, 0.2);
+}
+
+.movie-card.in-theme-week.border-magic::before {
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.15), inset 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.movie-card.in-theme-week.border-magic:hover::before {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.movie-card.in-theme-week.border-cult::before {
+    border-color: #8b0000;
+    box-shadow: 0 0 15px rgba(139, 0, 0, 0.15), inset 0 0 15px rgba(139, 0, 0, 0.1);
+}
+
+.movie-card.in-theme-week.border-cult:hover::before {
+    box-shadow: 0 0 25px rgba(139, 0, 0, 0.4), inset 0 0 20px rgba(139, 0, 0, 0.2);
+}
+
+.movie-card.in-theme-week.border-comedy::before {
+    border-color: #ffa500;
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.15), inset 0 0 15px rgba(255, 165, 0, 0.1);
+}
+
+.movie-card.in-theme-week.border-comedy:hover::before {
+    box-shadow: 0 0 25px rgba(255, 165, 0, 0.4), inset 0 0 20px rgba(255, 165, 0, 0.2);
+}
+
+.movie-card.in-theme-week.border-scifi::before {
+    border-color: #00ffff;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15), inset 0 0 15px rgba(0, 255, 255, 0.1);
+}
+
+.movie-card.in-theme-week.border-scifi:hover::before {
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.movie-card.in-theme-week.border-gems::before {
+    border-color: #9370db;
+    box-shadow: 0 0 15px rgba(147, 112, 219, 0.15), inset 0 0 15px rgba(147, 112, 219, 0.1);
+}
+
+.movie-card.in-theme-week.border-gems:hover::before {
+    box-shadow: 0 0 25px rgba(147, 112, 219, 0.4), inset 0 0 20px rgba(147, 112, 219, 0.2);
+}
+
+.movie-card.in-theme-week.border-fantasy-modern::before {
+    border-color: #ffd1dc;
+    box-shadow: 0 0 15px rgba(255, 209, 220, 0.15), inset 0 0 15px rgba(255, 209, 220, 0.1);
+}
+
+.movie-card.in-theme-week.border-fantasy-modern:hover::before {
+    box-shadow: 0 0 25px rgba(255, 209, 220, 0.4), inset 0 0 20px rgba(255, 209, 220, 0.2);
+}
+
+.movie-card.in-theme-week.border-retro-future::before {
+    border-color: #deb887;
+    box-shadow: 0 0 15px rgba(222, 184, 135, 0.15), inset 0 0 15px rgba(222, 184, 135, 0.1);
+}
+
+.movie-card.in-theme-week.border-retro-future:hover::before {
+    box-shadow: 0 0 25px rgba(222, 184, 135, 0.4), inset 0 0 20px rgba(222, 184, 135, 0.2);
+}
+
+.movie-card.in-theme-week.border-action-glitch::before {
+    border-color: #dc143c;
+    box-shadow: 0 0 15px rgba(220, 20, 60, 0.15), inset 0 0 15px rgba(220, 20, 60, 0.1);
+}
+
+.movie-card.in-theme-week.border-action-glitch:hover::before {
+    box-shadow: 0 0 25px rgba(220, 20, 60, 0.4), inset 0 0 20px rgba(220, 20, 60, 0.2);
+}
+
+.movie-card.in-theme-week.border-classic-comedy::before {
+    border-color: #ff69b4;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.15), inset 0 0 15px rgba(255, 105, 180, 0.1);
+}
+
+.movie-card.in-theme-week.border-classic-comedy:hover::before {
+    box-shadow: 0 0 25px rgba(255, 105, 180, 0.4), inset 0 0 20px rgba(255, 105, 180, 0.2);
+}
+
+.movie-card.in-theme-week.border-china-3d::before {
+    border-color: #00ff7f;
+    box-shadow: 0 0 15px rgba(0, 255, 127, 0.15), inset 0 0 15px rgba(0, 255, 127, 0.1);
+}
+
+.movie-card.in-theme-week.border-china-3d:hover::before {
+    box-shadow: 0 0 25px rgba(0, 255, 127, 0.4), inset 0 0 20px rgba(0, 255, 127, 0.2);
+}
+
+.movie-card.in-theme-week.border-vfx-art::before {
+    border-color: #8a2be2;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.15), inset 0 0 15px rgba(138, 43, 226, 0.1);
+}
+
+.movie-card.in-theme-week.border-vfx-art:hover::before {
+    box-shadow: 0 0 25px rgba(138, 43, 226, 0.4), inset 0 0 20px rgba(138, 43, 226, 0.2);
+}
+
+/* Base Theme Badges */
+.theme-badge {
+    position: absolute;
+    top: -10px;
+    left: -2px;
+    padding: 3px 6px;
+    font-family: 'Kanit';
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    z-index: 100;
+}
+
+.badge-prologue {
+    background: #00bfff;
+    border: 1px solid #00bfff;
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.6);
+}
+
+.badge-cyberpunk {
+    background: #ff00ff;
+    border: 1px solid #ff00ff;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+}
+
+.badge-psychological {
+    background: #ff1493;
+    border: 1px solid #ff1493;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 20, 147, 0.6);
+}
+
+.badge-action {
+    background: #ff4500;
+    border: 1px solid #ff4500;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.6);
+}
+
+.badge-fantasy-east {
+    background: #00fa9a;
+    border: 1px solid #00fa9a;
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 250, 154, 0.6);
+}
+
+.badge-romance {
+    background: #ffb6c1;
+    border: 1px solid #ffb6c1;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.6);
+}
+
+.badge-magic {
+    background: #ffd700;
+    border: 1px solid #ffd700;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.badge-cult {
+    background: #8b0000;
+    border: 1px solid #8b0000;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+}
+
+.badge-comedy {
+    background: #ffa500;
+    border: 1px solid #ffa500;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.6);
+}
+
+.badge-scifi {
+    background: #00ffff;
+    border: 1px solid #00ffff;
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+}
+
+.badge-gems {
+    background: #9370db;
+    border: 1px solid #9370db;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.6);
+}
+
+.badge-fantasy-modern {
+    background: #ffd1dc;
+    border: 1px solid #ffd1dc;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 209, 220, 0.6);
+}
+
+.badge-retro-future {
+    background: #deb887;
+    border: 1px solid #deb887;
+    color: #000;
+    box-shadow: 0 0 10px rgba(222, 184, 135, 0.6);
+}
+
+.badge-action-glitch {
+    background: #dc143c;
+    border: 1px solid #dc143c;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.6);
+}
+
+.badge-classic-comedy {
+    background: #ff69b4;
+    border: 1px solid #ff69b4;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.6);
+}
+
+.badge-china-3d {
+    background: #00ff7f;
+    border: 1px solid #00ff7f;
+    color: #000;
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.6);
+}
+
+.badge-vfx-art {
+    background: #8a2be2;
+    border: 1px solid #8a2be2;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(138, 43, 226, 0.6);
+}
+
+.movie-card.theme-system {
+    border: 1px solid #333;
+    opacity: 0.5;
+}
+
+/* We must override theme-system border specifically when it's inside a theme week */
+.movie-card.theme-system.in-theme-week {
+    border: none;
+}
+
+.movie-card.theme-ghibli {
+    border-bottom: 3px solid #2ecc71;
+}
+
+.movie-card.theme-retro {
+    border-bottom: 3px solid #ff00ff;
+}
+
+.movie-card.theme-system {
+    border: 1px solid #333;
+    opacity: 0.5;
+}
+
+.movie-card.theme-terminal {
+    border-bottom: 3px solid #555;
+}
+
+/* MODAL (Same as before) */
+/* MODAL ENHANCEMENTS */
+.cinema-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: modalfadeIn 0.3s ease-out forwards;
+}
+
+@keyframes modalfadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+.cinema-modal {
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid var(--neon-cyan);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    transform: translateY(20px);
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* GLITCH EFFECT FOR LOCKED CARDS */
+.no-signal {
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.05) 2px,
+            rgba(255, 255, 255, 0.05) 4px);
+    animation: staticNoise 0.5s infinite steps(5);
+    opacity: 0.6;
+}
+
+@keyframes staticNoise {
+    0% {
+        transform: translateY(0) scale(1.01);
+        background-position: 0 0;
+    }
+
+    20% {
+        transform: translateY(-2px) scale(1.0);
+        background-position: 0 2px;
+    }
+
+    40% {
+        transform: translateY(2px) scale(1.02);
+        background-position: 0 -2px;
+    }
+
+    60% {
+        transform: translateY(-1px) scale(1.0);
+        background-position: 0 5px;
+    }
+
+    80% {
+        transform: translateY(1px) scale(1.01);
+        background-position: 0 -5px;
+    }
+
+    100% {
+        transform: translateY(0) scale(1.0);
+        background-position: 0 0;
+    }
+}
+
+.modal-poster {
+    width: 300px;
+    height: 450px;
+    object-fit: cover;
+    border: 2px solid #555;
+}
+
+.modal-content {
+    flex: 1;
+    color: var(--zzz-white);
+    padding: 20px;
+}
+
+.modal-title {
+    font-family: 'Kanit';
+    font-style: italic;
+    font-size: 3rem;
+    margin: 0 0 20px 0;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: var(--zzz-acid);
+}
+
+.modal-vibes {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.modal-desc {
+    font-family: 'Rajdhani';
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #ddd;
+}
+
+.tech-spec-box {
+    background: #000;
+    border: 1px dashed var(--zzz-orange);
+    padding: 15px;
+    color: var(--zzz-orange);
+    font-family: 'Rajdhani';
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #111;
+    border: 2px solid var(--zzz-white);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    font-family: 'Kanit';
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    color: var(--zzz-acid);
+}
+
+/* BACKGROUND FILM STRIPS */
+.cinema-background-strips {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    /* Behind all content but above base background */
+    pointer-events: none;
+    filter: blur(5px);
+    opacity: 0.15;
+    /* Subtle experimental look */
+}
+
+/* Base film strip styles */
+.film-strip {
+    position: absolute;
+    width: 200vw;
+    left: -50vw;
+    height: 140px;
+    background-color: rgba(10, 15, 20, 0.5);
+    /* Deep dark tint */
+    background-image:
+        /* Top holes: 20px pattern (12px cyan-ish hole, 8px transparent base) */
+        linear-gradient(to right, rgba(0, 255, 255, 0.3) 12px, transparent 12px),
+        /* Bottom holes */
+        linear-gradient(to right, rgba(0, 255, 255, 0.3) 12px, transparent 12px),
+        /* Frame Separators */
+        linear-gradient(to right, transparent 195px, rgba(0, 0, 0, 0.8) 195px);
+
+    background-position: 0 0, 0 100%, 0 0;
+    background-size: 20px 15px, 20px 15px, 200px 100%;
+    background-repeat: repeat-x;
+
+    border-top: 1px solid rgba(0, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
+}
+
+/* Individual strips positioning and animation */
+.strip-1 {
+    top: -40%;
+    transform: rotate(-25deg);
+    animation: scrollFilmRight 4s linear infinite;
+    opacity: 0.6;
+}
+
+.strip-2 {
+    top: -10%;
+    transform: rotate(-25deg);
+    animation: scrollFilmLeft 5s linear infinite;
+    opacity: 0.8;
+}
+
+.strip-3 {
+    top: 20%;
+    transform: rotate(-25deg);
+    animation: scrollFilmRight 7s linear infinite;
+    opacity: 0.5;
+}
+
+.strip-4 {
+    top: 50%;
+    transform: rotate(-25deg);
+    animation: scrollFilmLeft 4.5s linear infinite;
+    opacity: 0.7;
+}
+
+.strip-5 {
+    top: 80%;
+    transform: rotate(-25deg);
+    animation: scrollFilmRight 5.5s linear infinite;
+    opacity: 0.4;
+}
+
+.strip-6 {
+    top: 110%;
+    transform: rotate(-25deg);
+    animation: scrollFilmLeft 7.5s linear infinite;
+    opacity: 0.9;
+}
+
+.strip-7 {
+    top: 140%;
+    transform: rotate(-25deg);
+    animation: scrollFilmRight 4.5s linear infinite;
+    opacity: 0.5;
+}
+
+.strip-8 {
+    top: 170%;
+    transform: rotate(-25deg);
+    animation: scrollFilmLeft 6s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes scrollFilmLeft {
+    from {
+        background-position-x: 0, 0, 0;
+    }
+
+    to {
+        background-position-x: -200px, -200px, -200px;
+    }
+
+    /* Must be multiple of 20 and 200 */
+}
+
+@keyframes scrollFilmRight {
+    from {
+        background-position-x: 0, 0, 0;
+    }
+
+    to {
+        background-position-x: 200px, 200px, 200px;
+    }
+}
+
+/* RGB GLITCH HOVER EFFECT */
+@keyframes glitchFilter {
+    0% {
+        filter: drop-shadow(4px 0 0 rgba(255, 0, 60, 0.8)) drop-shadow(-4px 0 0 rgba(0, 240, 255, 0.8));
+    }
+
+    25% {
+        filter: drop-shadow(0 0 0 transparent);
+    }
+
+    50% {
+        filter: drop-shadow(-4px 0 0 rgba(255, 0, 60, 0.8)) drop-shadow(4px 0 0 rgba(0, 240, 255, 0.8));
+    }
+
+    75% {
+        filter: drop-shadow(0 0 0 transparent);
+    }
+
+    100% {
+        filter: drop-shadow(2px 3px 0 rgba(255, 0, 60, 0.8)) drop-shadow(-2px -3px 0 rgba(0, 240, 255, 0.8));
+    }
+}
+
+@keyframes glitchText {
+    0% {
+        text-shadow: 2px 0 0 #ff003c, -2px 0 0 #00f0ff;
+    }
+
+    25% {
+        text-shadow: none;
+    }
+
+    50% {
+        text-shadow: -2px 0 0 #ff003c, 2px 0 0 #00f0ff;
+    }
+
+    75% {
+        text-shadow: none;
+    }
+
+    100% {
+        text-shadow: 1px -1px 0 #ff003c, -1px 1px 0 #00f0ff;
+    }
+}
+
+.movie-card.revealed:hover .movie-poster {
+    animation: glitchFilter 0.25s infinite;
+}
+
+.movie-card.revealed:hover .movie-title {
+    animation: glitchText 0.25s infinite alternate;
+}
+
+/* RESPONSIVE */
+@media (max-width: 800px) {
+
+    .calendar-grid,
+    .week-header {
+        grid-template-columns: repeat(1, 1fr);
+        /* Stack on mobile */
+    }
+
+    .empty-slot {
+        display: none;
+    }
+
+    /* Hide empty slots on mobile */
+    .cinema-modal {
+        flex-direction: column;
+        padding: 20px;
+        overflow-y: auto;
+        max-height: 90vh;
+    }
+
+    .modal-poster {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+}
