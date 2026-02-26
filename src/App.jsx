@@ -23,7 +23,6 @@ import TransitionScreen from './components/TransitionScreen';
 // 🔥 NUEVO: Componente CINE
 import { CinemaSection } from './components/CinemaSection';
 import CinemaIntro from './components/CinemaIntro'; // <-- IMPORTED INTRO
-
 function App() {
   // Estado inicial en 'landing'
   const [activeSection, setActiveSection] = useState('landing');
@@ -31,7 +30,6 @@ function App() {
   const [zzzLoading, setZzzLoading] = useState(true);
   // Estado de carga para la sección CINE
   const [cinemaLoading, setCinemaLoading] = useState(true);
-
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('np_theme');
     return savedTheme || 'overworld';
@@ -109,7 +107,6 @@ function App() {
       </div>
     );
   }
-
   // --- SECCIÓN CINE (TERMINAL) ---
   if (activeSection === 'cinema') {
     return (
@@ -124,7 +121,6 @@ function App() {
       </div>
     );
   }
-
   // --- SECCIÓN MINECRAFT ---
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

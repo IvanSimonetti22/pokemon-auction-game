@@ -144,6 +144,104 @@ let gameSettings = {      // Configuración por defecto
   region: 'all'
 };
 
+// 🔥 GENERADOR DE TIENDA RÁPIDA (Ponderada)
+const generateQuickShop = async () => {
+  const shopItems = [];
+  // Copia local para evitar duplicados en la misma tira
+  const localPool = [...MASTER_ITEM_LIST];
+
+  for (let i = 0; i < 5; i++) {
+    if (localPool.length === 0) break;
+
+    // Lógica de Ponderación: 40% Baya, 60% Otro
+    // Filtramos las bayas disponibles
+    const berries = localPool.filter(i => i.includes('berry'));
+    const others = localPool.filter(i => !i.includes('berry'));
+
+    let selectedName;
+    // Si hay bayas y sale el chance (o no hay otros), sacamos baya
+    if (berries.length > 0 && (Math.random() < 0.4 || others.length === 0)) {
+      const idx = Math.floor(Math.random() * berries.length);
+      selectedName = berries[idx];
+    } else {
+      // Si no es baya (o no hay bayas), sacamos otro
+      const idx = Math.floor(Math.random() * others.length);
+      selectedName = others[idx];
+    }
+
+    // Lo sacamos del pool local para no repetir en esta tienda
+    const removeIdx = localPool.indexOf(selectedName);
+    if (removeIdx > -1) localPool.splice(removeIdx, 1);
+
+    // FETCH DATA
+    try {
+      const res = await axios.get(`https://pokeapi.co/api/v2/item/${selectedName}`);
+      const data = res.data;
+      const nameEntry = data.names.find(n => n.language.name === 'es');
+      const manualData = MANUAL_TRANSLATIONS[selectedName];
+      const displayName = manualData?.name || (nameEntry ? nameEntry.name : data.name);
+
+      const esEntries = data.flavor_text_entries.filter(f => f.language.name === 'es');
+      const enEntries = data.flavor_text_entries.filter(f => f.language.name === 'en');
+
+      let description = manualData?.desc || (esEntries.length > 0
+        ? esEntries[esEntries.length - 1].text
+        : (enEntries.length > 0 ? enEntries[enEntries.length - 1].text : "Sin descripción."));
+      description = description.replace(/[\n\f]/g, ' ');
+
+      let sprite = data.sprites.default;
+      if (!sprite) sprite = `https://play.pokemonshowdown.com/sprites/itemicons/${selectedName}.png`;
+
+      // 🔥 PRECIO DINÁMICO x1.5
+      let basePrice = 500;
+      if (['life-orb', 'choice-band', 'choice-specs', 'choice-scarf', 'leftovers', 'mirror-herb', 'assault-vest'].includes(selectedName)) basePrice = 1000;
+
+      let finalPrice = Math.floor(basePrice * 1.5);
+
+      shopItems.push({
+        id: selectedName, // ID simple para la tienda
+        name: data.name,
+        displayName,
+        sprite,
+        description,
+        price: finalPrice
+      });
+    } catch (e) { console.error("Error gen shop item:", selectedName); }
+  }
+  return shopItems;
+};
+
+// 🔥 DICCIONARIO DE TRADUCCIÓN MANUAL (Para cosas que la API devuelve en Inglés/Vacío)
+const MANUAL_TRANSLATIONS = {
+  // Items Gen 9 & Nuevos
+  'mirror-herb': { name: 'Hierba Copia', desc: 'Copia los aumentos de estadísticas del rival una vez.' },
+  'loaded-dice': { name: 'Dado Trucado', desc: 'Aumenta la probabilidad de acertar golpes múltiples.' },
+  'covert-cloak': { name: 'Capa Furtiva', desc: 'Protege de los efectos secundarios de los movimientos.' },
+  'booster-energy': { name: 'Energía Potenciadora', desc: 'Activa la habilidad de las paradojas del pasado/futuro.' },
+  'clear-amulet': { name: 'Amuleto Puro', desc: 'Evita que bajen las estadísticas por movimientos rivales.' },
+  'punching-glove': { name: 'Guante de Boxeo', desc: 'Potencia los movimientos de puños y protege del contacto.' },
+  'ability-shield': { name: 'Escudo Habilidad', desc: 'Evita que la habilidad del portador sea anulada.' },
+  'fairy-feather': { name: 'Pluma Feérica', desc: 'Potencia los movimientos de tipo Hada.' },
+  // Habilidades Especiales / Gen 9
+  'full-metal-body': { name: 'Guardia Metálica', desc: 'Evita que bajen sus características a causa de movimientos o habilidades de otros Pokémon.' },
+  'neuroforce': { name: 'Fuerza Cerebral', desc: 'Potencia los ataques supereficaces.' },
+  'prism-armor': { name: 'Armadura Prisma', desc: 'Reduce el daño de ataques supereficaces.' },
+  'shadow-shield': { name: 'Guardia Espectro', desc: 'Reduce el daño recibido si los PS están al máximo.' },
+  'beast-boost': { name: 'Ultraimpulso', desc: 'Sube la estadística más alta al debilitar a un rival.' },
+  'quark-drive': { name: 'Carga Cuark', desc: 'Sube la estadística más alta en Campo Eléctrico o con Energía Potenciadora.' },
+  'protosynthesis': { name: 'Protosíntesis', desc: 'Sube la estadística más alta en Sol o con Energía Potenciadora.' },
+  'orichalcum-pulse': { name: 'Latido Oricalco', desc: 'Invoca el sol al entrar y potencia el Ataque.' },
+  'hadron-engine': { name: 'Motor Hadrónico', desc: 'Invoca un Campo Eléctrico al entrar y potencia el Ataque Especial.' },
+  'supreme-overlord': { name: 'General Supremo', desc: 'Aumenta el ataque por cada aliado debilitado.' },
+  'cud-chew': { name: 'Rumia', desc: 'El Pokémon vuelve a comer una baya tras usarla.' },
+  'sharpness': { name: 'Cortante', desc: 'Potencia los movimientos de corte.' },
+  'good-as-gold': { name: 'Cuerpo Áureo', desc: 'Inmune a los movimientos de estado.' },
+  'purifying-salt': { name: 'Sal Purificadora', desc: 'Inmune a problemas de estado y resiste Fantasma.' },
+  'well-baked-body': { name: 'Cuerpo Horneado', desc: 'Inmune a Fuego y sube Defensa drásticamente si le golpean.' },
+  'wind-rider': { name: 'Surcavientos', desc: 'Inmune a Viento y sube Ataque si le golpean o hay viento.' },
+  'mycelium-might': { name: 'Poder Fúngico', desc: 'Los movimientos de estado actúan lento pero ignoran habilidades.' }
+};
+
 // LISTA DE PRECIOS DE TIENDA (Debe coincidir con el frontend)
 const SHOP_PRICES = {
   'leftovers': 2000,
@@ -190,33 +288,31 @@ const stopGameFull = () => {
 };
 
 // --- FUNCIÓN DE GENERACIÓN (Un solo Pokémon) ---
-const fetchPokemonData = async (mode = 'competitivo', region = 'all', ignoreDuplicates = false) => {
+const fetchPokemonData = async (mode = 'competitivo', region = 'all', ignoreDuplicates = false, forceTarget = null) => {
   try {
-    // Intentos para encontrar uno no repetido
-    for (let i = 0; i < 5; i++) {
-      let targetNameOrId;
+    // Intentos para encontrar uno no repetido (1 si es forzado)
+    const maxAttempts = forceTarget ? 1 : 5;
+    for (let i = 0; i < maxAttempts; i++) {
+      let targetNameOrId = forceTarget;
 
       // 🔥 TEST MODE: FORZAR RAREZA CÍCLICA
       let forcedRarity = null;
-      if (TEST_MODE) {
-        forcedRarity = TEST_SPAWN_CYCLE[testSpawnIndex % TEST_SPAWN_CYCLE.length];
-        // Lógica simple para obtener ID basado en rareza (aprox)
-        // Esto es complejo sin una lista local, así que usaremos un hack:
-        // Si es comun -> ID random 1-898
-        // Si es pseudo -> Pick from PSEUDO_LEGENDARIES
-        // Si es legendario -> Pick random legend ID (necesitaríamos lista, usaremos un set pequeño conocido o IDs altos)
 
-        if (forcedRarity === 'pseudolegendario') {
-          targetNameOrId = PSEUDO_LEGENDARIES[Math.floor(Math.random() * PSEUDO_LEGENDARIES.length)];
-        } else if (forcedRarity === 'legendario') {
-          // IDs de algunos legendarios conocidos
-          const legends = [144, 145, 146, 150, 243, 244, 245, 249, 250, 382, 383, 384, 483, 484, 487];
-          targetNameOrId = legends[Math.floor(Math.random() * legends.length)];
+      if (!targetNameOrId) {
+        if (TEST_MODE) {
+          forcedRarity = TEST_SPAWN_CYCLE[testSpawnIndex % TEST_SPAWN_CYCLE.length];
+
+          if (forcedRarity === 'pseudolegendario') {
+            targetNameOrId = PSEUDO_LEGENDARIES[Math.floor(Math.random() * PSEUDO_LEGENDARIES.length)];
+          } else if (forcedRarity === 'legendario') {
+            const legends = [144, 145, 146, 150, 243, 244, 245, 249, 250, 382, 383, 384, 483, 484, 487];
+            targetNameOrId = legends[Math.floor(Math.random() * legends.length)];
+          } else {
+            targetNameOrId = Math.floor(Math.random() * 500) + 1;
+          }
         } else {
-          targetNameOrId = Math.floor(Math.random() * 500) + 1; // Comunes gen 1-5 aprox
+          targetNameOrId = Math.floor(Math.random() * 905) + 1;
         }
-      } else {
-        targetNameOrId = Math.floor(Math.random() * 905) + 1;
       }
 
       const speciesRes = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${targetNameOrId}`);
@@ -254,12 +350,23 @@ const fetchPokemonData = async (mode = 'competitivo', region = 'all', ignoreDupl
           const abRes = await axios.get(a.ability.url);
           const abilityData = abRes.data;
           const spaEntry = abilityData.names.find(n => n.language.name === 'es');
-          const displayName = spaEntry ? spaEntry.name : abilityData.name;
+          const finalValues = MANUAL_TRANSLATIONS[a.ability.name] || {}; // 🔥 Check manual
+
+          const displayName = finalValues.name || (spaEntry ? spaEntry.name : abilityData.name);
           const engEntry = abilityData.names.find(n => n.language.name === 'en');
           const engName = engEntry ? engEntry.name : abilityData.name;
           const flavor = abilityData.flavor_text_entries.find(f => f.language.name === 'es');
-          return { name: displayName, engName: engName, isHidden: a.is_hidden, description: flavor ? flavor.flavor_text : "..." };
-        } catch { return { name: a.ability.name, engName: a.ability.name, description: "...", isHidden: a.is_hidden }; }
+
+          const description = finalValues.desc || (flavor ? flavor.flavor_text : "...");
+
+          return { name: displayName, engName: engName, isHidden: a.is_hidden, description: description };
+        } catch {
+          // Fallback en catch también
+          const manual = MANUAL_TRANSLATIONS[a.ability.name];
+          const name = manual ? manual.name : a.ability.name;
+          const desc = manual ? manual.desc : "...";
+          return { name: name, engName: a.ability.name, description: desc, isHidden: a.is_hidden };
+        }
       }));
 
       const types = finalData.types.map(t => ({ original: t.type.name, translated: TYPE_TRANSLATIONS[t.type.name] || t.type.name }));
@@ -304,11 +411,28 @@ const fetchPokemonData = async (mode = 'competitivo', region = 'all', ignoreDupl
   }
 };
 
-// 🔥 HELPER DE REROLL: Busca un Pokémon de la MISMA rareza
+// 🔥 HELPER DE REROLL: Busca un Pokémon de la MISMA rareza (OPTIMIZADO)
 const fetchPokemonByRarity = async (targetRarity, excludedName) => {
+  // 1. INTENTO DIRECTO (Listas conocidas)
+  if (targetRarity === 'ultraente' && ULTRA_BEASTS.length > 0) {
+    const candidates = ULTRA_BEASTS.filter(n => n !== excludedName);
+    if (candidates.length > 0) {
+      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      console.log(`[REROLL] Smart Force: ${targetRarity} -> ${target}`);
+      return await fetchPokemonData(gameSettings.mode, gameSettings.region, true, target);
+    }
+  }
+  if (targetRarity === 'pseudolegendario' && PSEUDO_LEGENDARIES.length > 0) {
+    const candidates = PSEUDO_LEGENDARIES.filter(n => n !== excludedName);
+    if (candidates.length > 0) {
+      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      console.log(`[REROLL] Smart Force: ${targetRarity} -> ${target}`);
+      return await fetchPokemonData(gameSettings.mode, gameSettings.region, true, target);
+    }
+  }
+
+  // 2. FALLBACK: BÚSQUEDA ALEATORIA (Para Comunes/Legendarios sin lista completa)
   let attempts = 0;
-  // Aumentamos mucho los intentos y permitimos duplicados globales (ignoreDuplicates=true)
-  // para evitar que se quede sin opciones si ya salieron muchos legendarios.
   while (attempts < 30) {
     const p = await fetchPokemonData(gameSettings.mode, gameSettings.region, true);
     if (p && p.rarity === targetRarity && p.name !== excludedName) {
@@ -317,7 +441,7 @@ const fetchPokemonByRarity = async (targetRarity, excludedName) => {
     attempts++;
   }
 
-  // Si falla, devolvemos NULL y que el frontend maneje el error o reintentamos sin filtro (panic mode)
+  // Si falla, devolvemos NULL
   console.warn(`⚠️ Reroll: No se encontró MATCH exacto para ${targetRarity} tras 30 intentos.`);
   return null;
 };
@@ -385,7 +509,7 @@ const getAllFinalEvolutions = (chain, finals = []) => {
 // (El generador de pool se eliminó a favor del buffer)
 
 const generateItemPool = async (numPlayers) => {
-  const poolSize = numPlayers * 4;
+  const poolSize = numPlayers * 8;
   let pool = [];
   console.log(`💎 Generando OBJETOS...`);
   const shuffled = MASTER_ITEM_LIST.sort(() => 0.5 - Math.random()).slice(0, poolSize);
@@ -395,11 +519,25 @@ const generateItemPool = async (numPlayers) => {
       const res = await axios.get(`https://pokeapi.co/api/v2/item/${itemName}`);
       const data = res.data;
       const nameEntry = data.names.find(n => n.language.name === 'es');
-      const displayName = nameEntry ? nameEntry.name : data.name;
+      const manualData = MANUAL_TRANSLATIONS[itemName];
+      const displayName = manualData?.name || (nameEntry ? nameEntry.name : data.name);
       const esEntries = data.flavor_text_entries.filter(f => f.language.name === 'es');
-      let description = esEntries.length > 0 ? esEntries[esEntries.length - 1].text : "Sin descripción.";
+      const enEntries = data.flavor_text_entries.filter(f => f.language.name === 'en'); // Fallback EN
+
+      let description = manualData?.desc || (esEntries.length > 0
+        ? esEntries[esEntries.length - 1].text
+        : (enEntries.length > 0 ? enEntries[enEntries.length - 1].text : "Sin descripción."));
+
       description = description.replace(/[\n\f]/g, ' ');
-      const sprite = data.sprites.default || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+
+      // 🔥 FIX GEN 9 SPRITES: Si no hay default, usar Showdown
+      let sprite = data.sprites.default;
+      if (!sprite) {
+        // Intento manual con Showdown para items nuevos (mirror-herb, loaded-dice, etc.)
+        // Normalizamos el nombre: mirror-herb -> mirrorherb (Showdown suele usar nombres pegados o dash, probemos dash primero)
+        // Showdown: https://play.pokemonshowdown.com/sprites/itemicons/mirror-herb.png
+        sprite = `https://play.pokemonshowdown.com/sprites/itemicons/${itemName}.png`;
+      }
       let price = 500;
       if (['life-orb', 'choice-band', 'choice-specs', 'choice-scarf', 'leftovers'].includes(itemName)) price = 1000;
 
@@ -458,8 +596,8 @@ const startRound = async () => {
   const playerCount = activePlayerIds.length;
   if (playerCount === 0) return;
 
-  // LÍMITE DE RONDAS: 8 por cada jugador conectado (o 6 TOTAL en Test Mode)
-  let MAX_ROUNDS = playerCount * 8;
+  // LÍMITE DE RONDAS: 9 por cada jugador conectado (o 6 TOTAL en Test Mode)
+  let MAX_ROUNDS = playerCount * 9;
   if (TEST_MODE) MAX_ROUNDS = 6;
 
   let nextThing = null;
@@ -486,6 +624,20 @@ const startRound = async () => {
         gameState.phase = 'management';
         gameState.status = 'management';
         gameState.currentAuction = null;
+        // 🔥 GENERAR TIENDAS INDIVIDUALES (TEST MODE)
+        console.log("🏪 (TEST) Generando tiendas para la Mesa de Trabajo...");
+        const connectedSockets = Object.keys(activeSockets);
+        for (const sId of connectedSockets) {
+          const pKey = activeSockets[sId];
+          if (persistentData[pKey]) {
+            persistentData[pKey].shopItems = await generateQuickShop();
+            persistentData[pKey].rerollCost = 1500;
+            io.to(sId).emit('shop_updated', {
+              items: persistentData[pKey].shopItems,
+              rerollCost: 1500
+            });
+          }
+        }
         io.emit('phase_transition', { phaseName: "MESA DE TRABAJO" });
         io.emit('round_ended', { message: "MERCADO CERRADO - FINALIZADO" });
         io.emit('update_game', gameState);
@@ -532,6 +684,22 @@ const startRound = async () => {
       gameState.phase = 'management';   // <--- Esto obliga a React a cambiar de vista
       gameState.status = 'management';
       gameState.currentAuction = null;
+
+      // 🔥 GENERAR TIENDAS INDIVIDUALES
+      console.log("🏪 Generando tiendas para la Mesa de Trabajo...");
+      const connectedSockets = Object.keys(activeSockets);
+      for (const sId of connectedSockets) {
+        const pKey = activeSockets[sId];
+        if (persistentData[pKey]) {
+          persistentData[pKey].shopItems = await generateQuickShop();
+          persistentData[pKey].rerollCost = 1500; // Reset costo
+          // Enviamos update personal
+          io.to(sId).emit('shop_updated', {
+            items: persistentData[pKey].shopItems,
+            rerollCost: 1500
+          });
+        }
+      }
 
       // 2. EVENTO ORIGINAL (El que ya funcionaba visualmente)
       // Esto cierra la subasta y muestra el mensaje final
@@ -722,7 +890,9 @@ io.on('connection', (socket) => {
       originalName: nickname, // Mantener compatibilidad
       inventory: [],
       items: [],
-      rerollCount: 0 // 🔥 Dynamic Pricing Tracking
+      rerollCount: 0,
+      shopItems: [], // 🔥 Tienda individual
+      rerollCost: 1500 // 🔥 Costo inicial de Reroll (Mesa de Trabajo)
     };
 
     // Guardamos en estructuras existentes para no romper lógica actual
@@ -796,30 +966,91 @@ io.on('connection', (socket) => {
     if (gameState.status !== 'playing') return;
     const key = activeSockets[socket.id];
     const p = persistentData[key];
+    if ((gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) && gameState.phase !== 'management') return socket.emit('error_message', "Equipo Lleno"); // Only block if pokemon phase? Actually items don't have limit per se in auction
+    // Logic fix: Item phase is fine. Pokemon phase checks inventory.
     if (gameState.currentAuction.type === 'pokemon' && p.inventory.length >= 6) return socket.emit('error_message', "Equipo Lleno");
+
     if (p.money < amt) return socket.emit('error_message', "Sin Fondos");
 
     // 🔥 VALIDACIÓN CRÍTICA: La puja debe ser mayor a la actual
     if (amt > gameState.highestBid) {
       gameState.highestBid = amt;
-      gameState.highestBidder = p.originalName;
+      gameState.highestBidder = p.nickname; // Store nickname
 
-      // 🔥 TAREA: DIMINISHING RETURNS EN TIEMPO EXTRA
-      if (gameState.timer < 5) {
-        // Primera vez vuelve a 8, luego 7, 6... mínimo 5.
-        let newTime = 8 - gameState.extensions;
-        if (newTime < 5) newTime = 5;
+      // TRACK BIDDER for Saver's Bonus
+      activeBidders.add(socket.id);
 
-        gameState.timer = newTime;
-        gameState.extensions++; // Aumentar penalización para la próxima
+      // Reset timer on bid (snipe protection) with DECAY
+      // 1st reset: 8s, 2nd: 7s, 3rd: 6s, 4th+: 5s.
+      const resetTarget = Math.max(5, 8 - gameState.extensions);
+
+      if (gameState.timer < resetTarget) {
+        gameState.timer = resetTarget;
+        gameState.extensions++; // Count this as an extension
       }
 
-      // 🔥 TAREA 3: Registrar pujador activo
-      activeBidders.add(p.id);
+      io.emit('bid_update', { amount: amt, bidder: p.nickname, timer: gameState.timer });
+    });
+  // 🔥 NUEVO: Reroll de Tienda
+  socket.on('reroll_shop', async () => {
+    const key = activeSockets[socket.id];
+    if (!key || !persistentData[key]) return;
+    const p = persistentData[key];
 
-      io.emit('bid_update', { amount: amt, bidder: p.originalName, timer: gameState.timer });
-    }
+    if (p.money < p.rerollCost) return socket.emit('error_message', "Sin fondos para Reroll");
+
+    // Cobrar
+    p.money -= p.rerollCost;
+
+    // Generar nuevos items
+    p.shopItems = await generateQuickShop();
+
+    // Aumentar precio (+1500)
+    p.rerollCost += 1500;
+
+    // Notificar
+    socket.emit('shop_updated', { items: p.shopItems, rerollCost: p.rerollCost });
+    broadcastPlayerList(); // Para actualizar dinero
+    socket.emit('chat_message', { user: 'TIENDA', text: `🔄 ¡Nuevos productos llegaron!`, type: 'system-subtle' });
   });
+
+  // 🔥 COMPRAR ITEM (Tienda Dinámica)
+  socket.on('buy_shop_item', (itemId) => {
+    const key = activeSockets[socket.id];
+    if (!key || !persistentData[key]) return;
+    const p = persistentData[key];
+
+    // Buscar en SU tienda, no en la lista estática
+    const item = p.shopItems.find(i => i.id === itemId);
+
+    if (!item) return socket.emit('error_message', "Item no disponible o expirado.");
+    if (p.money < item.price) return socket.emit('error_message', "Sin Fondos");
+
+    // Logica de limites (igual que antes)
+    const inBag = p.items.filter(i => i.id === item.id).length;
+    const equipped = p.inventory.filter(poke => poke.heldItem && poke.heldItem.id === item.id).length;
+    const limit = item.id.includes('berry') ? 3 : 1;
+
+    if ((inBag + equipped) >= limit) return socket.emit('error_message', "Límite alcanzado para este objeto.");
+
+    p.money -= item.price;
+
+    // Crear objeto físico para inventario
+    // Usamos item de shop como base, pero le damos ID único para inventario si queremos (o usamos mismo ID agrupadore)
+    // El sistema actual usa ID tipo 'item-X-name'. Generémoslo igual.
+    const newItem = {
+      ...item,
+      type: 'item',
+      id: `shop-${Date.now()}-${item.id}`, // Unique instance ID
+      originalId: item.id
+    };
+
+    p.items.push(newItem);
+
+    socket.emit('item_bought_success');
+    broadcastPlayerList();
+  });
+
 
   socket.on('equip_item', ({ itemIndex, pokemonIndex }) => {
     const key = activeSockets[socket.id]; if (!key) return;
@@ -837,55 +1068,7 @@ io.on('connection', (socket) => {
 
 
   // 1. Comprar Objeto (CON LÍMITES REALES: MOCHILA + EQUIPADOS)
-  socket.on('buy_shop_item', (itemId) => {
-    const key = activeSockets[socket.id]; if (!key) return;
-    const player = persistentData[key];
 
-    const price = SHOP_PRICES[itemId];
-    if (!price) return;
-
-    // Asegurar arrays
-    if (!player.items) player.items = [];
-    if (!player.inventory) player.inventory = [];
-
-    // --- VALIDACIÓN DE LÍMITE MEJORADA ---
-    // 1. Contamos cuántos tiene en la mochila
-    const inBagCount = player.items.filter(i => i.id === itemId).length;
-
-    // 2. Contamos cuántos tiene EQUIPADOS en sus Pokémon
-    const equippedCount = player.inventory.filter(p => p.heldItem && p.heldItem.id === itemId).length;
-
-    // 3. Suma total
-    const totalCount = inBagCount + equippedCount;
-
-    // Definimos el límite
-    const limit = itemId.includes('berry') ? 3 : 1;
-
-    if (totalCount >= limit) {
-      // Si intenta comprar por trampa o lag, mandamos error
-      socket.emit('error_message', `¡Ya tienes el máximo (${limit}) de este objeto (Mochila + Equipado)!`);
-      return;
-    }
-    // -------------------------------------
-
-    if (player.money >= price) {
-      player.money -= price;
-
-      player.items.push({
-        id: itemId,
-        name: SHOP_NAMES_EN[itemId],    // 🔥 INGLÉS: Para exportar a Showdown
-        displayName: SHOP_NAMES_ES[itemId], // 🔥 ESPAÑOL: Para mostrar en la mochila
-        sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${itemId}.png`
-      });
-
-      // CORRECCIÓN: El código original usaba broadcastPlayerList(). 'players' venía del prompt del usuario pero aquí usamos broadcastPlayerList()
-      broadcastPlayerList();
-
-      socket.emit('item_bought_success'); // Confirmación para sonido
-    } else {
-      socket.emit('error_message', 'No tienes suficiente dinero.');
-    }
-  });
 
   // 🔥 TAREA 1: RECOMBINADOR GENÉTICO (Antes: Reroll)
   socket.on('reroll_pokemon', async ({ pokemonIndex }) => {
@@ -954,12 +1137,33 @@ io.on('connection', (socket) => {
     }
   });
 
+
   socket.on('send_message', (msg) => {
     const k = activeSockets[socket.id]; if (k) io.emit('chat_message', { user: persistentData[k].originalName, text: msg, type: 'player' });
   });
 
   socket.on('disconnect', () => handleDisconnect(socket.id));
   socket.on('leave_game', () => handleDisconnect(socket.id));
+
+  // 🔥 NUEVO: Solicitud de estado de tienda (para reconexiones o fallos de carga)
+  socket.on('request_shop_state', () => {
+    const key = activeSockets[socket.id];
+    if (!key || !persistentData[key]) return;
+    const p = persistentData[key];
+
+    // Si no tiene items generados, generarlos ahora
+    if (!p.shopItems || p.shopItems.length === 0) {
+      generateQuickShop().then(items => {
+        p.shopItems = items;
+        p.rerollCost = p.rerollCost || 1500;
+        socket.emit('shop_updated', { items: p.shopItems, rerollCost: p.rerollCost });
+      });
+    } else {
+      // Si ya tiene, solo enviar
+      socket.emit('shop_updated', { items: p.shopItems, rerollCost: p.rerollCost || 1500 });
+    }
+  });
+
 });
 
 // 🔥 CAMBIO CRÍTICO: Render nos da el puerto en process.env.PORT

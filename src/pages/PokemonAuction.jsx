@@ -57,7 +57,8 @@ const GAME_SFX = {
     teleport: '/sounds/teleport.mp3',
     itemSpawn: '/sounds/Item_Aparicion.mp3',
     noFunds: '/sounds/Sin_fondos.mp3',
-    itemFlee: '/sounds/Item_Escapa.mp3'
+    itemFlee: '/sounds/Item_Escapa.mp3',
+    wonderTrade: '/sounds/Intercambio_Prodigioso.mp3'
 };
 
 const SPECIAL_CAPTURE_SOUNDS = {
@@ -66,14 +67,6 @@ const SPECIAL_CAPTURE_SOUNDS = {
     registeel: '/sounds/registeel.mp3',
     regigigas: '/sounds/regigigas.mp3'
 };
-
-const SHOP_ITEMS = [
-    { id: 'leftovers', name: 'Leftovers', displayName: 'Restos', price: 2000, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png' },
-    { id: 'life-orb', name: 'Life Orb', displayName: 'Vidasfera', price: 1500, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/life-orb.png' },
-    { id: 'choice-scarf', name: 'Choice Scarf', displayName: 'Pañuelo Elección', price: 1000, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/choice-scarf.png' },
-    { id: 'focus-sash', name: 'Focus Sash', displayName: 'Banda Focus', price: 1000, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/focus-sash.png' },
-    { id: 'sitrus-berry', name: 'Sitrus Berry', displayName: 'Baya Zidra', price: 500, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/sitrus-berry.png' }
-];
 
 // 🎨 COLORES DE TIPOS (Extraídos de tu CSS para consistencia)
 const TYPE_COLORS = {
@@ -179,6 +172,10 @@ export const PokemonAuction = ({ onBack }) => {
 
     const [isChatMinimized, setIsChatMinimized] = useState(false); // Estado para el chat
     const [winnerAnim, setWinnerAnim] = useState(null); // { winner: 'Nick', sprite: 'url' }
+
+    // 🔥 ESTADOS TIENDA DINÁMICA
+    const [shopItems, setShopItems] = useState([]);
+    const [rerollCost, setRerollCost] = useState(1500);
 
     // 🔥 ESTADOS PARA MODAL DE DETALLES 🔥
     const [viewingPokemon, setViewingPokemon] = useState(null);
@@ -398,6 +395,11 @@ export const PokemonAuction = ({ onBack }) => {
             if (gameState.phase === 'management') {
                 setPhaseTransitionMsg(null);
                 setShowTransition(false); // Por si acaso
+                // 🔥 Asegurar que tengamos datos de tienda
+                // Si la tienda está vacía, pedimos al server que nos actualice
+                if (shopItems.length === 0) {
+                    socket.emit('request_shop_state');
+                }
             }
         });
 
@@ -414,6 +416,12 @@ export const PokemonAuction = ({ onBack }) => {
 
         socket.on('item_bought_success', () => {
             playSound(GAME_SFX.bid, 0.5); // Sonido de compra exitosa
+        });
+
+        // 🔥 ESCUCHAR TIENDA DINÁMICA
+        socket.on('shop_updated', (data) => {
+            setShopItems(data.items);
+            setRerollCost(data.rerollCost);
         });
 
         return () => {
@@ -497,7 +505,15 @@ export const PokemonAuction = ({ onBack }) => {
         if (!myData || myData.money < item.price) return playSound(GAME_SFX.noFunds);
 
         // Emitimos y esperamos. NO reproducimos sonido aquí.
+        // 🔥 IMPORTANTE: Con la tienda dinámica usamos buy_shop_item exactamente igual
         socket.emit('buy_shop_item', item.id);
+    };
+
+    // Función de Reroll
+    const handleReroll = () => {
+        if (!myData || myData.money < rerollCost) return playSound(GAME_SFX.noFunds);
+        playSound(GAME_SFX.bid, 0.6); // Usamos sonido de bid/coin como feedback
+        socket.emit('reroll_shop');
     };
 
     // Función para Exportar a Showdown
@@ -839,19 +855,37 @@ export const PokemonAuction = ({ onBack }) => {
 
                     <div className="management-grid">
 
-                        {/* COLUMNA 1: TIENDA */}
+                        {/* COLUMNA 1: TIENDA DINÁMICA */}
                         <div className="mgmt-panel shop-panel">
                             <h3>🏪 Tienda Rápida</h3>
                             <div style={{ color: '#4CAF50', marginBottom: '10px', textAlign: 'center', fontWeight: 'bold' }}>
                                 Tu Dinero: ${myData.money.toLocaleString()}
                             </div>
+
+                            {/* 🔥 BOTÓN DE REROLL */}
+                            <div className="reroll-section" style={{ textAlign: 'center', marginBottom: '15px' }}>
+                                <button
+                                    className={`reroll-btn ${myData.money < rerollCost ? 'disabled' : ''}`}
+                                    onClick={handleReroll}
+                                    disabled={myData.money < rerollCost}
+                                    style={{
+                                        backgroundColor: '#e17055', color: 'white', border: 'none',
+                                        padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold',
+                                        opacity: myData.money < rerollCost ? 0.5 : 1
+                                    }}
+                                >
+                                    🔄 Reroll (${rerollCost})
+                                </button>
+                            </div>
+
                             <div className="shop-list">
-                                {SHOP_ITEMS.map(item => {
+                                {/* 🔥 USAMOS EL STATE shopItems OBTENIDO DEL SERVER */}
+                                {shopItems.map(item => {
                                     // --- CALCULAR SI ESTÁ AGOTADO ---
                                     // 1. Cantidad en mochila
-                                    const inBag = myData.items ? myData.items.filter(i => i.id === item.id).length : 0;
+                                    const inBag = myData.items ? myData.items.filter(i => i.originalId === item.id || i.id === item.id).length : 0;
                                     // 2. Cantidad equipada
-                                    const equipped = myData.inventory ? myData.inventory.filter(p => p.heldItem && p.heldItem.id === item.id).length : 0;
+                                    const equipped = myData.inventory ? myData.inventory.filter(p => p.heldItem && (p.heldItem.originalId === item.id || p.heldItem.id === item.id)).length : 0;
                                     // 3. Límite
                                     const limit = item.id.includes('berry') ? 3 : 1;
                                     const isMaxed = (inBag + equipped) >= limit;
@@ -862,7 +896,7 @@ export const PokemonAuction = ({ onBack }) => {
                                             <img src={item.sprite} alt={item.name} style={{ width: '30px' }} />
                                             <div style={{ flex: 1, textAlign: 'left', marginLeft: '10px' }}>
                                                 <div style={{ fontSize: '0.9rem' }}>{item.displayName || item.name}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'gold' }}>${item.price}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'gold' }}>${item.price} - {item.id.includes('berry') ? '🍒' : '📦'}</div>
                                             </div>
 
                                             <button
@@ -875,6 +909,7 @@ export const PokemonAuction = ({ onBack }) => {
                                         </div>
                                     );
                                 })}
+                                {shopItems.length === 0 && <p style={{ textAlign: 'center', color: '#777' }}>Cargando ofertas...</p>}
                             </div>
                         </div>
 
@@ -1088,6 +1123,7 @@ export const PokemonAuction = ({ onBack }) => {
                                                         className="reroll-btn"
                                                         onClick={() => {
                                                             if (window.confirm(`¿Gastar $${finalPrice} para recombinar a ${viewingPokemon.name}? (Irreversible)`)) {
+                                                                playSound(GAME_SFX.wonderTrade, 0.7); // 🔥 SONIDO NUEVO
                                                                 if (socket) socket.emit('reroll_pokemon', { pokemonIndex: viewingIndex });
                                                                 closePokemonDetails();
                                                             }
