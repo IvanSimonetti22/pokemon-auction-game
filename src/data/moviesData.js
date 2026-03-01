@@ -127,14 +127,6 @@ const rawMoviesList = [
         description: "Tres entrañables personas sin hogar en Tokio encuentran un bebé abandonado en Nochebuena y se embarcan en una peculiar búsqueda llena de milagros cósmicos para encontrar a sus padres.",
         techSpec: "Expresiones faciales sumamente detalladas y fondos de Tokio dibujados y pintados a mano con precisión casi fotográfica."
     },
-    {
-        title: "Strawberry Mansion",
-        theme: "psychological",
-        vibes: ["🍓", "📼", "💭"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/xJtBlQIJaioDugwl5ZQbgrMRSi5.jpg",
-        description: "En un futuro donde el gobierno explora los sueños para grabar anuncios subliminales, un auditor del estado se enamora accidentalmente del mundo onírico de una amable señora mayor.",
-        techSpec: "Efectos prácticos stop-motion combinados con disfraces, y un rodaje lo-fi digital transformado a película analógica (transfer)."
-    },
 
     // --- SEMANA 3: Acción y Peleas ---
     { title: "Redline", theme: "action", vibes: ["🏎️", "🔥", "🏁"], poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/1n8x00g5IPUnImkVdaiUpgvyj2f.jpg" },
@@ -252,8 +244,8 @@ const generatePlannedMovies = () => {
     let currentTheme = null;
 
     rawMoviesList.forEach((movie) => {
-        // Si el día actual es Jueves (4), o 22 o 24 de Febrero de 2026, lo saltamos sumando 1 día
-        while (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026)) {
+        // Si el día actual es Jueves (4), o 22, 24 o 28 de Febrero de 2026, lo saltamos sumando 1 día
+        while (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026)) {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
@@ -306,7 +298,7 @@ const generateBaseCalendar = (startDateString, totalDays) => {
         // Check if Thursday
         const dayOfWeek = currentDate.getDay(); // 4 = Jueves
         const isThursday = dayOfWeek === 4;
-        const isCancelled = currentDate.getFullYear() === 2026 && currentDate.getMonth() === 1 && (currentDate.getDate() === 22 || currentDate.getDate() === 24);
+        const isCancelled = currentDate.getFullYear() === 2026 && currentDate.getMonth() === 1 && (currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28);
 
         // Base structure
         let dayObj = {
