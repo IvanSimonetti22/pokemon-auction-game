@@ -77,13 +77,13 @@ export const CinemaSection = ({ onBack }) => {
     const emptySlots = Array(startDayIndex).fill(null);
 
     // 🔐 MOVIE STATUS LOGIC
-    const getMovieStatus = (movie) => {
-        if (secretlyUnlockedIds.includes(movie.id)) return 'revealed';
-        if (movie.theme === 'redacted') return 'redacted';
-        if (movie.isMaintenance) return 'thursday_lock';
-        if (movie.isThemeStart) return 'revealed';
+    const getBaseMovieStatus = (movieToEval) => {
+        if (secretlyUnlockedIds.includes(movieToEval.id)) return 'revealed';
+        if (movieToEval.theme === 'redacted') return 'redacted';
+        if (movieToEval.isMaintenance) return 'thursday_lock';
+        if (movieToEval.isThemeStart) return 'revealed';
 
-        const movieDate = new Date(movie.date + 'T12:00:00');
+        const movieDate = new Date(movieToEval.date + 'T12:00:00');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -97,6 +97,28 @@ export const CinemaSection = ({ onBack }) => {
         if (currentHour >= 21) return 'revealed';
 
         return 'locked_today';
+    };
+
+    const getMovieStatus = (movie) => {
+        const baseStatus = getBaseMovieStatus(movie);
+        if (baseStatus === 'revealed') return 'revealed';
+
+        if (movie.isSequel) {
+            const movieIndex = movies.findIndex(m => m.id === movie.id);
+            if (movieIndex > 0) {
+                let prevMovie = null;
+                for (let i = movieIndex - 1; i >= 0; i--) {
+                    if (movies[i].theme !== 'system' && movies[i].theme !== 'redacted') {
+                        prevMovie = movies[i];
+                        break;
+                    }
+                }
+                if (prevMovie && getMovieStatus(prevMovie) === 'revealed') {
+                    return 'revealed';
+                }
+            }
+        }
+        return baseStatus;
     };
 
     const handleClockClick = () => {
@@ -359,6 +381,12 @@ export const CinemaSection = ({ onBack }) => {
                                 )}
                                 <div className="calendar-day-number">{movie.dayNumber}</div>
 
+                                {movie.isOptional && (
+                                    <div className="optional-badge" style={{ position: 'absolute', top: '5px', left: '5px', backgroundColor: '#ffae00', color: '#000', padding: '2px 6px', fontSize: '0.65rem', fontWeight: 'bold', zIndex: 5, borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                        Opcional
+                                    </div>
+                                )}
+
                                 {/* MOVIE POSTER (Visible if it has one and is NOT redacted/maintenance/locked) */}
                                 {movie.poster && status !== 'redacted' && status !== 'thursday_lock' && status !== 'locked' && status !== 'locked_today' && (
                                     <div className="movie-poster-container">
@@ -430,6 +458,19 @@ export const CinemaSection = ({ onBack }) => {
                                 {selectedMovie.vibes.map((v, i) => <span key={i} style={{ marginRight: '10px' }}>{v}</span>)}
                             </div>
                             <h2 className="modal-title">{selectedMovie.title}</h2>
+                            <div className="modal-meta-info" style={{ display: 'flex', gap: '15px', marginBottom: '15px', fontSize: '0.9rem', color: 'var(--cyber-blue, #0df)' }}>
+                                <span>⏱️ {(() => {
+                                    if (!selectedMovie.duration) return '-- min';
+                                    const m = parseInt(selectedMovie.duration);
+                                    if (isNaN(m)) return selectedMovie.duration;
+                                    if (m < 60) return `${m} min`;
+                                    const h = Math.floor(m / 60);
+                                    const rm = m % 60;
+                                    return rm > 0 ? `${h}h ${rm}m` : `${h}h`;
+                                })()}</span>
+                                <span>📅 {selectedMovie.year || '----'}</span>
+                                {selectedMovie.genres && <span>🎬 {selectedMovie.genres}</span>}
+                            </div>
                             <p className="modal-desc">{selectedMovie.description}</p>
 
                             <div className="tech-spec-box">
