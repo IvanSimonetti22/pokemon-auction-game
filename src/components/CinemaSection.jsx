@@ -28,8 +28,7 @@ export const CinemaSection = ({ onBack }) => {
         fetchRealTime();
     }, []);
 
-    const [secretClicks, setSecretClicks] = useState(0);
-    const [secretlyUnlockedIds, setSecretlyUnlockedIds] = useState([]);
+    // Estados del Easter Egg eliminados para la versión final
 
     // Actualizar reloj cada segundo
     useEffect(() => {
@@ -78,7 +77,6 @@ export const CinemaSection = ({ onBack }) => {
 
     // 🔐 MOVIE STATUS LOGIC
     const getBaseMovieStatus = (movieToEval) => {
-        if (secretlyUnlockedIds.includes(movieToEval.id)) return 'revealed';
         if (movieToEval.theme === 'redacted') return 'redacted';
         if (movieToEval.isMaintenance) return 'thursday_lock';
         if (movieToEval.isThemeStart) return 'revealed';
@@ -121,22 +119,7 @@ export const CinemaSection = ({ onBack }) => {
         return baseStatus;
     };
 
-    const handleClockClick = () => {
-        setSecretClicks(prev => {
-            const next = prev + 1;
-            if (next >= 5) {
-                const nextLocked = movies.find(m => {
-                    const status = getMovieStatus(m);
-                    return (status === 'locked' || status === 'locked_today') && !secretlyUnlockedIds.includes(m.id);
-                });
-                if (nextLocked) {
-                    setSecretlyUnlockedIds(curr => [...curr, nextLocked.id]);
-                }
-                return 0; // reset
-            }
-            return next;
-        });
-    };
+    // La función handleClockClick ha sido eliminada para la versión final
 
     const getCountdown = () => {
         const nextLocked = movies.find(m => {
@@ -263,9 +246,7 @@ export const CinemaSection = ({ onBack }) => {
 
                 <div
                     className="cinema-clock"
-                    onClick={handleClockClick}
-                    style={{ cursor: 'pointer', userSelect: 'none' }}
-                    title="Time to next unlock"
+                    style={{ userSelect: 'none' }}
                 >
                     {getCountdown()}
                 </div>
