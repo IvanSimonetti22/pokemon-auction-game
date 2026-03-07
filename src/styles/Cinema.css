@@ -500,6 +500,15 @@
 }
 
 /* Base Theme Badges */
+.theme-week-badge {
+    padding-left: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-family: 'Kanit', sans-serif;
+    font-style: italic;
+    font-weight: 800;
+}
+
 .theme-badge {
     position: absolute;
     top: -10px;

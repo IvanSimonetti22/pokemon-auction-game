@@ -28,8 +28,6 @@ export const CinemaSection = ({ onBack }) => {
         fetchRealTime();
     }, []);
 
-    // Estados del Easter Egg eliminados para la versión final
-
     // Actualizar reloj cada segundo
     useEffect(() => {
         if (!isTimeSynced) return;
@@ -118,8 +116,6 @@ export const CinemaSection = ({ onBack }) => {
         }
         return baseStatus;
     };
-
-    // La función handleClockClick ha sido eliminada para la versión final
 
     const getCountdown = () => {
         const nextLocked = movies.find(m => {
@@ -246,7 +242,7 @@ export const CinemaSection = ({ onBack }) => {
 
                 <div
                     className="cinema-clock"
-                    style={{ userSelect: 'none' }}
+                    title="Time to next unlock"
                 >
                     {getCountdown()}
                 </div>
@@ -319,23 +315,23 @@ export const CinemaSection = ({ onBack }) => {
 
                         let themeClasses = "";
                         const themeTitles = {
-                            "prologue": "PRÓLOGO: SUEÑOS Y SAN VALENTÍN",
-                            "cyberpunk": "SEMANA 1: CYBERPUNK",
-                            "psychological": "SEMANA 2: DRAMA/PSICOLÓGICO",
-                            "action": "SEMANA 3: ACCIÓN Y PELEAS",
-                            "fantasy-east": "SEMANA 4: LEYENDAS DE ORIENTE",
-                            "romance": "SEMANA 5: RETRATOS DE JUVENTUD",
-                            "magic": "SEMANA 6: MAGIA Y DESTINO",
-                            "cult": "SEMANA 7: REALISMO CRÍTICO",
-                            "comedy": "SEMANA 8: RISAS Y MASCOTAS",
-                            "scifi": "SEMANA 9: SCI-FI MODERNO",
-                            "gems": "SEMANA 10: TESOROS OCULTOS",
-                            "fantasy-modern": "SEMANA 10: FANTASÍA MODERNA",
-                            "retro-future": "SEMANA 11: RETRO-FUTURISMO",
-                            "action-glitch": "SEMANA 12: ADRENALINA Y ESTILO",
-                            "classic-comedy": "SEMANA 13: CLASSIC VIBES",
-                            "china-3d": "SEMANA 14: CHINA",
-                            "vfx-art": "SEMANA 15: VFX & EXPERIMENTAL ART"
+                            "prologue": "SUEÑOS Y SAN VALENTÍN",
+                            "cyberpunk": "CYBERPUNK",
+                            "psychological": "DRAMA/PSICOLÓGICO",
+                            "action": "ACCIÓN Y PELEAS",
+                            "fantasy-east": "LEYENDAS DE ORIENTE",
+                            "romance": "RETRATOS DE JUVENTUD",
+                            "magic": "MAGIA Y DESTINO",
+                            "cult": "REALISMO CRÍTICO",
+                            "comedy": "RISAS Y MASCOTAS",
+                            "scifi": "SCI-FI MODERNO",
+                            "gems": "TESOROS OCULTOS",
+                            "fantasy-modern": "FANTASÍA MODERNA",
+                            "retro-future": "RETRO-FUTURISMO",
+                            "action-glitch": "ADRENALINA Y ESTILO",
+                            "classic-comedy": "CLASSIC VIBES",
+                            "china-3d": "CHINA",
+                            "vfx-art": "VFX & EXPERIMENTAL ART"
                         };
 
                         if (isInsideTheme && themeTitles[activeTheme]) {
