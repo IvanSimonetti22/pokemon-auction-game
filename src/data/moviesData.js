@@ -264,18 +264,6 @@ const rawMoviesList = [
     },
 
     {
-        title: "Austin Powers",
-        theme: "classic-comedy",
-        duration: "89 min",
-        year: "1997",
-        genres: "Comedia y Acción",
-        vibes: ["🕺", "👓", "☮️"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/6vUjqYh8hDh7pVIcdQySw3SN3SH.jpg",
-        description: "Austin Powers, un fotógrafo súper espía ridículamente extravagante empedernido de los años 60 despierta descongelado 30 años después en el aburrido 90, forzado a evitar la destrucción mundial a manos de su peor archienemigo, el temible Dr. Evil.",
-        techSpec: "Mike Myers interpretó en forma de mofa irónica la totalidad de los cliches espías clásicos a lo James Bond logrando el icónico villano calvo del dedo pequeño a la boca.",
-    },
-
-    {
         title: "Los Locos Addams",
         theme: "classic-comedy",
         duration: "99 min",
@@ -288,15 +276,15 @@ const rawMoviesList = [
     },
 
     {
-        title: "Wonka",
+        title: "Austin Powers",
         theme: "classic-comedy",
-        duration: "116 min",
-        year: "2023",
-        genres: "Comedia y Fantasía",
-        vibes: ["🎩", "🍫", "✨"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/6eHcR7zwvNSvkOl9jbctU0lvZQ1.jpg",
-        description: "Basada en el extraño y legendario joven visionario excéntrico persiguiendo los raros, deliciosos dulces imposibles hasta formar con ingenio absoluto su propia amada y perturbadora pero hermosa fábrica de magia acaramelada.",
-        techSpec: "Una precuela mágica colorida y musical protagonizada por Thimothee Chalamet reviviendo los cuentos mágicos con una calidez genuina.",
+        duration: "89 min",
+        year: "1997",
+        genres: "Comedia y Acción",
+        vibes: ["🕺", "👓", "☮️"],
+        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/6vUjqYh8hDh7pVIcdQySw3SN3SH.jpg",
+        description: "Austin Powers, un fotógrafo súper espía ridículamente extravagante empedernido de los años 60 despierta descongelado 30 años después en el aburrido 90, forzado a evitar la destrucción mundial a manos de su peor archienemigo, el temible Dr. Evil.",
+        techSpec: "Mike Myers interpretó en forma de mofa irónica la totalidad de los cliches espías clásicos a lo James Bond logrando el icónico villano calvo del dedo pequeño a la boca.",
     },
 
     {
@@ -1110,7 +1098,7 @@ const generatePlannedMovies = () => {
     rawMoviesList.forEach((movie) => {
         // Si el día actual es Jueves (4) y la pelicula actual no es opcional, lo saltamos sumando 1 día,
         // igual si cae en los días de mantenimiento (22, 24, 28 Feb) o días excepcionales (10, 11 y 12 Mar)
-        while (!movie.isOptional && (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026) || ((currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12) && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026))) {
+        while (!movie.isOptional && (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026) || ((currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12 || currentDate.getDate() === 15) && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026))) {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
@@ -1181,7 +1169,7 @@ const generateBaseCalendar = (startDateString, totalDays) => {
         // Check if Thursday
         const dayOfWeek = currentDate.getDay(); // 4 = Jueves
         const isThursday = dayOfWeek === 4;
-        const isCancelled = (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 1 && (currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28)) || (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 2 && (currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12));
+        const isCancelled = (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 1 && (currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28)) || (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 2 && (currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12 || currentDate.getDate() === 15));
 
         // Base structure
         let dayObj = {

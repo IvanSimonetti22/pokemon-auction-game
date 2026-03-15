@@ -28,6 +28,9 @@ export const CinemaSection = ({ onBack }) => {
         fetchRealTime();
     }, []);
 
+    const [secretClicks, setSecretClicks] = useState(0);
+    const [isAllUnlocked, setIsAllUnlocked] = useState(false);
+
     // Actualizar reloj cada segundo
     useEffect(() => {
         if (!isTimeSynced) return;
@@ -75,6 +78,7 @@ export const CinemaSection = ({ onBack }) => {
 
     // 🔐 MOVIE STATUS LOGIC
     const getBaseMovieStatus = (movieToEval) => {
+        if (import.meta.env.DEV && isAllUnlocked) return 'revealed';
         if (movieToEval.theme === 'redacted') return 'redacted';
         if (movieToEval.isMaintenance) return 'thursday_lock';
         if (movieToEval.isThemeStart) return 'revealed';
@@ -115,6 +119,19 @@ export const CinemaSection = ({ onBack }) => {
             }
         }
         return baseStatus;
+    };
+
+    const handleClockClick = () => {
+        if (!import.meta.env.DEV) return; // Only allow in local development
+
+        setSecretClicks(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+                setIsAllUnlocked(true);
+                return 0;
+            }
+            return next;
+        });
     };
 
     const getCountdown = () => {
@@ -242,7 +259,9 @@ export const CinemaSection = ({ onBack }) => {
 
                 <div
                     className="cinema-clock"
-                    title="Time to next unlock"
+                    onClick={handleClockClick}
+                    style={{ cursor: import.meta.env.DEV ? 'pointer' : 'default', userSelect: 'none' }}
+                    title={import.meta.env.DEV ? "Time to next unlock" : undefined}
                 >
                     {getCountdown()}
                 </div>
