@@ -300,18 +300,6 @@ const rawMoviesList = [
     },
 
     {
-        title: "Cat Soup",
-        theme: "vfx-art",
-        duration: "34 min",
-        year: "2001",
-        genres: "Fantasía y Comedia Negra",
-        vibes: ["🐈", "🥣", "💀"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/5V6o4IO3APP0I4DLMLuv0glMf7.jpg",
-        description: "Dos gatos pequeños adorables intentan inútilmente navegar horrores grotescos para intentar recuperar trozos la mitad perdida de toda el alma mágica arrebatada de una muerte prematura de la hermanita del gato menor tras una fuerte fiebre infantil. Un desfile existencial crudo sombrío a través el vacío y locura bizarra terrenal.",
-        techSpec: "Animación densamente surreal. Espectadora. No existen piedad narrativa pero fue venerado a un estado culto de nicho intocable y escalofriante a manos del genio críptico Tatsuo Sato.",
-    },
-
-    {
         title: "Wolfwalkers",
         theme: "vfx-art",
         duration: "103 min",
@@ -321,6 +309,18 @@ const rawMoviesList = [
         poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/4AbbGAiz1t5Hxa9c35avWeyB3dA.jpg",
         description: "Leyenda irlandesa hermosa cuenta cómo la joven y pequeña inocente cazadora aprendiz bosque de nombre Robyn al hacerse increíblemente de una misteriosa niña bosque cambia incesantemente. Por la noche en sus oscuros instintos su alma puede transitar a cazar libre como un mágico y misterioso e indomable místico espíritu animal y convertirse su gran lobo furioso.",
         techSpec: "Considerada un colofón 2D inmenso del aclamado estudio irlandés (Cartoon Saloon). Animaron las líneas rudas de bosque manteniendo bocetos del lápiz inicial en pantalla deliberadamente para exudar folclore artesanal inusitado.",
+    },
+
+    {
+        title: "Cat Soup",
+        theme: "vfx-art",
+        duration: "34 min",
+        year: "2001",
+        genres: "Fantasía y Comedia Negra",
+        vibes: ["🐈", "🥣", "💀"],
+        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/5V6o4IO3APP0I4DLMLuv0glMf7.jpg",
+        description: "Dos gatos pequeños adorables intentan inútilmente navegar horrores grotescos para intentar recuperar trozos la mitad perdida de toda el alma mágica arrebatada de una muerte prematura de la hermanita del gato menor tras una fuerte fiebre infantil. Un desfile existencial crudo sombrío a través el vacío y locura bizarra terrenal.",
+        techSpec: "Animación densamente surreal. Espectadora. No existen piedad narrativa pero fue venerado a un estado culto de nicho intocable y escalofriante a manos del genio críptico Tatsuo Sato.",
     },
 
     {
@@ -382,6 +382,16 @@ const rawMoviesList = [
     },
 
     {
+        title: "Heathers",
+        theme: "cult",
+        duration: "103 min",
+        year: "1989",
+        genres: "Comedia y Crimen",
+        vibes: ["🏏", "❤️", "💣"],
+        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/dGbVfM4WlM7uvIbyRehfPZUIgp2.jpg",
+    },
+
+    {
         title: "Oldboy",
         theme: "cult",
         duration: "120 min",
@@ -421,16 +431,6 @@ const rawMoviesList = [
         genres: "Drama y Clásico",
         vibes: ["❄️", " swings", "📝"],
         poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/dgNTS4EQDDVfkzJI5msKuHu2Ei3.jpg",
-    },
-
-    {
-        title: "Heathers",
-        theme: "cult",
-        duration: "103 min",
-        year: "1989",
-        genres: "Comedia y Crimen",
-        vibes: ["🏏", "❤️", "💣"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/dGbVfM4WlM7uvIbyRehfPZUIgp2.jpg",
     },
 
     {
@@ -1098,7 +1098,7 @@ const generatePlannedMovies = () => {
     rawMoviesList.forEach((movie) => {
         // Si el día actual es Jueves (4) y la pelicula actual no es opcional, lo saltamos sumando 1 día,
         // igual si cae en los días de mantenimiento (22, 24, 28 Feb) o días excepcionales (10, 11 y 12 Mar)
-        while (!movie.isOptional && (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026) || ((currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12 || currentDate.getDate() === 15) && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026))) {
+        while (!movie.isOptional && (currentDate.getDay() === 4 || ((currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28) && currentDate.getMonth() === 1 && currentDate.getFullYear() === 2026) || ((currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12 || currentDate.getDate() === 15) && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026) || (currentDate.getDate() >= 20 && currentDate.getDate() <= 30 && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026))) {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
@@ -1139,7 +1139,7 @@ const generatePlannedMovies = () => {
     let forcedMusical = Object.values(movies).find(m => m.title === "Heathers / Musical");
     if (forcedMusical) {
         delete movies[forcedMusical.date]; // Remove it from auto-flow date
-        const forcedDateStr = '2026-04-02';
+        const forcedDateStr = '2026-04-09';
         movies[forcedDateStr] = {
             ...forcedMusical,
             date: forcedDateStr,
@@ -1170,6 +1170,7 @@ const generateBaseCalendar = (startDateString, totalDays) => {
         const dayOfWeek = currentDate.getDay(); // 4 = Jueves
         const isThursday = dayOfWeek === 4;
         const isCancelled = (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 1 && (currentDate.getDate() === 22 || currentDate.getDate() === 24 || currentDate.getDate() === 28)) || (currentDate.getFullYear() === 2026 && currentDate.getMonth() === 2 && (currentDate.getDate() === 10 || currentDate.getDate() === 11 || currentDate.getDate() === 12 || currentDate.getDate() === 15));
+        const isSkipped = currentDate.getFullYear() === 2026 && currentDate.getMonth() === 2 && currentDate.getDate() >= 20 && currentDate.getDate() <= 30;
 
         // Base structure
         let dayObj = {
@@ -1178,13 +1179,14 @@ const generateBaseCalendar = (startDateString, totalDays) => {
             fullDate: currentDate,
             dayNumber: day,
             isThursday: isThursday,
+            isSkipped: isSkipped,
             isMaintenance: isThursday || isCancelled,
             // Defaults for empty/maintenance
-            title: (isThursday || isCancelled) ? 'SYSTEM MAINTENANCE' : '[ DATOS BORRADOS ]',
-            theme: (isThursday || isCancelled) ? 'system' : 'redacted', // New 'redacted' theme
-            vibes: (isThursday || isCancelled) ? ['⚠️', '🔧', '🚫'] : ['🔒', 'NULL', '👁️'],
-            techSpec: (isThursday || isCancelled) ? 'SERVER OFFLINE' : 'ENCRYPTED',
-            description: (isThursday || isCancelled) ? 'Mantenimiento de servidores.' : '[ DATOS BORRADOS ]',
+            title: isSkipped ? 'X' : (isThursday || isCancelled) ? 'SYSTEM MAINTENANCE' : '[ DATOS BORRADOS ]',
+            theme: isSkipped ? 'skipped' : (isThursday || isCancelled) ? 'system' : 'redacted',
+            vibes: isSkipped ? ['❌'] : (isThursday || isCancelled) ? ['⚠️', '🔧', '🚫'] : ['🔒', 'NULL', '👁️'],
+            techSpec: isSkipped ? 'DÍA SALTEADO' : (isThursday || isCancelled) ? 'SERVER OFFLINE' : 'ENCRYPTED',
+            description: isSkipped ? 'No se proyectó película este día.' : (isThursday || isCancelled) ? 'Mantenimiento de servidores.' : '[ DATOS BORRADOS ]',
             poster: null
         };
 

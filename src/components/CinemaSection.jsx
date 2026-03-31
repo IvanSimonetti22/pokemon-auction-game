@@ -80,6 +80,7 @@ export const CinemaSection = ({ onBack }) => {
     const getBaseMovieStatus = (movieToEval) => {
         if (import.meta.env.DEV && isAllUnlocked) return 'revealed';
         if (movieToEval.theme === 'redacted') return 'redacted';
+        if (movieToEval.isSkipped) return 'thursday_lock';
         if (movieToEval.isMaintenance) return 'thursday_lock';
         if (movieToEval.isThemeStart) return 'revealed';
 
@@ -108,7 +109,7 @@ export const CinemaSection = ({ onBack }) => {
             if (movieIndex > 0) {
                 let prevMovie = null;
                 for (let i = movieIndex - 1; i >= 0; i--) {
-                    if (movies[i].theme !== 'system' && movies[i].theme !== 'redacted') {
+                    if (movies[i].theme !== 'system' && movies[i].theme !== 'redacted' && movies[i].theme !== 'skipped') {
                         prevMovie = movies[i];
                         break;
                     }
@@ -288,13 +289,13 @@ export const CinemaSection = ({ onBack }) => {
                         const isInteractive = status === 'revealed';
 
                         // Generic Theme Logic globally
-                        const isSystemOrRedacted = movie.theme === 'system' || movie.theme === 'redacted';
+                        const isSystemOrRedacted = movie.theme === 'system' || movie.theme === 'redacted' || movie.theme === 'skipped';
                         const globalIndex = movies.findIndex(m => m.id === movie.id);
 
                         let prevTheme = null;
                         for (let i = globalIndex - 1; i >= 0; i--) {
                             const curTheme = movies[i].theme;
-                            if (curTheme !== 'system' && curTheme !== 'redacted') {
+                            if (curTheme !== 'system' && curTheme !== 'redacted' && curTheme !== 'skipped') {
                                 prevTheme = curTheme;
                                 break;
                             }
@@ -303,7 +304,7 @@ export const CinemaSection = ({ onBack }) => {
                         let nextTheme = null;
                         for (let i = globalIndex + 1; i < movies.length; i++) {
                             const curTheme = movies[i].theme;
-                            if (curTheme !== 'system' && curTheme !== 'redacted') {
+                            if (curTheme !== 'system' && curTheme !== 'redacted' && curTheme !== 'skipped') {
                                 nextTheme = curTheme;
                                 break;
                             }
