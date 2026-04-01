@@ -1,44 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import '../styles/Cinema.css';
 import { movies, isThursday } from '../data/moviesData';
 
-export const CinemaSection = ({ onBack }) => {
-    // Estado inicial: Mes actual
+// ============================================================
+// CINEMA CLOCK — componente separado para aislar el re-render
+// cada segundo y no afectar el calendario completo.
+// ============================================================
+const CinemaClock = React.memo(({ onClockClick, isDevMode }) => {
     const [now, setNow] = useState(new Date());
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [selectedMovie, setSelectedMovie] = useState(null);
-    const [isTimeSynced, setIsTimeSynced] = useState(false);
+    const [synced, setSynced] = useState(false);
 
-    // Sincronizar con servidor de tiempo real (Argentina)
     useEffect(() => {
-        const fetchRealTime = async () => {
-            try {
-                const response = await fetch('https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires');
-                if (!response.ok) throw new Error("Fallback a local");
-                const data = await response.json();
-                setNow(new Date(data.datetime));
-                setIsTimeSynced(true);
-            } catch (error) {
-                console.warn("No se pudo obtener la hora del servidor, usando hora local como respaldo.", error);
-                setNow(new Date()); // Fallback
-                setIsTimeSynced(true);
-            }
-        };
-
-        fetchRealTime();
+        fetch('https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires')
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(d => { setNow(new Date(d.datetime)); setSynced(true); })
+            .catch(() => { setNow(new Date()); setSynced(true); });
     }, []);
 
+    useEffect(() => {
+        if (!synced) return;
+        const id = setInterval(() => setNow(p => new Date(p.getTime() + 1000)), 1000);
+        return () => clearInterval(id);
+    }, [synced]);
+
+    const countdown = useMemo(() => {
+        const nextLocked = movies.find(m => {
+            if (m.theme === 'redacted' || m.isSkipped || m.isMaintenance) return false;
+            const date = new Date(m.date + 'T00:00:00');
+            const today = new Date(); today.setHours(0,0,0,0);
+            date.setHours(0,0,0,0);
+            if (date < today) return false;
+            if (date > today) return true;
+            return now.getHours() < 21;
+        });
+        if (!nextLocked) return 'SISTEMA ACTIVO';
+        const diff = new Date(nextLocked.date + 'T21:00:00') - now;
+        if (diff <= 0) return 'SISTEMA ACTIVO';
+        const totalH = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        if (totalH >= 24) {
+            const d = Math.floor(totalH / 24);
+            return `${d}D ${String(totalH%24).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+        return `${String(totalH).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }, [now]);
+
+    const isActive = countdown === 'SISTEMA ACTIVO';
+    return (
+        <div
+            className={`cinema-clock${isActive ? ' active' : ''}`}
+            onClick={onClockClick}
+            style={{ cursor: isDevMode ? 'pointer' : 'default', userSelect: 'none' }}
+            title={isDevMode ? 'Time to next unlock' : undefined}
+        >
+            {isActive && <span className="live-dot" title="EN VIVO" />}
+            {countdown}
+        </div>
+    );
+});
+
+export const CinemaSection = ({ onBack }) => {
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [selectedMovie, setSelectedMovie] = useState(null);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [clickedCardRect, setClickedCardRect] = useState(null);
+    const [isModalClosing, setIsModalClosing] = useState(false);
+    const [hoveredTheme, setHoveredTheme] = useState(null);
+    const [displayMonth, setDisplayMonth] = useState('');
     const [secretClicks, setSecretClicks] = useState(0);
     const [isAllUnlocked, setIsAllUnlocked] = useState(false);
-
-    // Actualizar reloj cada segundo
-    useEffect(() => {
-        if (!isTimeSynced) return;
-        const interval = setInterval(() => {
-            setNow(prev => new Date(prev.getTime() + 1000));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [isTimeSynced]);
 
     // 🗓️ CALENDAR LOGIC HELPERS
     const getDaysInMonth = (date) => {
@@ -51,20 +82,51 @@ export const CinemaSection = ({ onBack }) => {
     };
 
     const handlePrevMonth = () => {
-        setCurrentMonth(prev => {
-            const newDate = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
-            if (newDate.getFullYear() === 2026 && newDate.getMonth() < 1) return prev;
-            return newDate;
-        });
+        setIsTransitioning(true);
+        setTimeout(() => {
+            setCurrentMonth(prev => {
+                const newDate = new Date(prev.getFullYear(), prev.getMonth() - 1, 1);
+                if (newDate.getFullYear() === 2026 && newDate.getMonth() < 1) return prev;
+                return newDate;
+            });
+            setIsTransitioning(false);
+        }, 220);
     };
 
     const handleNextMonth = () => {
-        setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+        setIsTransitioning(true);
+        setTimeout(() => {
+            setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+            setIsTransitioning(false);
+        }, 220);
     };
 
     const formatMonthYear = (date) => {
         return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
     };
+
+    // Efecto scramble al cambiar de mes
+    const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#%&';
+    useEffect(() => {
+        const target = formatMonthYear(currentMonth).toUpperCase();
+        let iteration = 0;
+        setDisplayMonth(target.split('').map(() => SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]).join(''));
+        const interval = setInterval(() => {
+            setDisplayMonth(
+                target.split('').map((char, idx) => {
+                    if (char === ' ') return ' ';
+                    if (idx < iteration) return char;
+                    return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+                }).join('')
+            );
+            iteration += 1.2;
+            if (iteration >= target.length) {
+                clearInterval(interval);
+                setDisplayMonth(target);
+            }
+        }, 50); // 50ms — menos renders, igual de fluido
+        return () => clearInterval(interval);
+    }, [currentMonth]);
 
     // 🔍 FILTER MOVIES FOR CURRENT MONTH
     const currentMonthMovies = movies.filter(movie => {
@@ -76,84 +138,50 @@ export const CinemaSection = ({ onBack }) => {
     const startDayIndex = getFirstDayOfMonth(currentMonth);
     const emptySlots = Array(startDayIndex).fill(null);
 
-    // 🔐 MOVIE STATUS LOGIC
-    const getBaseMovieStatus = (movieToEval) => {
+    const getMovieStatus = useCallback((movie) => {
         if (import.meta.env.DEV && isAllUnlocked) return 'revealed';
-        if (movieToEval.theme === 'redacted') return 'redacted';
-        if (movieToEval.isSkipped) return 'thursday_lock';
-        if (movieToEval.isMaintenance) return 'thursday_lock';
-        if (movieToEval.isThemeStart) return 'revealed';
+        if (movie.theme === 'redacted') return 'redacted';
+        if (movie.isSkipped) return 'thursday_lock';
+        if (movie.isMaintenance) return 'thursday_lock';
+        if (movie.isThemeStart) return 'revealed';
 
-        const movieDate = new Date(movieToEval.date + 'T12:00:00');
+        const movieDate = new Date(movie.date + 'T12:00:00');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-
         const targetDate = new Date(movieDate);
         targetDate.setHours(0, 0, 0, 0);
 
         if (targetDate < today) return 'revealed';
         if (targetDate > today) return 'locked';
 
-        const currentHour = now.getHours();
-        if (currentHour >= 21) return 'revealed';
-
-        return 'locked_today';
-    };
-
-    const getMovieStatus = (movie) => {
-        const baseStatus = getBaseMovieStatus(movie);
-        if (baseStatus === 'revealed') return 'revealed';
-
         if (movie.isSequel) {
             const movieIndex = movies.findIndex(m => m.id === movie.id);
             if (movieIndex > 0) {
-                let prevMovie = null;
                 for (let i = movieIndex - 1; i >= 0; i--) {
-                    if (movies[i].theme !== 'system' && movies[i].theme !== 'redacted' && movies[i].theme !== 'skipped') {
-                        prevMovie = movies[i];
+                    const prev = movies[i];
+                    if (prev.theme !== 'system' && prev.theme !== 'redacted' && prev.theme !== 'skipped') {
+                        const prevDate = new Date(prev.date + 'T00:00:00');
+                        prevDate.setHours(0,0,0,0);
+                        if (prevDate < today) return 'revealed';
                         break;
                     }
                 }
-                if (prevMovie && getMovieStatus(prevMovie) === 'revealed') {
-                    return 'revealed';
-                }
             }
         }
-        return baseStatus;
-    };
 
-    const handleClockClick = () => {
-        if (!import.meta.env.DEV) return; // Only allow in local development
+        const localNow = new Date();
+        if (localNow.getHours() >= 21) return 'revealed';
+        return 'locked_today';
+    }, [isAllUnlocked]);
 
+    const handleClockClick = useCallback(() => {
+        if (!import.meta.env.DEV) return;
         setSecretClicks(prev => {
             const next = prev + 1;
-            if (next >= 5) {
-                setIsAllUnlocked(true);
-                return 0;
-            }
+            if (next >= 5) { setIsAllUnlocked(true); return 0; }
             return next;
         });
-    };
-
-    const getCountdown = () => {
-        const nextLocked = movies.find(m => {
-            const status = getMovieStatus(m);
-            return status === 'locked' || status === 'locked_today';
-        });
-
-        if (!nextLocked) return "SISTEMA DESBLOQUEADO";
-
-        const targetTime = new Date(nextLocked.date + 'T21:00:00');
-        const diff = targetTime - now;
-
-        if (diff <= 0) return "SISTEMA DESBLOQUEADO";
-
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-        return `-${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    };
+    }, []);
 
     // 🎵 SOUND LOGIC (LOCAL OFFLINE SOUNDS - CYBERPUNK EDITION)
 
@@ -199,10 +227,26 @@ export const CinemaSection = ({ onBack }) => {
         closeAudio.play().catch(e => console.log("Audio play failed:", e));
     };
 
-    const handleCardClick = (movie, status) => {
+    const handleCardClick = useCallback((movie, status, event) => {
         if (status === 'revealed') {
             playClickSound();
+            if (event?.currentTarget) {
+                const rect = event.currentTarget.getBoundingClientRect();
+                const modalW = Math.min(window.innerWidth * 0.9, 800);
+                const modalH = window.innerHeight * 0.85;
+                const cardCX = rect.left + rect.width / 2;
+                const cardCY = rect.top + rect.height / 2;
+                const vpCX = window.innerWidth / 2;
+                const vpCY = window.innerHeight / 2;
+                setClickedCardRect({
+                    dx: `${(cardCX - vpCX).toFixed(1)}px`,
+                    dy: `${(cardCY - vpCY).toFixed(1)}px`,
+                    sx: (rect.width / modalW).toFixed(4),
+                    sy: (rect.height / modalH).toFixed(4),
+                });
+            }
             setSelectedMovie(movie);
+            setIsModalClosing(false);
         } else if (status === 'locked' || status === 'locked_today') {
             playErrorSound();
         } else if (status === 'thursday_lock') {
@@ -210,12 +254,28 @@ export const CinemaSection = ({ onBack }) => {
         } else if (status === 'redacted') {
             playRedactedSound();
         }
-    };
+    }, [isAllUnlocked]);
 
     const handleCloseModal = () => {
         playCloseSound();
-        setSelectedMovie(null);
+        setIsModalClosing(true);
+        setTimeout(() => {
+            setSelectedMovie(null);
+            setIsModalClosing(false);
+            setClickedCardRect(null);
+        }, 380);
     };
+
+    // Mapa de colores por tema para el ambiente de fondo
+    const themeAmbientColors = {
+        prologue: '0, 191, 255', cyberpunk: '255, 0, 255', psychological: '255, 20, 147',
+        action: '255, 69, 0', 'fantasy-east': '0, 250, 154', romance: '255, 182, 193',
+        magic: '255, 215, 0', cult: '139, 0, 0', comedy: '255, 165, 0',
+        scifi: '0, 255, 255', gems: '147, 112, 219', 'fantasy-modern': '255, 209, 220',
+        'retro-future': '222, 184, 135', 'action-glitch': '220, 20, 60',
+        'classic-comedy': '255, 105, 180', 'china-3d': '0, 255, 127', 'vfx-art': '138, 43, 226',
+    };
+
 
     return (
         <div className="cinema-wrapper">
@@ -230,6 +290,15 @@ export const CinemaSection = ({ onBack }) => {
                 <div className="film-strip strip-7"></div>
                 <div className="film-strip strip-8"></div>
             </div>
+
+            {/* AMBIENT THEME COLOR */}
+            <div
+                className="theme-ambient-glow"
+                style={hoveredTheme && themeAmbientColors[hoveredTheme] ? {
+                    background: `radial-gradient(ellipse 70% 60% at 50% 50%, rgba(${themeAmbientColors[hoveredTheme]}, 0.08) 0%, transparent 70%)`,
+                    opacity: 1,
+                } : { opacity: 0 }}
+            />
 
             <div className="cinema-scanlines"></div>
             <div className="cinema-vignette"></div>
@@ -247,7 +316,7 @@ export const CinemaSection = ({ onBack }) => {
                     >
                         &lt;
                     </button>
-                    <div className="current-month-display">{formatMonthYear(currentMonth)}</div>
+                    <div className="current-month-display">{displayMonth}</div>
                     <button
                         className="nav-btn"
                         onClick={() => { playNavSound(); handleNextMonth(); }}
@@ -258,14 +327,10 @@ export const CinemaSection = ({ onBack }) => {
                     </button>
                 </div>
 
-                <div
-                    className="cinema-clock"
-                    onClick={handleClockClick}
-                    style={{ cursor: import.meta.env.DEV ? 'pointer' : 'default', userSelect: 'none' }}
-                    title={import.meta.env.DEV ? "Time to next unlock" : undefined}
-                >
-                    {getCountdown()}
-                </div>
+                <CinemaClock
+                    onClockClick={handleClockClick}
+                    isDevMode={!!import.meta.env.DEV}
+                />
             </div>
 
             <div className="calendar-grid-wrapper">
@@ -277,7 +342,7 @@ export const CinemaSection = ({ onBack }) => {
                 </div>
 
                 {/* CALENDAR GRID */}
-                <div className="calendar-grid">
+                <div className={`calendar-grid${isTransitioning ? ' grid-fading' : ''}`}>
                     {/* Empty Slots (Padding) */}
                     {emptySlots.map((_, index) => (
                         <div key={`empty-${index}`} className="empty-slot"></div>
@@ -287,6 +352,14 @@ export const CinemaSection = ({ onBack }) => {
                     {currentMonthMovies.map((movie, index) => {
                         const status = getMovieStatus(movie);
                         const isInteractive = status === 'revealed';
+
+                        // Is today? (use local date for precision)
+                        const movieDateObj2 = new Date(movie.date + 'T12:00:00');
+                        const localToday = new Date();
+                        const isToday =
+                            movieDateObj2.getFullYear() === localToday.getFullYear() &&
+                            movieDateObj2.getMonth() === localToday.getMonth() &&
+                            movieDateObj2.getDate() === localToday.getDate();
 
                         // Generic Theme Logic globally
                         const isSystemOrRedacted = movie.theme === 'system' || movie.theme === 'redacted' || movie.theme === 'skipped';
@@ -351,7 +424,7 @@ export const CinemaSection = ({ onBack }) => {
                             "action-glitch": "ADRENALINA Y ESTILO",
                             "classic-comedy": "CLASSIC VIBES",
                             "china-3d": "CHINA",
-                            "vfx-art": "VFX & EXPERIMENTAL ART"
+                            "vfx-art": "VFX EXPERIMENTAL"
                         };
 
                         if (isInsideTheme && themeTitles[activeTheme]) {
@@ -363,12 +436,20 @@ export const CinemaSection = ({ onBack }) => {
                         return (
                             <div
                                 key={movie.id}
-                                className={`movie-card theme-${movie.theme} ${themeClasses}`}
-                                onClick={() => handleCardClick(movie, status)}
-                                onMouseEnter={playHoverSound}
+                                className={`movie-card theme-${movie.theme} ${themeClasses}${isToday ? ' is-today' : ''}`}
+                                onClick={(e) => handleCardClick(movie, status, e)}
+                                onMouseEnter={() => {
+                                    playHoverSound();
+                                    if (movie.theme && movie.theme !== 'system' && movie.theme !== 'skipped') {
+                                        setHoveredTheme(movie.theme);
+                                    }
+                                }}
+                                onMouseLeave={() => setHoveredTheme(null)}
                                 style={{
                                     cursor: isInteractive ? 'pointer' : 'default',
-                                    opacity: status === 'locked' ? 0.7 : 1
+                                    opacity: status === 'locked' ? 0.7 : 1,
+                                    '--fade-delay': `${Math.min(index * 0.025, 0.6)}s`,
+                                    '--shimmer-delay': `${(index * 1.3) % 7}s`,
                                 }}
                             >
                                 {isGlobalFirstOfTheme && !isSystemOrRedacted && themeTitles[activeTheme] && (
@@ -393,8 +474,8 @@ export const CinemaSection = ({ onBack }) => {
 
                                 {/* 1. THURSDAY LOCK */}
                                 {status === 'thursday_lock' && (
-                                    <div className="maintenance-overlay">
-                                        <div className="maintenance-x">X</div>
+                                    <div className={`maintenance-overlay${movie.isSkipped ? ' skipped-overlay' : ''}`}>
+                                        <div className={`maintenance-x${movie.isSkipped ? ' skipped-x' : ''}`}>X</div>
                                     </div>
                                 )}
 
@@ -421,7 +502,6 @@ export const CinemaSection = ({ onBack }) => {
                                 {/* 3. REVEALED */}
                                 {status === 'revealed' && (
                                     <>
-                                        {/* Fallback si se reveló pero no tiene poster (raro con los datos actuales, pero seguro) */}
                                         {!movie.poster && (
                                             <div className="movie-poster-container">
                                                 <div className="locked-overlay">
@@ -429,8 +509,8 @@ export const CinemaSection = ({ onBack }) => {
                                                 </div>
                                             </div>
                                         )}
-                                        <div style={{ padding: '10px', background: '#000', zIndex: 2, position: 'relative' }}>
-                                            <div style={{ fontSize: '0.8rem', color: '#fff' }}>{movie.title}</div>
+                                        <div className="revealed-title-bar">
+                                            {movie.title}
                                         </div>
                                     </>
                                 )}
@@ -441,9 +521,21 @@ export const CinemaSection = ({ onBack }) => {
             </div>
 
             {/* MODAL */}
-            {selectedMovie && (
-                <div className="cinema-modal-overlay" onClick={handleCloseModal}>
-                    <div className="cinema-modal" onClick={(e) => e.stopPropagation()}>
+            {(selectedMovie || isModalClosing) && (
+                <div
+                    className={`cinema-modal-overlay${isModalClosing ? ' closing' : ''}`}
+                    onClick={handleCloseModal}
+                >
+                    <div
+                        className={`cinema-modal${isModalClosing ? ' closing' : ''}`}
+                        onClick={(e) => e.stopPropagation()}
+                        style={clickedCardRect ? {
+                            '--modal-dx': clickedCardRect.dx,
+                            '--modal-dy': clickedCardRect.dy,
+                            '--modal-sx': clickedCardRect.sx,
+                            '--modal-sy': clickedCardRect.sy,
+                        } : {}}
+                    >
                         <button className="modal-close" onClick={handleCloseModal}>X</button>
 
                         <div className="modal-poster-wrapper">

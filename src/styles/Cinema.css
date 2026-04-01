@@ -169,6 +169,10 @@
     /* Changed from hidden so badges can pop out */
     transition: transform 0.2s;
     cursor: pointer;
+    animation: cardFadeIn 0.35s ease both;
+    animation-delay: var(--fade-delay, 0s);
+    will-change: transform;
+    contain: layout paint;
 }
 
 .movie-card:hover {
@@ -222,11 +226,22 @@
     object-position: center 15%;
     /* Concentrar el foco en las caras y títulos */
     opacity: 0.7;
-    transition: 0.3s;
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: scale(1);
 }
 
 .movie-card:hover .movie-poster {
     opacity: 1;
+    transform: scale(1.08);
+    animation: chromaGlitch 0.28s ease-out 1 both;
+}
+
+@keyframes chromaGlitch {
+    0%   { filter: brightness(1.1); }
+    15%  { filter: brightness(1.2) drop-shadow(2px 0 0 rgba(255,0,64,0.7)) drop-shadow(-2px 0 0 rgba(0,255,255,0.7)); transform: scale(1.08) translate(1.5px, 0); }
+    30%  { filter: brightness(1.1) drop-shadow(-1.5px 0 0 rgba(255,0,64,0.5)) drop-shadow(1.5px 0 0 rgba(0,255,255,0.5)); transform: scale(1.08) translate(-1px, 0.5px); }
+    50%  { filter: brightness(1.15) drop-shadow(1px 0 0 rgba(255,0,64,0.3)); transform: scale(1.08) translate(0.5px, 0); }
+    100% { filter: brightness(1.1); transform: scale(1.08) translate(0, 0); }
 }
 
 /* STATES */
@@ -681,19 +696,21 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    animation: modalfadeIn 0.3s ease-out forwards;
+    animation: overlayFadeIn 0.3s ease forwards;
 }
 
-@keyframes modalfadeIn {
-    from {
-        opacity: 0;
-        backdrop-filter: blur(0px);
-    }
+.cinema-modal-overlay.closing {
+    animation: overlayFadeOut 0.38s ease forwards;
+}
 
-    to {
-        opacity: 1;
-        backdrop-filter: blur(8px);
-    }
+@keyframes overlayFadeIn {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to   { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+@keyframes overlayFadeOut {
+    from { opacity: 1; backdrop-filter: blur(8px); }
+    to   { opacity: 0; backdrop-filter: blur(0px); }
 }
 
 .cinema-modal {
@@ -707,19 +724,36 @@
     display: flex;
     overflow: hidden;
     position: relative;
-    transform: translateY(20px);
-    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: modalZoomIn 0.42s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
 }
 
-@keyframes modalSlideUp {
+.cinema-modal.closing {
+    animation: modalZoomOut 0.32s cubic-bezier(0.4, 0, 0.8, 0) forwards;
+}
+
+@keyframes modalZoomIn {
     from {
         opacity: 0;
-        transform: translateY(30px) scale(0.95);
+        transform:
+            translate(var(--modal-dx, 0px), var(--modal-dy, 0px))
+            scale(var(--modal-sx, 0.05), var(--modal-sy, 0.05));
     }
-
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translate(0, 0) scale(1, 1);
+    }
+}
+
+@keyframes modalZoomOut {
+    from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1, 1);
+    }
+    to {
+        opacity: 0;
+        transform:
+            translate(var(--modal-dx, 0px), var(--modal-dy, 0px))
+            scale(var(--modal-sx, 0.05), var(--modal-sy, 0.05));
     }
 }
 
@@ -1036,3 +1070,273 @@
         max-height: 300px;
     }
 }
+
+/* =============================================
+   MEJORAS UX v1.5
+   ============================================= */
+
+/* 1. EMPTY SLOTS - Invisible (solo en desktop) */
+.empty-slot {
+    background: transparent;
+    border: none;
+    min-height: 0;
+}
+
+/* 2. INDICADOR DE HOY */
+.movie-card.is-today {
+    outline: 2px solid #ccff00;
+    outline-offset: -2px;
+    box-shadow: 0 0 18px rgba(204, 255, 0, 0.35), inset 0 0 10px rgba(204, 255, 0, 0.08);
+    z-index: 25;
+    animation: cardFadeIn 0.35s ease both, todayPulse 2.5s ease-in-out 0.35s infinite;
+    animation-delay: var(--fade-delay, 0s), 0s;
+}
+
+@keyframes todayPulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(204, 255, 0, 0.35), inset 0 0 10px rgba(204, 255, 0, 0.08); }
+    50%       { box-shadow: 0 0 30px rgba(204, 255, 0, 0.65), inset 0 0 16px rgba(204, 255, 0, 0.18); }
+}
+
+.movie-card.is-today .calendar-day-number {
+    color: #ccff00;
+    text-shadow: 0 0 8px #ccff00;
+}
+
+/* 3. DÍAS SALTEADOS - X naranja (distinta de jueves) */
+.skipped-overlay {
+    background: repeating-linear-gradient(
+        45deg,
+        #0d0800,
+        #0d0800 10px,
+        #1a1000 10px,
+        #1a1000 20px
+    );
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skipped-x {
+    color: rgba(255, 120, 0, 0.45);
+    font-size: 3rem;
+    font-weight: 900;
+}
+
+/* 4. TÍTULO EN TARJETA REVELADA */
+.revealed-title-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 8px 6px 8px;
+    box-sizing: border-box;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 3;
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+}
+
+/* 5. COUNTDOWN — color verde cuando está activo */
+.cinema-clock.active {
+    color: #ccff00;
+    border-color: #ccff00;
+}
+
+/* =============================================
+   ANIMACIONES
+   ============================================= */
+
+/* A1: Fade-in escalonado de tarjetas */
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* A2: Parpadeo sutil en texto RECIBIENDO DATOS */
+@keyframes terminalBlink {
+    0%, 100% { opacity: 1; }
+    45%       { opacity: 0.35; }
+    55%       { opacity: 0.35; }
+}
+
+.lock-msg {
+    font-family: 'Rajdhani';
+    font-size: 0.9rem;
+    color: #555;
+    z-index: 2;
+    animation: terminalBlink 2.8s ease-in-out infinite;
+}
+
+/* A3: Transición fade al cambiar de mes */
+@keyframes gridFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-6px); }
+}
+
+.calendar-grid.grid-fading .movie-card {
+    animation: gridFadeOut 0.2s ease forwards !important;
+}
+
+/* ============================================
+   EFECTOS ADICIONALES
+   ============================================ */
+
+/* SCRAMBLE: fuente monospace para el nombre del mes */
+.current-month-display {
+    font-family: 'Rajdhani', 'Courier New', monospace;
+    letter-spacing: 0.08em;
+}
+
+/* RIPPLE: shockwave al clickear tarjeta bloqueada */
+.card-ripple {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid rgba(255, 60, 60, 0.9);
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: none;
+    z-index: 999;
+    animation: rippleExpand 0.65s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes rippleExpand {
+    0%   { transform: translate(-50%, -50%) scale(1);  opacity: 1; border-width: 2px; }
+    60%  { opacity: 0.6; border-width: 1.5px; }
+    100% { transform: translate(-50%, -50%) scale(22); opacity: 0; border-width: 1px; }
+}
+
+/* LIVE DOT: indicador pulsante en el reloj */
+.live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff3333;
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px rgba(255, 51, 51, 0.8);
+    animation: livePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% { transform: scale(1);   opacity: 1; box-shadow: 0 0 8px rgba(255, 51, 51, 0.8); }
+    50%       { transform: scale(1.4); opacity: 0.7; box-shadow: 0 0 16px rgba(255, 51, 51, 1); }
+}
+
+/* =============================================
+   MEJORAS VISUALES AVANZADAS
+   ============================================= */
+
+/* B1: Ambient theme color glow */
+.theme-ambient-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: background 0.6s ease, opacity 0.5s ease;
+}
+
+/* B2: Shimmer diagonal en posters de películas reveladas */
+.movie-poster-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.07) 50%,
+        transparent 70%
+    );
+    z-index: 2;
+    pointer-events: none;
+    animation: shimmerSweep 7s ease-in-out infinite;
+    animation-delay: var(--shimmer-delay, 0s);
+}
+
+@keyframes shimmerSweep {
+    0%   { left: -80%; opacity: 0; }
+    10%  { opacity: 1; }
+    40%  { left: 130%; opacity: 1; }
+    45%  { opacity: 0; }
+    100% { left: 130%; opacity: 0; }
+}
+
+/* B3: Badge de tema con slide-in */
+.theme-badge {
+    position: absolute;
+    top: -10px;
+    left: -2px;
+    padding: 3px 6px;
+    font-family: 'Kanit';
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    z-index: 100;
+    animation: badgeSlideIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: var(--fade-delay, 0s);
+}
+
+@keyframes badgeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-12px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* B4: Número del día con hover más dramático */
+.calendar-day-number {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-family: 'Rajdhani';
+    font-size: 1.2rem;
+    color: #555;
+    z-index: 50;
+    font-weight: bold;
+    transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease, font-size 0.2s ease;
+}
+
+.movie-card:hover .calendar-day-number {
+    color: #fff;
+    font-size: 1.4rem;
+    text-shadow: 0 0 12px var(--zzz-acid), 0 0 25px var(--zzz-acid);
+    transform: scale(1.1);
+}
+
+/* B5: Reveal especial clip-path para la tarjeta de HOY */
+@keyframes todayReveal {
+    0%   { clip-path: inset(50% 50% 50% 50% round 4px); opacity: 0; }
+    30%  { opacity: 1; }
+    100% { clip-path: inset(0% 0% 0% 0% round 0px); opacity: 1; }
+}
+
+.movie-card.is-today {
+    animation: todayReveal 0.7s cubic-bezier(0.34, 1.2, 0.64, 1) both,
+               todayPulse 2.5s ease-in-out 0.7s infinite;
+    animation-delay: var(--fade-delay, 0s), 0s;
+}
+
