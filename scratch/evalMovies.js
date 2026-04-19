@@ -1,7 +1,7 @@
 // client/src/data/moviesData.js
 
 // 1. FUNCIONES HELPER
-export const isThursday = (dateString) => {
+const isThursday = (dateString) => {
     // getDay(): 0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab
     // Usamos 'T00:00:00' para evitar desfases de zona horaria
     return new Date(dateString + "T00:00:00").getDay() === 4;
@@ -1228,4 +1228,9 @@ const hydrateCalendar = (baseCalendar, plannedData) => {
 const baseCalendar = generateBaseCalendar('2026-02-01', 334);
 
 // Export hydrated calendar
-export const movies = hydrateCalendar(baseCalendar, plannedMovies);
+const movies = hydrateCalendar(baseCalendar, plannedMovies);
+console.log('18:', movies.find(m => m.date === '2026-04-18')?.title);
+console.log('19:', movies.find(m => m.date === '2026-04-19')?.title);
+console.log('20:', movies.find(m => m.date === '2026-04-20')?.title);
+console.log('21:', movies.find(m => m.date === '2026-04-21')?.title);
+console.log('22:', movies.find(m => m.date === '2026-04-22')?.title);
