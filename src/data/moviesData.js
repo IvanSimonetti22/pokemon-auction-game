@@ -506,18 +506,6 @@ const rawMoviesList = [
     },
 
     {
-        title: "Sky Captain and the World of Tomorrow",
-        theme: "retro-future",
-        duration: "106 min",
-        year: "2004",
-        genres: "Acción y Ciencia Ficción",
-        vibes: ["✈️", "🤖", "☁️"],
-        poster: "https://www.themoviedb.org/t/p/w600_and_h900_face/iqQE2JoC2BroYOJev5i7jiHeQl6.jpg",
-        description: "En una línea temporal paralela de 1939, un piloto as y una intrépida periodista deben impedir que un científico megalómano y sus ejércitos de máquinas destructoras dominen el frágil mundo.",
-        techSpec: "Uno de los primeros largometrajes en la historia en grabar a todos sus actores completamente sobre pantallas azules para procesar todos los fondos por computadora de forma intencionalmente antigua.",
-    },
-
-    {
         title: "Robots",
         theme: "retro-future",
         duration: "91 min",
