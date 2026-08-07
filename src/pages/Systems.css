@@ -1,98 +1,282 @@
 /* 📂 src/pages/Systems.css */
 
-.systems-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.systems-container {
+  width: 100%;
 }
 
-/* --- SNIPPET DE COMANDO --- */
-.command-snippet {
-    background: #000;
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.systems-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .systems-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── SYSTEM PANEL ────────────────────────────── */
+.systems-panel {
+  background: #0a0a0c;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.3s ease;
+  user-select: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.systems-panel:hover {
+  transform: translateY(-4px);
+}
+
+/* Base Gradient Background */
+.systems-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Spotlight Dither Effect */
+.systems-panel::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+      600px circle at var(--x, 50%) var(--y, 50%),
+      color-mix(in srgb, var(--panel-accent) 25%, transparent),
+      transparent 40%
+  );
+  mask-image: var(--dither-pattern);
+  mask-size: var(--dither-size) var(--dither-size);
+  -webkit-mask-image: var(--dither-pattern);
+  -webkit-mask-size: var(--dither-size) var(--dither-size);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.systems-panel:hover::after {
+  opacity: 1;
+}
+
+.panel-purple { border-top: 3px solid var(--accent-purple); }
+.panel-aqua   { border-top: 3px solid var(--accent-aqua); }
+.panel-gold   { border-top: 3px solid var(--accent-gold); }
+
+.panel-purple:hover {
+  border-color: rgba(255, 85, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 85, 255, 0.1);
+}
+.panel-aqua:hover {
+  border-color: rgba(85, 255, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(85, 255, 255, 0.1);
+}
+.panel-gold:hover {
+  border-color: rgba(255, 170, 0, 0.4);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 170, 0, 0.1);
+}
+
+/* ─── HEADER ──────────────────────────── */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.panel-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.panel-icon-large {
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--panel-accent) 60%, transparent));
+}
+
+.panel-header h3 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  letter-spacing: -0.5px;
+  font-family: var(--mono-font);
+}
+
+.module-tags-mini {
+  display: flex;
+  gap: 8px;
+}
+
+/* ─── BODY ──────────────────────────── */
+.panel-body {
+  padding: 24px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+/* --- TERMINAL COMMAND --- */
+.command-terminal {
+  background: #050505;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono-font);
+}
+
+.command-prompt {
+  color: #555;
+  font-weight: 700;
 }
 
 .command-label {
-    color: var(--accent-gold);
-    font-weight: bold;
-    font-size: 0.85rem;
-    text-transform: uppercase;
+  color: var(--accent-purple);
+  font-size: 0.85rem;
+  opacity: 0.8;
 }
 
 .command-code {
-    color: var(--accent-purple); /* Color del comando */
-    font-family: 'Consolas', monospace;
-    font-size: 1rem;
+  color: #fff;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px rgba(255,255,255,0.3);
 }
 
-/* --- BOTÓN TOGGLE (Rosa/Púrpura Cyberpunk) --- */
-.btn-toggle {
-    background: rgba(255, 85, 255, 0.05);
-    border: 1px solid var(--accent-purple);
-    color: var(--accent-purple);
-    width: 100%;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: bold;
-    transition: all 0.2s;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.command-cursor {
+  width: 8px;
+  height: 16px;
+  background: var(--accent-purple);
+  animation: blink 1s step-end infinite;
 }
 
-.btn-toggle:hover {
-    background: rgba(255, 85, 255, 0.2);
-    box-shadow: 0 0 10px rgba(255, 85, 255, 0.2);
+/* --- BOTÓN TOGGLE CYBERPUNK --- */
+.btn-cyber-toggle {
+  background: transparent;
+  border: 1px solid var(--accent-purple);
+  color: var(--accent-purple);
+  width: 100%;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--mono-font);
+  transition: all 0.3s;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-toggle.active {
-    background: var(--accent-purple);
-    color: #000;
+.btn-cyber-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,85,255,0.2), transparent);
+  transition: 0.5s;
+}
+
+.btn-cyber-toggle:hover::before {
+  left: 100%;
+}
+
+.btn-cyber-toggle:hover {
+  background: rgba(255, 85, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 85, 255, 0.2), inset 0 0 10px rgba(255, 85, 255, 0.1);
+  text-shadow: 0 0 8px rgba(255,85,255,0.5);
+}
+
+.btn-cyber-toggle.active {
+  background: var(--accent-purple);
+  color: #000;
+  text-shadow: none;
 }
 
 /* --- LISTA DE EFECTOS --- */
-/* Reutilizamos .list-container del CSS global, pero añadimos especificidad si hace falta */
-.list-container {
-    margin-top: 10px;
-    border-left: 3px solid var(--accent-purple); /* Borde púrpura para esta lista */
-    animation: fadeIn 0.3s ease;
+.cyber-list-container {
+  margin-top: 16px;
+  border-left: 2px solid var(--accent-purple);
+  animation: slideDown 0.3s cubic-bezier(.2,.8,.2,1);
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.item-name {
-    color: var(--text-main);
-    font-weight: 600;
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.item-desc {
-    color: #888;
-    font-style: italic;
-    font-size: 0.85rem;
+.cyber-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.cyber-list-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.cyber-list-item .item-name {
+  color: #f0f0f0;
+  font-weight: 600;
+  font-family: var(--mono-font);
+}
+
+.cyber-list-item .item-desc {
+  color: #888;
+  font-size: 0.85rem;
 }
 
 /* Listas simples (Clima/Bienvenida) */
 .sys-list {
-    padding-left: 20px;
-    margin: 0;
-    color: #ccc;
-    font-size: 0.9rem;
-    line-height: 1.6;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Responsividad */
-@media (max-width: 768px) {
-    .systems-grid {
-        grid-template-columns: 1fr;
-    }
-    .command-snippet {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
+.sys-list li {
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sys-list .bullet-icon {
+  font-size: 1.2rem;
+  margin-top: -2px;
+}
+
+.sys-list strong {
+  color: #fff;
+  font-family: var(--mono-font);
+  font-size: 1rem;
 }

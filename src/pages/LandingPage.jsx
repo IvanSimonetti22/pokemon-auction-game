@@ -4,6 +4,8 @@ export const LandingPage = ({ onNavigate }) => {
     const [showHytaleModal, setShowHytaleModal] = useState(false);
     return (
         <div className="landing-container">
+            {/* Glow Central Trasero */}
+            <div className="landing-center-glow" />
             {/* Título Decorado */}
             <div className="landing-title-wrapper">
                 <h1 className="landing-title">
@@ -28,7 +30,7 @@ export const LandingPage = ({ onNavigate }) => {
                         <p className="card-desc">
                             Survival, Mods, Mapas interactivos, Sistemas y Galería.
                         </p>
-                        <div className="status-badge warning">EN MANTENIMIENTO</div>
+                        <div className="status-badge active">SERVER 24/7</div>
                     </div>
                 </div>
                 {/* TARJETA POKÉMON */}
@@ -46,8 +48,8 @@ export const LandingPage = ({ onNavigate }) => {
                         </p>
                     </div>
                 </div>
-                {/* --- NUEVA TARJETA 1: HYTALE (Work In Progress) --- */}
-                <div
+                {/* --- TARJETA HYTALE: OCULTA TEMPORALMENTE --- */}
+                {/* <div
                     className="landing-card hytale-card"
                     onClick={() => setShowHytaleModal(true)}
                     role="button"
@@ -59,7 +61,7 @@ export const LandingPage = ({ onNavigate }) => {
                         <p className="card-desc">Desarrollo en curso</p>
                         <div className="status-badge warning">EN MANTENIMIENTO</div>
                     </div>
-                </div>
+                </div> */}
                 {/* --- NUEVA TARJETA 2: ZZZ (Zenless Zone Zero) --- */}
                 <div
                     className="landing-card zzz-card"
@@ -73,8 +75,8 @@ export const LandingPage = ({ onNavigate }) => {
                         <p className="card-desc">Calculadora de Tiradas y Probabilidades</p>
                     </div>
                 </div>
-                {/* --- NUEVA TARJETA 3: CINE (Cyberpunk) --- */}
-                <div
+                {/* --- TARJETA CINE: OCULTA TEMPORALMENTE --- */}
+                {/* <div
                     className="landing-card cinema-card"
                     onClick={() => onNavigate('cinema')}
                     role="button"
@@ -86,7 +88,7 @@ export const LandingPage = ({ onNavigate }) => {
                         <p className="card-desc">Cartelera Semanal Temática</p>
                         <div className="status-badge new">ESTRENO</div>
                     </div>
-                </div>
+                </div> */}
             </div>
             {/* --- HYTALE POPUP MODAL --- */}
             {showHytaleModal && (

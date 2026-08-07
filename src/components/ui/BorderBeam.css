@@ -1,0 +1,27 @@
+.border-beam-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.beam-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.beam-rect-energy,
+.beam-rect-core {
+  stroke-dasharray: 20 80;
+  stroke-dashoffset: 100;
+  stroke-linecap: round;
+  animation: svg-beam-spin calc(var(--duration) * 1s) linear infinite;
+}
+
+@keyframes svg-beam-spin {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}

@@ -1,6 +1,45 @@
-// 📂 src/pages/Systems.jsx
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './Systems.css';
+
+const SystemPanel = ({ title, tag, tagClass, version, icon, accent, children }) => {
+  const panelRef = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div 
+      className={`systems-panel ${accent === 'purple' ? 'panel-purple' : accent === 'aqua' ? 'panel-aqua' : 'panel-gold'}`}
+      onMouseMove={handleMouseMove}
+      ref={panelRef}
+      style={{ 
+        '--x': `${pos.x}px`, 
+        '--y': `${pos.y}px`, 
+        '--panel-accent': accent === 'purple' ? 'var(--accent-purple)' : accent === 'aqua' ? 'var(--accent-aqua)' : 'var(--accent-gold)' 
+      }}
+    >
+      <div className="panel-header">
+        <div className="panel-header-left">
+          <span className="panel-icon-large">{icon}</span>
+          <div>
+            <h3>{title}</h3>
+            <div className="module-tags-mini">
+              <span className="module-tag">{version}</span>
+              <span className={`module-tag ${tagClass}`}>{tag}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="panel-body">
+        {children}
+      </div>
+    </div>
+  );
+};
 
 export const Systems = () => {
   const [showEffects, setShowEffects] = useState(false);
@@ -21,103 +60,73 @@ export const Systems = () => {
   return (
     <div className="systems-container fade-in">
       
-      {/* TARJETA PRINCIPAL: LOGROS (Púrpura) */}
-      <div className="card type-purple">
-        <div className="module-header">
-          <h3>
-            {/* Icono SVG de Copa/Trofeo */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:'10px'}}>
-              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-              <path d="M4 22h16"></path>
-              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
-              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
-              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
-            </svg>
-            Logros & Visual FX
-          </h3>
-          <div className="module-tags">
-            <span className="module-tag">v7.3</span>
-            <span className="module-tag tag-ok">ONLINE</span>
-          </div>
-        </div>
-
-        <div className="command-snippet">
-          <span className="command-label">
-            🟡 COMANDO PRINCIPAL:
-          </span>
+      {/* TARJETA PRINCIPAL: LOGROS */}
+      <SystemPanel 
+        title="Logros & Visual FX" 
+        version="v7.3" 
+        tag="ONLINE" 
+        tagClass="tag-ok" 
+        accent="purple" 
+        icon="🏆"
+      >
+        <div className="command-terminal">
+          <span className="command-prompt">{'>'}</span>
+          <span className="command-label">COMMAND:</span>
           <code className="command-code">/trigger np_menu</code>
+          <span className="command-cursor"></span>
         </div>
 
-        {/* Botón Toggle Estilo Cyberpunk */}
         <button 
-          className={`btn-toggle ${showEffects ? 'active' : ''}`} 
+          className={`btn-cyber-toggle ${showEffects ? 'active' : ''}`} 
           onClick={() => setShowEffects(!showEffects)}
         >
-          {showEffects ? '📂 Ocultar Biblioteca' : '📂 VER BIBLIOTECA DE EFECTOS'}
+          {showEffects ? '[_OCULTAR BIBLIOTECA_]' : '[_VER BIBLIOTECA DE EFECTOS_]'}
         </button>
 
-        {/* Lista Desplegable */}
         {showEffects && (
-          <div className="list-container show">
+          <div className="cyber-list-container">
             {EFFECTS_LIST.map((effect, index) => (
-              <div key={index} className="list-item">
+              <div key={index} className="cyber-list-item">
                 <span className="item-name">{effect.name}</span>
                 <span className="item-desc">{effect.achievement}</span>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </SystemPanel>
 
       {/* GRID INFERIOR */}
       <div className="systems-grid">
         
-        {/* Clima (Aqua) */}
-        <div className="card type-aqua">
-          <div className="module-header">
-            <h3>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:'10px'}}>
-                <path d="M17.5 19c0-1.7-1.3-3-3-3h-11c-1.7 0-3 1.3-3 3"></path>
-                <path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"></path>
-                <path d="M13 19v2"></path>
-                <path d="M9 19v2"></path>
-                <path d="M5 19v2"></path>
-              </svg>
-              Clima Atmosférico
-            </h3>
-            <div className="module-tags">
-               <span className="module-tag">v1.2</span>
-               <span className="module-tag tag-ok">ONLINE</span>
-            </div>
-          </div>
+        {/* Clima */}
+        <SystemPanel 
+          title="Clima Atmosférico" 
+          version="v1.2" 
+          tag="ONLINE" 
+          tagClass="tag-ok" 
+          accent="aqua" 
+          icon="⛈️"
+        >
           <ul className="sys-list">
-            <li>☂️ <strong>Lluvia:</strong> Mensaje chat + Sonido ambiente.</li>
-            <li>⚡ <strong>Tormenta:</strong> Efectos visuales intensos.</li>
+            <li><span className="bullet-icon">☂️</span> <strong>Lluvia:</strong> Mensaje chat + Sonido ambiente.</li>
+            <li><span className="bullet-icon">⚡</span> <strong>Tormenta:</strong> Efectos visuales intensos.</li>
           </ul>
-        </div>
+        </SystemPanel>
 
-        {/* Bienvenida (Gold) */}
-        <div className="card type-gold">
-          <div className="module-header">
-            <h3>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:'10px'}}>
-                 <path d="M18 6L7 17l-5-5"></path>
-                 <path d="M22 10v1"></path>
-                 <path d="M22 6v1"></path>
-              </svg>
-              NP Bienvenida
-            </h3>
-            <div className="module-tags">
-               <span className="module-tag">v1.0</span>
-               <span className="module-tag tag-ok">ONLINE</span>
-            </div>
-          </div>
+        {/* Bienvenida */}
+        <SystemPanel 
+          title="NP Bienvenida" 
+          version="v1.0" 
+          tag="ONLINE" 
+          tagClass="tag-ok" 
+          accent="gold" 
+          icon="✨"
+        >
           <ul className="sys-list">
-            <li>📜 <strong>Holograma:</strong> Texto flotante en el Spawn.</li>
-            <li>✨ <strong>Partículas:</strong> Decoración al ingresar.</li>
+            <li><span className="bullet-icon">📜</span> <strong>Holograma:</strong> Texto flotante en el Spawn.</li>
+            <li><span className="bullet-icon">✨</span> <strong>Partículas:</strong> Decoración al ingresar.</li>
           </ul>
-        </div>
+        </SystemPanel>
 
       </div>
     </div>

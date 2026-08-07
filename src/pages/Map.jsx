@@ -1,53 +1,48 @@
-// 📂 src/pages/Map.jsx
+import React, { useRef, useState } from 'react';
 import './Map.css';
 
 export const Map = () => {
-  // 🔴 PEGA AQUÍ TU NUEVA URL DE CLOUDFLARE
-  const MAP_URL = "https://declare-drain-cottages-cam.trycloudflare.com"; 
+  const panelRef = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
 
   return (
     <div className="map-page fade-in">
-      <div className="card type-aqua">
-        <div className="module-header">
-          <h3>🛰️ Cartografía Orbital</h3>
-          <span className="module-tag tag-ok">EN VIVO</span>
-        </div>
-        
-        <p className="map-desc">
-          Renderizado 3D en tiempo real del mundo.
-        </p>
+      
+      <div className="terminal-header" style={{ marginBottom: '24px' }}>
+        <h2><span className="blink">_</span>ORBITAL_LINK: NO_SIGNAL</h2>
+        <p>Intentando establecer conexión con el satélite cartográfico...</p>
+      </div>
 
-        {/* Ya no necesitamos el aviso de seguridad porque ahora es HTTPS :) */}
-        
-        <div className="map-frame-container">
-          <iframe 
-            src={MAP_URL} 
-            title="Mapa del Servidor"
-            allowFullScreen
-            // Ya no necesitamos trucos raros, carga nativo
-          ></iframe>
+      <div 
+        className="map-glitch-panel"
+        onMouseMove={handleMouseMove}
+        ref={panelRef}
+        style={{ 
+          '--x': `${pos.x}px`, 
+          '--y': `${pos.y}px`
+        }}
+      >
+        <div className="glitch-screen">
+          <div className="noise-overlay"></div>
+          <div className="scanlines"></div>
+          
+          <div className="glitch-content">
+            <div className="error-code">ERR_CONNECTION_REFUSED</div>
+            <div className="error-title glitch" data-text="SEÑAL PERDIDA">SEÑAL PERDIDA</div>
+            <p className="error-desc">El satélite cartográfico se encuentra actualmente en mantenimiento de órbita. Los mapas 3D volverán a estar operativos pronto.</p>
+            
+            <div className="reconnect-anim">
+              <span className="dot">.</span><span className="dot">.</span><span className="dot">.</span> REINTENTANDO <span className="dot">.</span><span className="dot">.</span><span className="dot">.</span>
+            </div>
+          </div>
         </div>
-
-        <a href={MAP_URL} target="_blank" rel="noopener noreferrer" className="map-overlay-btn">
-          ⤢ ABRIR PANTALLA COMPLETA
-        </a>
       </div>
     </div>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

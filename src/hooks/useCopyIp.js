@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 export const useCopyIp = () => {
   const [showToast, setShowToast] = useState(false);
-  const IP = "nodopersistente.duckdns.org:27849";
+  const IP = "nodo-persistente.baires.cloud";
 
   // Función para reproducir un sonido "Placeholder"
   // (Generamos un beep electrónico suave para que funcione sin descargar archivos mp3)

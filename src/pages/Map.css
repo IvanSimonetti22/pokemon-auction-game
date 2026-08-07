@@ -1,66 +1,211 @@
 /* 📂 src/pages/Map.css */
 
-.map-frame-container {
-    width: 100%;
-    /* Escritorio: Altura fija cómoda */
-    height: 600px; 
-    border: 2px solid #444;
-    background: #000;
-    position: relative;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 15px;
-    box-shadow: inset 0 0 30px #000;
+.map-page {
+  width: 100%;
 }
 
-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    /* Un poco de contraste extra para que el mapa resalte */
-    filter: saturate(1.1) contrast(1.1); 
+.map-glitch-panel {
+  position: relative;
+  background: #050505;
+  border: 1px solid #222;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 60vh;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 50px rgba(0,0,0,0.9);
 }
 
-.map-overlay-btn {
-    display: block;
-    width: auto;
-    padding: 12px;
-    background: linear-gradient(90deg, var(--accent-aqua), #22aaff);
-    color: #000;
-    text-align: center;
-    font-weight: bold;
-    text-decoration: none;
-    margin-top: 15px;
-    font-size: 0.9rem;
-    transition: all 0.3s;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/* Spotlight Dither Effect */
+.map-glitch-panel::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  z-index: 5;
+  background: radial-gradient(
+      800px circle at var(--x, 50%) var(--y, 50%),
+      rgba(255, 0, 0, 0.15),
+      transparent 40%
+  );
+  mask-image: var(--dither-pattern);
+  mask-size: var(--dither-size) var(--dither-size);
+  -webkit-mask-image: var(--dither-pattern);
+  -webkit-mask-size: var(--dither-size) var(--dither-size);
 }
 
-.map-overlay-btn:hover {
-    filter: brightness(1.2);
-    box-shadow: 0 0 15px rgba(85, 255, 255, 0.4);
-    transform: translateY(-2px);
+.glitch-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+      0deg,
+      #050505,
+      #050505 2px,
+      #0a0a0c 2px,
+      #0a0a0c 4px
+  );
+  z-index: 1;
 }
 
-.map-desc {
-    color: #aaa;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 2;
+  animation: noise-shift 0.2s infinite;
 }
 
-/* --- ESTILOS RESPONSIVOS PARA MÓVIL --- */
-@media (max-width: 768px) {
-    .map-frame-container {
-        /* EN MÓVIL: Hacemos el mapa bien alto verticalmente */
-        /* 75vh significa el 75% de la altura de la pantalla */
-        height: 70vh; 
-    }
+@keyframes noise-shift {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 2px); }
+  75% { transform: translate(2px, 1px); }
+  100% { transform: translate(0,0); }
+}
 
-    /* El botón de pantalla completa se hace más grande para tocar fácil */
-    .map-overlay-btn {
-        padding: 15px;
-        font-size: 1rem;
-    }
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0) 50%,
+      rgba(0,0,0,0.2) 50%,
+      rgba(0,0,0,0.2)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.6;
+}
+
+/* Efecto de barrido CRT */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 10%;
+  background: linear-gradient(to bottom, transparent, rgba(255,0,0,0.1), transparent);
+  animation: scan 6s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
+.glitch-content {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  max-width: 600px;
+  padding: 40px;
+  border: 1px dashed rgba(255,0,0,0.3);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+
+.error-code {
+  color: var(--accent-red);
+  font-family: var(--mono-font);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.error-title {
+  font-family: var(--mono-font);
+  font-size: 4rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  position: relative;
+}
+
+.error-desc {
+  color: #888;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.reconnect-anim {
+  color: var(--accent-gold);
+  font-family: var(--mono-font);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+}
+
+.reconnect-anim .dot {
+  animation: blink 1.5s infinite;
+}
+.reconnect-anim .dot:nth-child(2) { animation-delay: 0.2s; }
+.reconnect-anim .dot:nth-child(3) { animation-delay: 0.4s; }
+.reconnect-anim .dot:nth-child(4) { animation-delay: 0.6s; }
+.reconnect-anim .dot:nth-child(5) { animation-delay: 0.8s; }
+.reconnect-anim .dot:nth-child(6) { animation-delay: 1.0s; }
+
+/* Efecto Glitch en Texto */
+.glitch {
+  position: relative;
+}
+
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 red;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 blue;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(41px, 9999px, 83px, 0); }
+  20% { clip: rect(98px, 9999px, 12px, 0); }
+  40% { clip: rect(27px, 9999px, 64px, 0); }
+  60% { clip: rect(66px, 9999px, 9px, 0); }
+  80% { clip: rect(11px, 9999px, 91px, 0); }
+  100% { clip: rect(82px, 9999px, 34px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(65px, 9999px, 100px, 0); }
+  20% { clip: rect(10px, 9999px, 92px, 0); }
+  40% { clip: rect(78px, 9999px, 43px, 0); }
+  60% { clip: rect(44px, 9999px, 25px, 0); }
+  80% { clip: rect(89px, 9999px, 14px, 0); }
+  100% { clip: rect(22px, 9999px, 56px, 0); }
+}
+
+@media (max-width: 600px) {
+  .error-title { font-size: 2.5rem; }
+  .glitch-content { padding: 20px; border: none; background: transparent; }
+  .map-glitch-panel { height: 70vh; }
 }

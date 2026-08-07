@@ -13,7 +13,6 @@ export const Header = ({ activeSection, onNavigate }) => {
     { id: 'gallery', label: 'Galería' },
     { id: 'systems', label: 'Sistemas' },
     { id: 'downloads', label: 'Descargas' },
-    { id: 'roadmap', label: 'Roadmap' },
     { id: 'changelog', label: 'BITÁCORA' }
   ];
 
@@ -39,7 +38,7 @@ export const Header = ({ activeSection, onNavigate }) => {
             >
               NODO PERSISTENTE
             </h1>
-            <div className="subtitle">Infraestructura Vanilla + • Fabric 1.21.10</div>
+            <div className="subtitle">Infraestructura Vanilla + • Fabric 26.2</div>
           </div>
 
           {/* Botón Hamburguesa (Solo visible en móvil) */}

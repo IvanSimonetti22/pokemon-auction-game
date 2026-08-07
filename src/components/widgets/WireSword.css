@@ -1,0 +1,97 @@
+.wire-sword-wrap {
+  width: var(--s);
+  height: var(--s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: calc(var(--s) * 4);
+}
+
+.wire-sword {
+  position: relative;
+  width: var(--s);
+  height: var(--s);
+  transform-style: preserve-3d;
+}
+
+/* ── Shared line style ── */
+.wire-sword > div {
+  position: absolute;
+  background: transparent;
+  border-color: var(--c);
+  border-style: solid;
+  box-shadow: 0 0 5px var(--c), 0 0 10px color-mix(in srgb, var(--c) 35%, transparent);
+}
+
+/* ── Blade (two vertical side lines) ── */
+.ws-blade-left {
+  left: 42%;
+  top: 4%;
+  width: 0;
+  height: 48%;
+  border-width: 0 1.5px 0 0;
+}
+
+.ws-blade-right {
+  left: 57%;
+  top: 4%;
+  width: 0;
+  height: 48%;
+  border-width: 0 1.5px 0 0;
+}
+
+/* Blade tip (triangle-ish: a horizontal line closing the top) */
+.ws-blade-tip {
+  left: 42%;
+  top: 4%;
+  width: 16%;
+  height: 0;
+  border-width: 1.5px 0 0 0;
+}
+
+/* ── Crossguard ── */
+.ws-guard {
+  left: 20%;
+  top: 52%;
+  width: 60%;
+  height: 0;
+  border-width: 2px 0 0 0;
+}
+
+.ws-guard-depth {
+  /* slight depth illusion: a shorter line behind */
+  left: 22%;
+  top: 54%;
+  width: 56%;
+  height: 0;
+  border-width: 1px 0 0 0;
+  opacity: 0.4;
+}
+
+/* ── Handle ── */
+.ws-handle-left {
+  left: 45%;
+  top: 54%;
+  width: 0;
+  height: 28%;
+  border-width: 0 1.5px 0 0;
+}
+
+.ws-handle-right {
+  left: 54%;
+  top: 54%;
+  width: 0;
+  height: 28%;
+  border-width: 0 1.5px 0 0;
+}
+
+/* ── Pommel (small diamond at the bottom) ── */
+.ws-pommel {
+  left: 40%;
+  top: 82%;
+  width: 20%;
+  height: 12%;
+  border-width: 1.5px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+}

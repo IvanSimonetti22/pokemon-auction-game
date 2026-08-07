@@ -1,27 +1,79 @@
 // 📂 src/components/ChangelogTimeline.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getChangelogs } from "../services/changelog.service";
 import "./ChangelogTimeline.css";
 
 const Tag = ({ type }) => {
   const safeType = type ? type.toLowerCase().trim() : 'info';
   let className = "tag-info";
+  let colorVar = "var(--accent-gold)";
   
-  if (safeType === 'new' || safeType === 'nuevo') className = "tag-new";
-  if (safeType === 'fix' || safeType === 'bug' || safeType === 'error') className = "tag-fix";
-  if (safeType === 'change' || safeType === 'ajuste' || safeType === 'update') className = "tag-change";
+  if (safeType === 'new' || safeType === 'nuevo') { className = "tag-new"; colorVar = "var(--accent-green)"; }
+  if (safeType === 'fix' || safeType === 'bug' || safeType === 'error') { className = "tag-fix"; colorVar = "var(--accent-red)"; }
+  if (safeType === 'change' || safeType === 'ajuste' || safeType === 'update') { className = "tag-change"; colorVar = "var(--accent-aqua)"; }
 
   const labels = {
-    'new': 'NUEVO ✨', 'nuevo': 'NUEVO ✨',
-    'fix': 'BUGFIX 🐛', 'bug': 'BUGFIX 🐛',
-    'change': 'AJUSTE ⚙️', 'ajuste': 'AJUSTE ⚙️',
-    'update': 'UPDATE 🚀'
+    'new': '[_NUEVO_]', 'nuevo': '[_NUEVO_]',
+    'fix': '[_BUGFIX_]', 'bug': '[_BUGFIX_]',
+    'change': '[_AJUSTE_]', 'ajuste': '[_AJUSTE_]',
+    'update': '[_UPDATE_]'
   };
 
   return (
-    <span className={`module-tag ${className}`}>
-      {labels[safeType] || type?.toUpperCase() || 'INFO'}
+    <span className={`module-tag ${className}`} style={{ '--tag-color': colorVar }}>
+      {labels[safeType] || `[_${type?.toUpperCase() || 'INFO'}_]`}
     </span>
+  );
+};
+
+const TimelineEntry = ({ item, getTypeClass, getTimelineIcon }) => {
+  const cardRef = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  const safeType = item.type ? item.type.toLowerCase().trim() : 'info';
+  let accent = 'var(--accent-gold)';
+  if (safeType === 'new' || safeType === 'nuevo') accent = 'var(--accent-green)';
+  if (safeType === 'fix' || safeType === 'bug' || safeType === 'error') accent = 'var(--accent-red)';
+  if (safeType === 'change' || safeType === 'ajuste' || safeType === 'update') accent = 'var(--accent-aqua)';
+
+  return (
+    <div className={`timeline-entry ${getTypeClass(item.type)}`}>
+      <div className="timeline-icon">
+        {getTimelineIcon(item.type)}
+      </div>
+      
+      <div 
+        className="timeline-card"
+        onMouseMove={handleMouseMove}
+        ref={cardRef}
+        style={{ 
+          '--x': `${pos.x}px`, 
+          '--y': `${pos.y}px`,
+          '--card-accent': accent
+        }}
+      >
+        <div className="timeline-meta">
+          <span className="timeline-date">{item.date?.toLocaleDateString()}</span>
+          <span className="meta-separator">//</span>
+          <Tag type={item.type} />
+        </div>
+        
+        <h3 className="timeline-title">
+          {item.title} 
+          {item.version && <span className="version-pill">v{item.version}</span>}
+        </h3>
+        
+        <div className="timeline-desc">
+          {item.description}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -45,7 +97,6 @@ export const ChangelogTimeline = () => {
     fetchLogs();
   }, []);
 
-  // Función para obtener el icono de la línea de tiempo
   const getTimelineIcon = (type) => {
     const safeType = type ? type.toLowerCase().trim() : 'info';
     if (safeType === 'new' || safeType === 'nuevo') return '✨';
@@ -54,7 +105,6 @@ export const ChangelogTimeline = () => {
     return '📝';
   };
 
-  // Función para obtener la clase de color para el borde hover
   const getTypeClass = (type) => {
     const safeType = type ? type.toLowerCase().trim() : 'info';
     if (safeType === 'new' || safeType === 'nuevo') return 'type-new';
@@ -64,49 +114,31 @@ export const ChangelogTimeline = () => {
   }
 
   if (loading) {
-    return <div style={{textAlign:'center', color:'#888', padding:'50px'}}>Cargando datos del satélite...</div>;
+    return <div className="terminal-loading"><span className="blink">_</span>CARGANDO DATOS DEL NODO...</div>;
   }
 
   return (
     <div className="changelog-container fade-in">
       
-      <div className="module-header" style={{marginBottom: '40px'}}>
-        <h2 style={{color: 'var(--accent-gold)'}}>📜 Bitácora de Cambios</h2>
+      <div className="terminal-header" style={{ marginBottom: '40px' }}>
+        <h2><span className="blink">_</span>SYS_LOG: BITÁCORA</h2>
+        <p>Registro histórico de actualizaciones del Nodo Persistente.</p>
       </div>
 
       <div className="timeline-wrapper">
-        {/* Línea de fondo decorativa */}
         <div className="timeline-track"></div>
 
         {logs.map((item) => (
-          <div key={item.id} className={`timeline-entry ${getTypeClass(item.type)}`}>
-            
-            {/* ICONO EN LA LÍNEA DE TIEMPO */}
-            <div className="timeline-icon">
-              {getTimelineIcon(item.type)}
-            </div>
-            
-            {/* TARJETA DE CONTENIDO */}
-            <div className="card timeline-card">
-              <div className="timeline-meta">
-                <span className="timeline-date">{item.date?.toLocaleDateString()}</span>
-                <Tag type={item.type} />
-              </div>
-              
-              <h3 className="timeline-title">
-                {item.title} 
-                {item.version && <span className="version-pill">{item.version}</span>}
-              </h3>
-              
-              <div className="timeline-desc">
-                {item.description}
-              </div>
-            </div>
-          </div>
+          <TimelineEntry 
+            key={item.id} 
+            item={item} 
+            getTypeClass={getTypeClass} 
+            getTimelineIcon={getTimelineIcon} 
+          />
         ))}
 
         {logs.length === 0 && (
-          <p style={{color:'#666', fontStyle:'italic', textAlign:'center'}}>No hay registros en la bitácora aún.</p>
+          <p className="empty-log">NO HAY REGISTROS EN LA BASE DE DATOS.</p>
         )}
       </div>
     </div>

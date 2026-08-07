@@ -1,11 +1,30 @@
 // 📂 src/components/ui/Cards.jsx
-import React from 'react';
-import './Cards.css'; // Crearemos este CSS en el siguiente paso
+import React, { useRef, useState } from 'react';
+import './Cards.css';
 
 // Componente 1: Tarjeta de Estadística Pequeña
 export const StatCard = ({ label, value, icon, color, onClick }) => {
+  const cardRef = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
-    <div className="stat-card" onClick={onClick} style={{ borderColor: color ? `${color}33` : '' }}>
+    <div 
+      className="stat-card" 
+      onClick={onClick} 
+      onMouseMove={handleMouseMove}
+      ref={cardRef}
+      style={{ 
+        '--x': `${pos.x}px`, 
+        '--y': `${pos.y}px`,
+        '--card-color': color || 'var(--accent-gold)'
+      }}
+    >
       <div className="stat-icon" style={{ color: color || '#FFAA00' }}>
         {icon}
       </div>
@@ -19,11 +38,26 @@ export const StatCard = ({ label, value, icon, color, onClick }) => {
 
 // Componente 2: Botón de Acción Grande
 export const ActionCard = ({ title, description, icon, color, onClick }) => {
+  const cardRef = useRef(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <div 
       className="action-card-btn" 
       onClick={onClick}
-      style={{ borderColor: color }}
+      onMouseMove={handleMouseMove}
+      ref={cardRef}
+      style={{ 
+        '--x': `${pos.x}px`, 
+        '--y': `${pos.y}px`,
+        '--card-color': color || '#55FFFF'
+      }}
     >
       <h3 style={{ color: color }}>
         {icon} {title}

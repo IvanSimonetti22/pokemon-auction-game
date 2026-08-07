@@ -1,51 +1,288 @@
 /* 📂 src/pages/Home.css */
 
 .home-container {
-    display: flex;
-    flex-direction: column;
-    /* Aumentamos la separación para que se vea limpio como en la referencia */
-    gap: 30px;
     width: 100%;
     margin: 0 auto;
 }
 
-/* 🔥 CORRECCIÓN CRÍTICA 🔥 */
-/* Esto fuerza a los bloques principales (Status, Grids, Terminal) a ocupar todo el ancho 
-   y apilarse verticalmente sin aplastarse. */
-/* .home-container children default to stretch in column flex */
-.home-container>* {
-    /* width: 100%; removed to prevent overflow */
+/* ═══════════════════════════════════════════════════════════
+   BENTO GRID LAYOUT - Asimétrico y Moderno
+   ═══════════════════════════════════════════════════════════ */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, minmax(140px, auto));
+    gap: 20px;
+    width: 100%;
+}
+
+/* ─── HERO (Server Status) - 2x2 ─────────────────────────── */
+.bento-hero {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+/* ─── STATS (1x1 cada uno) ───────────────────────────────── */
+.bento-stat {
+    grid-column: span 1;
+    grid-row: span 1;
+}
+
+/* ─── ACTIONS (1x2 horizontal cada uno) ──────────────────── */
+.bento-action {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+/* ─── TERMINAL (Full width) ──────────────────────────────── */
+.bento-terminal {
+    grid-column: span 4;
+    grid-row: span 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BENTO ITEM BASE - Estilo Premium con Dithering
+   ═══════════════════════════════════════════════════════════ */
+.bento-item {
+    background: #0a0a0c;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(.2,.8,.2,1);
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Base Gradient Background */
+.bento-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+/* Spotlight Dither Effect - Premium Hover */
+.bento-item::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+        500px circle at var(--x, 50%) var(--y, 50%),
+        rgba(255, 255, 255, 0.12),
+        transparent 40%
+    );
+    mask-image: var(--dither-pattern);
+    mask-size: 4px 4px;
+    -webkit-mask-image: var(--dither-pattern);
+    -webkit-mask-size: 4px 4px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.bento-item:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 
+        0 16px 48px rgba(0,0,0,0.9),
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 0 40px rgba(255,255,255,0.03);
+}
+
+.bento-item:hover::before {
+    opacity: 0.5;
+}
+
+.bento-item:hover::after {
+    opacity: 1;
+}
+
+/* Border Glow Accent - Línea inferior animada */
+.bento-item .border-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    opacity: 0;
+    transition: width 0.5s cubic-bezier(.2,.8,.2,1), opacity 0.3s ease;
+    z-index: 2;
+}
+
+.bento-item:hover .border-glow {
+    width: 100%;
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BENTO STAT - Tarjetas de Estadísticas
+   ═══════════════════════════════════════════════════════════ */
+.bento-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.bento-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--accent-gold);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.bento-stat:hover .bento-stat-icon {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255,170,0,0.3);
+}
+
+.bento-stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bento-stat-label {
+    color: #888;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.bento-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    font-family: var(--mono-font);
+    letter-spacing: -0.5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BENTO ACTION - Tarjetas de Acción
+   ═══════════════════════════════════════════════════════════ */
+.bento-action {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.bento-action-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.bento-action:hover .bento-action-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.bento-action-content {
+    flex: 1;
     min-width: 0;
-    /* allows shrinking if needed */
 }
 
-/* --- GRID DE ESTADÍSTICAS (4 columnas) --- */
-.stats-grid {
-    display: grid;
-    /* Usamos minmax para que sea responsivo pero mantenga estructura */
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+.bento-action-content h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    font-family: var(--mono-font);
+    letter-spacing: -0.3px;
 }
 
-/* --- GRID DE ACCIONES (2 botones grandes) --- */
-.actions-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.bento-action-content p {
+    margin: 0;
+    color: #888;
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
-/* --- RESPONSIVIDAD MÓVIL --- */
-@media (max-width: 768px) {
+/* ═══════════════════════════════════════════════════════════
+   BENTO TERMINAL - Terminal IP
+   ═══════════════════════════════════════════════════════════ */
+.bento-terminal {
+    padding: 0;
+    cursor: default;
+}
 
-    /* En móvil, los grids pasan a 1 sola columna */
-    .stats-grid,
-    .actions-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+.bento-terminal:hover {
+    transform: none;
+    border-color: #2a2a2a;
+    box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - Tablet
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
     }
 
-    .home-container {
-        gap: 20px;
-        /* Un poco menos de espacio en móvil */
+    .bento-hero {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+
+    .bento-stat {
+        grid-column: span 1;
+    }
+
+    .bento-action {
+        grid-column: span 2;
+    }
+
+    .bento-terminal {
+        grid-column: span 2;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - Mobile
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+    .bento-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .bento-hero,
+    .bento-stat,
+    .bento-action,
+    .bento-terminal {
+        grid-column: span 1;
+    }
+
+    .bento-item {
+        padding: 20px;
+    }
+
+    .bento-action {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
     }
 }

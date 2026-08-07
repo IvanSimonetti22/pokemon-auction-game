@@ -1,17 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Header } from './components/layout/Header';
-import { Particles } from './components/layout/Particles';
+import FaultyTerminal from './components/FaultyTerminal';
 import { MusicPlayer } from './components/widgets/MusicPlayer';
 import { ThemeToggle } from './components/widgets/ThemeToggle';
-// Páginas existentes
-import { Home } from './pages/Home';
-import { Map } from './pages/Map';
-import { Mods } from './pages/Mods';
-import { Systems } from './pages/Systems';
-import { Downloads } from './pages/Downloads';
-import { Roadmap } from './pages/Roadmap';
-import { Gallery } from './pages/Gallery';
-import { ChangelogTimeline } from './components/ChangelogTimeline';
+// Sección Minecraft (todo-en-uno)
+import { MinecraftHub } from './pages/MinecraftHub';
 // Página nueva
 import { PokemonAuction } from './pages/PokemonAuction';
 // 🔥 NUEVO: Landing Page Rediseñada
@@ -23,9 +16,21 @@ import TransitionScreen from './components/TransitionScreen';
 // 🔥 NUEVO: Componente CINE
 import { CinemaSection } from './components/CinemaSection';
 import CinemaIntro from './components/CinemaIntro'; // <-- IMPORTED INTRO
+// 🔧 TEMPORAL - BORRAR DESPUÉS DE USAR
+
 function App() {
   // Estado inicial en 'landing'
   const [activeSection, setActiveSection] = useState('landing');
+  
+  // Tracking global del cursor para el parallax/spotlight dither
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      document.body.style.setProperty('--global-x', `${e.clientX}px`);
+      document.body.style.setProperty('--global-y', `${e.clientY}px`);
+    };
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
+  }, []);
   // Estado de carga para la sección ZZZ
   const [zzzLoading, setZzzLoading] = useState(true);
   // Estado de carga para la sección CINE
@@ -49,21 +54,15 @@ function App() {
   }, [activeSection]);
   // --- THEME SWITCHER (BODY CLASSES) ---
   useEffect(() => {
-    // 1. Limpiar clases anteriores
     document.body.classList.remove('theme-zzz', 'theme-minecraft', 'theme-default', 'theme-pokemon');
-    // 2. Definir secciones de Minecraft
-    const minecraftSections = ['general', 'map', 'systems', 'mods', 'gallery', 'downloads', 'roadmap', 'changelog'];
-    // 3. Aplicar clase según el modo
-    if (activeSection === 'zzz') {
+    const mcSections = ['general', 'map', 'systems', 'mods', 'gallery', 'downloads', 'changelog'];
+    if (activeSection === 'zzz' || activeSection === 'cinema') {
       document.body.classList.add('theme-zzz');
-    } else if (activeSection === 'cinema') {
-      document.body.classList.add('theme-zzz'); // Reutilizamos theme-zzz o creamos theme-cinema
-    } else if (minecraftSections.includes(activeSection)) {
+    } else if (mcSections.includes(activeSection)) {
       document.body.classList.add('theme-minecraft');
     } else if (activeSection === 'pokemon_auction') {
       document.body.classList.add('theme-pokemon');
     } else {
-      // Modo Home / Landing
       document.body.classList.add('theme-default');
     }
   }, [activeSection]);
@@ -71,9 +70,25 @@ function App() {
   if (activeSection === 'landing') {
     return (
       <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
-        {/* El fondo de partículas se queda fijo atrás */}
+        {/* El fondo de terminal se queda fijo atrás */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
-          <Particles theme={theme} />
+          <FaultyTerminal
+            scale={1.2}                 
+            gridMul={[4, 2]}            
+            digitSize={1.5}
+            timeScale={0.8}             
+            scanlineIntensity={0.2}     
+            glitchAmount={0.3}          
+            flickerAmount={0.3}         
+            noiseAmp={1.5}              
+            chromaticAberration={2.5}   
+            dither={5}                  
+            curvature={0.015}           
+            tint="#44FFFF"
+            mouseReact={true}
+            mouseStrength={0.7}
+            brightness={0.35}           
+          />
         </div>
         {/* Componente de la Landing Page */}
         <LandingPage onNavigate={setActiveSection} />
@@ -121,25 +136,11 @@ function App() {
       </div>
     );
   }
-  // --- SECCIÓN MINECRAFT ---
+  // --- SECCIÓN MINECRAFT (MinecraftHub todo-en-uno) ---
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Particles theme={theme} />
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
       <ThemeToggle onThemeChange={setTheme} />
-      <Header activeSection={activeSection} onNavigate={(sec) => {
-        if (sec === 'home') setActiveSection('landing');
-        else setActiveSection(sec);
-      }} />
-      <main className="main-layout">
-        {activeSection === 'general' && <Home onNavigate={setActiveSection} />}
-        {activeSection === 'map' && <Map />}
-        {activeSection === 'mods' && <Mods />}
-        {activeSection === 'gallery' && <Gallery />}
-        {activeSection === 'systems' && <Systems />}
-        {activeSection === 'downloads' && <Downloads />}
-        {activeSection === 'roadmap' && <Roadmap />}
-        {activeSection === 'changelog' && <ChangelogTimeline />}
-      </main>
+      <MinecraftHub onBack={() => setActiveSection('landing')} />
       <MusicPlayer />
     </div>
   )

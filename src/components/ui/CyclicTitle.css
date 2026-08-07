@@ -1,0 +1,220 @@
+/* ── Base ── */
+.cyclic-title {
+  display: inline-block;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  transition: color 0.15s;
+  position: relative;
+}
+
+/* Scramble phase: monospace random chars in dim accent */
+.cyclic-title--scrambling {
+  color: rgba(85, 255, 255, 0.7) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: unset !important;
+  filter: none !important;
+  font-family: 'Courier New', monospace !important;
+}
+.cyclic-title--scrambling::before,
+.cyclic-title--scrambling::after { display: none !important; }
+
+
+/* ═══════════════════════════════
+   1. DEFAULT — clean white
+═══════════════════════════════ */
+.cyclic-title--default {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+
+/* ═══════════════════════════════
+   2. HALFTONE — dot grid on text
+═══════════════════════════════ */
+.cyclic-title--halftone {
+  background-image:
+    radial-gradient(circle, #55ffff 1.5px, transparent 1.5px),
+    radial-gradient(circle, #55ffff 1.5px, transparent 1.5px);
+  background-size: 5px 5px;
+  background-position: 0 0, 2.5px 2.5px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: halftonePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes halftonePulse {
+  0%, 100% { background-size: 5px 5px; opacity: 1; }
+  50%       { background-size: 6px 6px; opacity: 0.85; }
+}
+
+
+/* ═══════════════════════════════
+   3. CRT — chromatic aberration + flicker
+═══════════════════════════════ */
+.cyclic-title--crt {
+  color: #e8e8e8;
+  text-shadow:
+    0.04em  0     0 rgba(255, 0,   60,  0.8),
+   -0.04em  0     0 rgba(0,  255, 255,  0.8),
+    0        0.03em 0 rgba(0,  100, 255, 0.5);
+  animation: crtFlicker 0.12s steps(1) infinite, crtShift 3s ease-in-out infinite;
+}
+
+@keyframes crtFlicker {
+  0%   { opacity: 1;    }
+  45%  { opacity: 1;    }
+  50%  { opacity: 0.93; }
+  55%  { opacity: 1;    }
+  100% { opacity: 1;    }
+}
+
+@keyframes crtShift {
+  0%, 100% { text-shadow:  0.04em  0 0 rgba(255,0,60,0.8), -0.04em 0 0 rgba(0,255,255,0.8); }
+  25%       { text-shadow:  0.06em  0 0 rgba(255,0,60,0.9), -0.06em 0 0 rgba(0,255,255,0.9); }
+  50%       { text-shadow:  0.02em  0 0 rgba(255,0,60,0.6), -0.02em 0 0 rgba(0,255,255,0.6); }
+  75%       { text-shadow:  0.05em  0 0 rgba(255,0,60,0.8), -0.05em 0 0 rgba(0,255,255,0.8); }
+}
+
+
+/* ═══════════════════════════════
+   4. ASCII — pixelated monospace
+═══════════════════════════════ */
+.cyclic-title--ascii {
+  font-family: 'Courier New', 'Lucida Console', monospace !important;
+  color: #55ff55;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 8px rgba(85, 255, 85, 0.9),
+    0 0 2px rgba(85, 255, 85, 1);
+  filter: contrast(1.4) brightness(1.1);
+  animation: asciiScan 2s steps(4) infinite;
+}
+
+@keyframes asciiScan {
+  0%   { filter: contrast(1.4) brightness(1.1); }
+  25%  { filter: contrast(1.6) brightness(1.3); }
+  50%  { filter: contrast(1.2) brightness(0.9); }
+  75%  { filter: contrast(1.5) brightness(1.2); }
+  100% { filter: contrast(1.4) brightness(1.1); }
+}
+
+
+/* ═══════════════════════════════
+   5. GLITCH — horizontal slice
+═══════════════════════════════ */
+.cyclic-title--glitch {
+  color: #ffffff;
+  position: relative;
+  animation: glitchBase 0.4s steps(1) infinite;
+}
+
+.cyclic-title--glitch::before,
+.cyclic-title--glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cyclic-title--glitch::before {
+  color: #ff003c;
+  animation: glitchBefore 0.4s steps(1) infinite;
+  clip-path: polygon(0 15%, 100% 15%, 100% 35%, 0 35%);
+}
+
+.cyclic-title--glitch::after {
+  color: #00ffff;
+  animation: glitchAfter 0.4s steps(1) infinite;
+  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+}
+
+@keyframes glitchBase {
+  0%  { transform: translate(0); }
+  20% { transform: translate(-2px, 0); }
+  40% { transform: translate(2px, 0); }
+  60% { transform: translate(0, 1px); }
+  80% { transform: translate(-1px, -1px); }
+  100%{ transform: translate(0); }
+}
+
+@keyframes glitchBefore {
+  0%  { transform: translate(0); opacity: 0; }
+  15% { transform: translate(4px, 0); opacity: 1; }
+  30% { transform: translate(-4px, 0); opacity: 1; }
+  45% { transform: translate(2px, 0); opacity: 0.8; }
+  60% { transform: translate(0); opacity: 0; }
+  100%{ transform: translate(0); opacity: 0; }
+}
+
+@keyframes glitchAfter {
+  0%  { transform: translate(0); opacity: 0; }
+  10% { transform: translate(-3px, 0); opacity: 1; }
+  25% { transform: translate(3px, 0); opacity: 1; }
+  40% { transform: translate(-2px, 0); opacity: 0.9; }
+  55% { transform: translate(0); opacity: 0; }
+  100%{ transform: translate(0); opacity: 0; }
+}
+
+
+/* ═══════════════════════════════
+   6. NEON — glowing pulse
+═══════════════════════════════ */
+.cyclic-title--neon {
+  color: #55ffff;
+  text-shadow:
+    0 0 4px  #55ffff,
+    0 0 10px #55ffff,
+    0 0 20px #55ffff,
+    0 0 40px rgba(85,255,255,0.5),
+    0 0 80px rgba(85,255,255,0.2);
+  animation: neonPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% {
+    text-shadow:
+      0 0 4px  #55ffff,
+      0 0 10px #55ffff,
+      0 0 20px #55ffff,
+      0 0 40px rgba(85,255,255,0.5);
+  }
+  50% {
+    text-shadow:
+      0 0 2px  #55ffff,
+      0 0 6px  #55ffff,
+      0 0 12px #55ffff,
+      0 0 24px rgba(85,255,255,0.3);
+    color: #aaffff;
+  }
+}
+
+
+/* ═══════════════════════════════
+   7. VHS — horizontal noise warp
+═══════════════════════════════ */
+.cyclic-title--vhs {
+  color: #f0e6ff;
+  animation: vhsWarp 0.08s steps(1) infinite;
+  text-shadow:
+    3px 0 0 rgba(255, 80, 200, 0.6),
+   -3px 0 0 rgba(80, 200, 255, 0.6);
+}
+
+@keyframes vhsWarp {
+  0%   { transform: skewX(0deg) translateX(0); }
+  10%  { transform: skewX(0.4deg) translateX(1px); }
+  20%  { transform: skewX(0deg) translateX(-1px); }
+  30%  { transform: skewX(-0.3deg) translateX(2px); }
+  40%  { transform: skewX(0deg) translateX(0); }
+  50%  { transform: skewX(0.2deg) translateX(-2px); }
+  60%  { transform: skewX(0deg) translateX(1px); }
+  70%  { transform: skewX(-0.5deg) translateX(0); }
+  80%  { transform: skewX(0deg) translateX(-1px); }
+  90%  { transform: skewX(0.3deg) translateX(2px); }
+  100% { transform: skewX(0deg) translateX(0); }
+}

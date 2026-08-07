@@ -12,6 +12,14 @@ body {
     margin: 0;
 }
 
+/* Desactivar user-select en todos los elementos interactivos */
+button, [role="button"], .landing-card, .stat-card, .action-card-btn,
+.nav-btn, .mod-row, .list-item, .ip-terminal, .map-overlay-btn,
+.download-btn, .ip-mini-badge, h1, h2, h3, h4, h5, h6,
+.card-title, .card-desc, .card-icon-box, .hero-info h2 {
+    user-select: none;
+}
+
 /* =========================================
    2. TEMA MINECRAFT (RESTAURACIÓN)
    ========================================= */
@@ -21,13 +29,42 @@ body {
    Changes here will break the Minecraft section.
 */
 body.theme-minecraft {
-    background-color: #0a0a0a;
-    /* Fondo original oscuro */
+    background-color: #050505; /* A bit darker for better contrast with neons */
     background-image: none;
-    /* Quitar ruido/patrones de ZZZ */
     font-family: 'Inter', system-ui, sans-serif;
-    /* Fuente original limpia */
     color: #ffffff;
+    position: relative;
+}
+
+/* Global Dither Overlay */
+body.theme-minecraft::before {
+    content: '';
+    position: fixed;
+    /* Hacerlo más grande que la pantalla para el parallax */
+    top: -5%; left: -5%; right: -5%; bottom: -5%;
+    pointer-events: none;
+    z-index: 0;
+    background-image: var(--dither-pattern);
+    background-size: var(--dither-size) var(--dither-size);
+    /* El parallax se maneja con transform en JS, pero acá seteamos la base */
+    transform: translate(calc(var(--global-x, 0px) * -0.02), calc(var(--global-y, 0px) * -0.02));
+    opacity: 0.15;
+    mix-blend-mode: screen;
+}
+
+/* Spotlight global que baña toda la pantalla siguiendo el mouse */
+body.theme-minecraft::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(
+        800px circle at var(--global-x, 50%) var(--global-y, 50%),
+        rgba(255, 255, 255, 0.03),
+        transparent 50%
+    );
+    mix-blend-mode: screen;
 }
 
 /* Forzar la estructura del contenedor Minecraft para que no se corra */

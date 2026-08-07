@@ -1,146 +1,201 @@
 /* 📂 src/components/ui/Cards.css */
 
-/* --- ANIMACIÓN COMPARTIDA (Brillo Holográfico) --- */
+/* ─── ANIMACIONES COMPARTIDAS ────────────────────────── */
 @keyframes card-shine {
-    0% { left: -100%; opacity: 0; }
-    50% { opacity: 1; }
+    0%   { left: -100%; opacity: 0; }
+    50%  { opacity: 1; }
     100% { left: 200%; opacity: 0; }
 }
 
-/* --- STAT CARDS (Las 4 pequeñas) --- */
+@keyframes stat-enter {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── STAT CARDS ─────────────────────────────────────── */
 .stat-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid #333;
-    padding: 15px;
-    border-radius: 6px;
+    background: #0a0a0c;
+    border: 1px solid #2a2a2a;
+    padding: 18px 16px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    transition: transform 0.25s cubic-bezier(.2,.8,.2,1),
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
     cursor: pointer;
-    
-    /* 🔥 NECESARIO PARA EL EFECTO: */
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
+    user-select: none;
+    animation: stat-enter 0.45s cubic-bezier(.2,.8,.2,1) both;
 }
 
 .stat-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-3px);
-    /* El borde se ilumina del color del icono (si tiene) o dorado por defecto */
-    border-color: var(--accent-gold); 
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.8);
 }
 
-/* El destello de luz */
-.stat-card::after {
-    content: "";
+/* Base Gradient Background */
+.stat-card::before {
+    content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        120deg, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.1) 40%, 
-        rgba(255, 255, 255, 0.0) 100%
-    );
-    transform: skewX(-20deg);
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
     pointer-events: none;
-    transition: none;
+    z-index: 0;
+}
+
+/* Spotlight Dither Effect */
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px; /* Cover border */
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+        400px circle at var(--x, 50%) var(--y, 50%),
+        color-mix(in srgb, var(--card-color) 40%, transparent),
+        transparent 40%
+    );
+    mask-image: var(--dither-pattern);
+    mask-size: 4px 4px;
+    -webkit-mask-image: var(--dither-pattern);
+    -webkit-mask-size: 4px 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .stat-card:hover::after {
-    animation: card-shine 0.6s ease-in-out;
+    opacity: 0.8;
 }
 
-
-/* --- ACTION CARDS (Los 2 botones grandes) --- */
-.action-card-btn {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0) 100%);
-    border: 1px solid #55FFFF; /* Aqua por defecto */
-    padding: 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s;
-    
-    /* 🔥 NECESARIO PARA EL EFECTO: */
-    position: relative;
-    overflow: hidden;
-}
-
-.action-card-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 20px rgba(85, 255, 255, 0.1);
-}
-
-/* El destello de luz para estos botones */
-.action-card-btn::after {
-    content: "";
+/* Borde inferior reactivo */
+.stat-card .border-glow {
     position: absolute;
-    top: 0;
-    left: -100%;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--card-color);
+    opacity: 0.7;
+    transition: width 0.35s ease;
+    z-index: 2;
+}
+.stat-card:hover .border-glow {
     width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        120deg, 
-        transparent 0%, 
-        rgba(255, 255, 255, 0.15) 40%, /* Un poco más brillante aquí */
-        rgba(255, 255, 255, 0.0) 100%
-    );
-    transform: skewX(-20deg);
-    pointer-events: none;
 }
 
-.action-card-btn:hover::after {
-    animation: card-shine 0.8s ease-in-out;
-}
-
-
-/* ESTILOS DE CONTENIDO (Igual que antes) */
+/* ─── STAT ICON ──────────────────────────────────────── */
 .stat-icon {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    
-    /* Aseguramos que el icono quede ENCIMA del brillo */
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
     position: relative;
     z-index: 2;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.stat-card:hover .stat-icon {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--card-color) 40%, transparent);
 }
 
 .stat-data {
     position: relative;
     z-index: 2;
 }
-
 .stat-data strong {
     display: block;
-    font-size: 1.1rem;
-    color: #e0e0e0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f0f0f0;
+    font-family: var(--mono-font);
+    letter-spacing: -0.5px;
 }
-
 .stat-data span {
     color: #888;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+/* ─── ACTION CARDS ───────────────────────────────────── */
+.action-card-btn {
+    background: #0a0a0c;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 22px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.2,.8,.2,1);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.action-card-btn:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+}
+
+/* Base Gradient Background */
+.action-card-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Spotlight Dither Effect */
+.action-card-btn::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+        500px circle at var(--x, 50%) var(--y, 50%),
+        color-mix(in srgb, var(--card-color) 40%, transparent),
+        transparent 40%
+    );
+    mask-image: var(--dither-pattern);
+    mask-size: 4px 4px;
+    -webkit-mask-image: var(--dither-pattern);
+    -webkit-mask-size: 4px 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.action-card-btn:hover::after {
+    opacity: 0.6;
 }
 
 .action-card-btn h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 10px;
-    position: relative; z-index: 2;
+    position: relative;
+    z-index: 2;
+    letter-spacing: 0.3px;
+    font-family: var(--mono-font);
 }
-
 .action-card-btn p {
-    margin: 5px 0 0 0;
-    color: #aaa;
+    margin: 6px 0 0 0;
+    color: #888;
     font-size: 0.85rem;
-    position: relative; z-index: 2;
+    position: relative;
+    z-index: 2;
+    line-height: 1.5;
 }
