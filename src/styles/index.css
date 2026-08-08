@@ -65,6 +65,10 @@
 }
 
 /* --- 2. RESET BÁSICO --- */
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     background-color: var(--bg-deep);

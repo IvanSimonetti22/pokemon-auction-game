@@ -989,6 +989,84 @@
   box-shadow: 0 20px 60px rgba(0,0,0,0.95), inset 0 0 80px rgba(0,0,0,0.9);
 }
 
+.satelite-screen.active-map {
+  padding: 0;
+  border: 1px solid var(--accent-gold);
+  background: #000;
+}
+
+.bluemap-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.satelite-warning-overlay {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 320px;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid var(--accent-gold);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  animation: slideInRight 0.4s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.satelite-warning-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 170, 0, 0.15);
+  border-bottom: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.warning-title {
+  color: var(--accent-gold);
+  font-family: var(--mono-font);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.warning-close-btn {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 1rem;
+}
+.warning-close-btn:hover { color: #fff; }
+
+.satelite-warning-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.satelite-warning-body p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #bbb;
+}
+
+.satelite-warning-body strong {
+  color: #fff;
+  font-family: var(--mono-font);
+}
+
 .satelite-scanlines {
   position: absolute;
   inset: 0;
@@ -1375,10 +1453,27 @@
   .hero-name { font-size: 1.6rem; }
   .hero-body { gap: 16px; }
 
-  .mc-tab-btn { padding: 12px 14px; font-size: 0.78rem; gap: 4px; }
+  .mc-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mc-tabs::-webkit-scrollbar { display: none; }
+  
+  .mc-tab-btn { padding: 12px 14px; font-size: 0.78rem; gap: 4px; flex: 0 0 auto; }
 
   .satelite-title  { font-size: 2.4rem; }
   .satelite-content { padding: 24px; }
+  
+  .satelite-warning-overlay {
+    top: auto;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    width: auto;
+  }
 
   .descarga-step { flex-direction: column; align-items: flex-start; gap: 12px; }
   .step-num      { font-size: 2.2rem; min-width: auto; }

@@ -264,8 +264,19 @@
 
 /* RESPONSIVE */
 @media (max-width: 800px) {
+    .landing-container {
+        height: 100vh;
+        overflow-y: auto;
+        padding: 40px 20px;
+    }
+
+    .landing-title-wrapper {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+
     .landing-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
         letter-spacing: 5px;
     }
 
@@ -273,12 +284,14 @@
         flex-direction: column;
         align-items: center;
         gap: 30px;
+        padding: 0;
     }
 
     .landing-card {
         width: 100%;
         max-width: 320px;
-        height: 380px;
+        height: auto;
+        min-height: 320px;
     }
 }
 

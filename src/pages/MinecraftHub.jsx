@@ -324,25 +324,78 @@ const DescargasTab = ({ onCopy }) => (
 // ═══════════════════════════════════════════════════
 
 const SateliteTab = () => {
-  const [ref, onMove] = useSpotlight();
-  return (
-    <div ref={ref} className="satelite-screen" onMouseMove={onMove}>
-      <div className="satelite-scanlines" aria-hidden="true" />
-      <div className="satelite-noise"     aria-hidden="true" />
-      <div className="satelite-spotlight" aria-hidden="true" />
-      <div className="satelite-content">
-        <p className="satelite-err-code">ERR_CONNECTION_REFUSED</p>
-        <h2 className="satelite-title glitch" data-text="SEÑAL PERDIDA">SEÑAL PERDIDA</h2>
-        <p className="satelite-desc">
-          El satélite cartográfico se encuentra actualmente en mantenimiento de órbita.
-          Los mapas 3D volverán a estar operativos pronto.
-        </p>
-        <div className="satelite-reconnect" aria-live="polite">
-          <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
-          {' '}REINTENTANDO{' '}
-          <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
+  const [showWarning, setShowWarning] = useState(true);
+  const [mapStatus, setMapStatus] = useState('loading'); // 'loading', 'online', 'offline'
+  const [ref, onMove] = useSpotlight(); // Restauramos el efecto visual
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkMapStatus = async () => {
+      try {
+        // Intenta hacer un fetch silencioso al puerto de BlueMap para ver si responde.
+        // Usamos no-cors para evitar errores de navegador, si el servidor está apagado el fetch tira un catch.
+        await fetch('http://nodopersistente.duckdns.org:8100/', { mode: 'no-cors', cache: 'no-cache' });
+        if (isMounted) setMapStatus('online');
+      } catch (err) {
+        if (isMounted) setMapStatus('offline');
+      }
+    };
+    checkMapStatus();
+    return () => { isMounted = false; };
+  }, []);
+
+  if (mapStatus === 'loading') {
+    return (
+      <div className="satelite-screen">
+        <div className="satelite-content" style={{border: 'none', background: 'transparent'}}>
+          <h2 className="satelite-title" style={{fontSize: '2rem', color: 'var(--accent-gold)'}}>ESTABLECIENDO ENLACE...</h2>
         </div>
       </div>
+    );
+  }
+
+  if (mapStatus === 'offline') {
+    return (
+      <div ref={ref} className="satelite-screen" onMouseMove={onMove}>
+        <div className="satelite-scanlines" aria-hidden="true" />
+        <div className="satelite-noise"     aria-hidden="true" />
+        <div className="satelite-spotlight" aria-hidden="true" />
+        <div className="satelite-content">
+          <p className="satelite-err-code">ERR_CONNECTION_REFUSED</p>
+          <h2 className="satelite-title glitch" data-text="SEÑAL PERDIDA">SEÑAL PERDIDA</h2>
+          <p className="satelite-desc">
+            El satélite cartográfico se encuentra temporalmente fuera de órbita o apagado.
+            Los escaneos 3D volverán a estar operativos pronto.
+          </p>
+          <div className="satelite-reconnect" aria-live="polite" onClick={() => setMapStatus('loading')} style={{cursor: 'pointer'}}>
+            <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
+            {' '}REINTENTAR CONEXIÓN{' '}
+            <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="satelite-screen active-map">
+      <iframe 
+        src="http://nodopersistente.duckdns.org:8100/" 
+        title="Mapa Satelital BlueMap"
+        className="bluemap-iframe"
+      />
+      {showWarning && (
+        <div className="satelite-warning-overlay">
+          <div className="satelite-warning-header">
+            <span className="warning-title">⚠️ AVISOS DEL SISTEMA</span>
+            <button className="warning-close-btn" onClick={() => setShowWarning(false)} title="Cerrar avisos">X</button>
+          </div>
+          <div className="satelite-warning-body">
+            <p><strong>[ DISPONIBILIDAD ]</strong><br/>El satélite no siempre está en órbita. Puede haber momentos de desconexión.</p>
+            <p><strong>[ ACTUALIZACIONES ]</strong><br/>El mapa se actualiza cada semana con la copia de seguridad. Los cambios recientes en el mundo pueden no ser visibles de inmediato.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
