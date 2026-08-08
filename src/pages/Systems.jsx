@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useCopyIp } from '../hooks/useCopyIp';
 import './Systems.css';
 
 const SystemPanel = ({ title, tag, tagClass, version, icon, accent, children }) => {
@@ -42,19 +43,29 @@ const SystemPanel = ({ title, tag, tagClass, version, icon, accent, children }) 
 };
 
 export const Systems = () => {
-  const [showEffects, setShowEffects] = useState(false);
+  const [showEffects, setShowEffects] = useState(true);
+  const { copyToClipboard } = useCopyIp();
+
+  const handleCopyCmd = () => {
+    copyToClipboard('/trigger np_menu', 'Comando copiado al portapapeles');
+  };
+
+  const spawnParticles = (type, name) => {
+    window.dispatchEvent(new CustomEvent('spawn-mouse-particles', { detail: { type, duration: 5000 } }));
+    copyToClipboard('', `Equipado: ${name}`); // Usamos el toast de copyIp para notificar
+  };
 
   const EFFECTS_LIST = [
-    { name: "🍃 Aventurero", achievement: "Hora de Aventura" },
-    { name: "🌸 Dieta", achievement: "Dieta Equilibrada" },
-    { name: "❤️ Cobertura", achievement: "Catálogo Completo" },
-    { name: "🔥 Compromiso", achievement: "Serio Compromiso" },
-    { name: "💥 Overkill", achievement: "Sobre-Exagerado" },
-    { name: "✨ Postales", achievement: "Postmortal" },
-    { name: "🧟 Furia", achievement: "Doctor Zombi" },
-    { name: "🧪 Cómo llegamos", achievement: "Efectos" },
-    { name: "☁️ Buenas Vistas", achievement: "Cima del mundo" },
-    { name: "🐚 Hogar", achievement: "Faro Completo" },
+    { name: "🍃 Aventurero", achievement: "Hora de Aventura", type: 'tinted_leaves' },
+    { name: "🌸 Dieta", achievement: "Dieta Equilibrada", type: 'heart' },
+    { name: "❤️ Cobertura", achievement: "Catálogo Completo", type: 'cherry_leaves' },
+    { name: "🔥 Compromiso", achievement: "Serio Compromiso", type: 'soul_fire_flame' },
+    { name: "💥 Overkill", achievement: "Sobre-Exagerado", type: 'crit' },
+    { name: "✨ Postales", achievement: "Postmortal", type: 'totem_of_undying' },
+    { name: "🧟 Furia", achievement: "Doctor Zombi", type: 'happy_villager' },
+    { name: "🧪 Cómo llegamos", achievement: "Efectos", type: 'witch' },
+    { name: "☁️ Buenas Vistas", achievement: "Cima del mundo", type: 'cloud' },
+    { name: "🐚 Hogar", achievement: "Faro Completo", type: 'nautilus' },
   ];
 
   return (
@@ -69,7 +80,11 @@ export const Systems = () => {
         accent="purple" 
         icon="🏆"
       >
-        <div className="command-terminal">
+        <p className="sys-desc" style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#aaa' }}>
+          Al desbloquear estos logros épicos, podrás equiparte partículas cosméticas que te seguirán a todas partes en el servidor.
+        </p>
+
+        <div className="command-terminal" onClick={handleCopyCmd} style={{ cursor: 'pointer' }} title="Click para copiar">
           <span className="command-prompt">{'>'}</span>
           <span className="command-label">COMMAND:</span>
           <code className="command-code">/trigger np_menu</code>
@@ -86,7 +101,13 @@ export const Systems = () => {
         {showEffects && (
           <div className="cyber-list-container">
             {EFFECTS_LIST.map((effect, index) => (
-              <div key={index} className="cyber-list-item">
+              <div 
+                key={index} 
+                className="cyber-list-item" 
+                onClick={() => spawnParticles(effect.type, effect.name)}
+                style={{ cursor: 'pointer' }}
+                title="Click para previsualizar partículas"
+              >
                 <span className="item-name">{effect.name}</span>
                 <span className="item-desc">{effect.achievement}</span>
               </div>

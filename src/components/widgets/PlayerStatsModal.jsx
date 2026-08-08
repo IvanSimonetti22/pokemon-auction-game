@@ -11,24 +11,34 @@ import './PlayerStatsModal.css';
 
 // ── Logros épicos con nombres en español ──
 const HARD_ADVANCEMENTS = [
-  { id: 'minecraft:end/kill_dragon',               label: 'Liberar el End',            icon: '🐉', category: 'El End'    },
-  { id: 'minecraft:end/dragon_egg',                label: 'La Próxima Generación',     icon: '🥚', category: 'El End'    },
-  { id: 'minecraft:end/enter_end_gateway',         label: 'Huida Remota',              icon: '🌀', category: 'El End'    },
-  { id: 'minecraft:end/levitate',                  label: 'Hasta el Cielo',            icon: '🎈', category: 'El End'    },
-  { id: 'minecraft:end/elytra',                    label: 'Buenas Vistas desde Arriba',icon: '🦋', category: 'El End'    },
-  { id: 'minecraft:nether/obtain_ancient_debris',  label: 'Oculto en las Profundidades',icon: '🔮', category: 'El Nether' },
-  { id: 'minecraft:nether/create_full_netherite_armor', label: 'Armadura de Netherita', icon: '🛡️', category: 'El Nether' },
-  { id: 'minecraft:nether/fast_travel',            label: 'Burbuja Subespacio',        icon: '⚡', category: 'El Nether' },
-  { id: 'minecraft:nether/uneasy_alliance',        label: 'Alianza Incómoda',          icon: '🕊️', category: 'El Nether' },
-  { id: 'minecraft:nether/charge_respawn_anchor',  label: '¿Quién Pela Cebollas?',     icon: '⚓', category: 'El Nether' },
-  { id: 'minecraft:adventure/kill_a_mob',          label: 'Cazador de Monstruos',      icon: '⚔️', category: 'Aventura'  },
-  { id: 'minecraft:adventure/kill_all_mobs',       label: 'Monstruos Cazados',         icon: '🏹', category: 'Aventura'  },
-  { id: 'minecraft:adventure/totem_of_undying',    label: 'Postmortal',                icon: '🪬', category: 'Aventura'  },
-  { id: 'minecraft:adventure/hero_of_the_village', label: 'Héroe de la Aldea',         icon: '🏘️', category: 'Aventura'  },
-  { id: 'minecraft:adventure/adventuring_time',    label: 'Hora de Aventuras',         icon: '🗺️', category: 'Aventura'  },
-  { id: 'minecraft:story/enter_the_end',           label: '¿El Fin?',                  icon: '🌌', category: 'Historia'  },
-  { id: 'minecraft:story/obtain_armor',            label: 'A Ponerse la Armadura',     icon: '🪖', category: 'Historia'  },
-  { id: 'minecraft:story/shiny_gear',              label: 'Hoy No, Gracias',           icon: '✨', category: 'Historia'  },
+  { id: 'minecraft:end/kill_dragon',               label: 'Liberar el End',            icon: '🐉', category: 'El End',    desc: 'Derrota al Dragón del End.' },
+  { id: 'minecraft:end/dragon_egg',                label: 'La Próxima Generación',     icon: '🥚', category: 'El End',    desc: 'Consigue el huevo del dragón.' },
+  { id: 'minecraft:end/enter_end_gateway',         label: 'Huida Remota',              icon: '🌀', category: 'El End',    desc: 'Escapa de la isla principal del End.' },
+  { id: 'minecraft:end/levitate',                  label: 'Hasta el Cielo',            icon: '🎈', category: 'El End',    desc: 'Levita 50 bloques por ataque de un Shulker.' },
+  { id: 'minecraft:end/elytra',                    label: 'Buenas Vistas desde Arriba',icon: '🦋', category: 'El End',    desc: 'Encuentra unos élitros.' },
+  { id: 'minecraft:nether/obtain_ancient_debris',  label: 'Oculto en las Profundidades',icon: '🔮', category: 'El Nether', desc: 'Consigue restos antiguos.' },
+  { id: 'minecraft:nether/create_full_netherite_armor', label: 'Armadura de Netherita', icon: '🛡️', category: 'El Nether', desc: 'Consigue armadura completa de netherita.' },
+  { id: 'minecraft:nether/fast_travel',            label: 'Burbuja Subespacio',        icon: '⚡', category: 'El Nether', desc: 'Viaja 7 km en el Overworld usando el Nether.' },
+  { id: 'minecraft:nether/uneasy_alliance',        label: 'Alianza Incómoda',          icon: '🕊️', category: 'El Nether', desc: 'Rescata un Ghast y mátalo en el Overworld.' },
+  { id: 'minecraft:nether/charge_respawn_anchor',  label: '¿Quién Pela Cebollas?',     icon: '⚓', category: 'El Nether', desc: 'Carga un nexo de reaparición al máximo.' },
+  { id: 'minecraft:adventure/kill_a_mob',          label: 'Cazador de Monstruos',      icon: '⚔️', category: 'Aventura',  desc: 'Mata a cualquier monstruo hostil.' },
+  { id: 'minecraft:adventure/kill_all_mobs',       label: 'Monstruos Cazados',         icon: '🏹', category: 'Aventura',  desc: 'Mata a todos los monstruos hostiles.' },
+  { id: 'minecraft:adventure/totem_of_undying',    label: 'Postmortal',                icon: '🪬', category: 'Aventura',  desc: 'Engaña a la muerte con un tótem de inmortalidad.', particle: 'Postales' },
+  { id: 'minecraft:adventure/hero_of_the_village', label: 'Héroe de la Aldea',         icon: '🏘️', category: 'Aventura',  desc: 'Defiende con éxito una aldea de una invasión.' },
+  { id: 'minecraft:adventure/adventuring_time',    label: 'Hora de Aventuras',         icon: '🗺️', category: 'Aventura',  desc: 'Descubre todos los biomas.', particle: 'Aventurero' },
+  { id: 'minecraft:story/enter_the_end',           label: '¿El Fin?',                  icon: '🌌', category: 'Historia',  desc: 'Atraviesa el portal del End.' },
+  { id: 'minecraft:story/obtain_armor',            label: 'A Ponerse la Armadura',     icon: '🪖', category: 'Historia',  desc: 'Protégete con una pieza de armadura.' },
+  { id: 'minecraft:story/shiny_gear',              label: 'Hoy No, Gracias',           icon: '✨', category: 'Historia',  desc: 'Protégete con armadura de diamante.' },
+  
+  // Logros extra para partículas
+  { id: 'minecraft:husbandry/balanced_diet',       label: 'Dieta Equilibrada',         icon: '🥩', category: 'Agricultura', desc: 'Come de todo, aunque no sea bueno para ti.', particle: 'Dieta' },
+  { id: 'minecraft:husbandry/complete_catalogue',  label: 'Catálogo Completo',         icon: '🐱', category: 'Agricultura', desc: '¡Domestica a todas las variantes de gato!', particle: 'Cobertura' },
+  { id: 'minecraft:husbandry/obtain_netherite_hoe',label: 'Serio Compromiso',          icon: '⛏️', category: 'Agricultura', desc: 'Mejora una azada con un lingote de netherita.', particle: 'Compromiso' },
+  { id: 'minecraft:adventure/bullseye',            label: 'Sobre-Exagerado',           icon: '💥', category: 'Aventura',  desc: 'Da en el blanco del objetivo desde 30 metros.', particle: 'Overkill' },
+  { id: 'minecraft:story/cure_zombie_villager',    label: 'Doctor Zombi',              icon: '🧪', category: 'Historia',  desc: 'Debilita y cura a un aldeano zombi.', particle: 'Furia' },
+  { id: 'minecraft:nether/all_potions',            label: 'Efectos',                   icon: '🍹', category: 'El Nether', desc: 'Ten todos los efectos de pociones a la vez.', particle: 'Cómo llegamos' },
+  { id: 'minecraft:adventure/trade_at_world_height',label: 'Cima del mundo',           icon: '🏔️', category: 'Aventura',  desc: 'Comercia con un aldeano en el límite de altura.', particle: 'Buenas Vistas' },
+  { id: 'minecraft:nether/create_beacon',          label: 'Faro Completo',             icon: '🗼', category: 'El Nether', desc: 'Construye un faro a su máxima potencia.', particle: 'Hogar' },
 ];
 
 // ── Traducciones de bloques al español ──
@@ -78,7 +88,7 @@ const MOB_ICONS = {
   iron_golem: '🤖', wolf: '🐺', cat: '🐱', horse: '🐴',
 };
 
-export const PlayerStatsModal = ({ player, onClose }) => {
+export const PlayerStatsModal = ({ player, onClose, onNavigateToSistemas }) => {
   const canvasRef = useRef(null);
   const viewerRef = useRef(null);
   const cubeRef = useRef(null);
@@ -371,14 +381,27 @@ export const PlayerStatsModal = ({ player, onClose }) => {
                     </div>
                     <div className="blocks-detail-total">{stats.achievementsDone} completados</div>
                   </div>
+                  <div className="adv-legend">
+                    <span className="adv-particle-badge">✨</span>
+                    <span className="adv-legend-text">Este símbolo indica que el logro desbloquea un efecto visual. Click para ver.</span>
+                  </div>
                   <div className="blocks-list">
                     {stats.achievementsBreakdown.map((adv, i) => (
-                      <div key={i} className={`block-detail-row adv-row ${adv.done ? 'adv-done' : 'adv-missing'}`}
-                        style={{ animationDelay: `${i * 0.04}s` }}>
+                      <div key={i} className={`block-detail-row adv-row ${adv.done ? 'adv-done' : 'adv-missing'} ${adv.particle ? 'has-particle' : ''}`}
+                        onClick={adv.particle ? onNavigateToSistemas : undefined}
+                        style={{ animationDelay: `${i * 0.04}s`, cursor: adv.particle ? 'pointer' : 'default' }}>
                         <span className="block-detail-icon">{adv.icon}</span>
-                        <div className="adv-info">
+                        <div className="adv-left-col">
                           <span className="block-detail-name">{adv.label}</span>
                           <span className="adv-category">{adv.category}</span>
+                        </div>
+                        <div className="adv-mid-col">
+                          {adv.desc && <span className="adv-desc">{adv.desc}</span>}
+                          {adv.particle && (
+                            <div className="adv-particle-badge" title="Este logro desbloquea una partícula épica">
+                              ✨ {adv.particle}
+                            </div>
+                          )}
                         </div>
                         <div className={`adv-badge ${adv.done ? 'adv-badge--done' : 'adv-badge--locked'}`} />
                       </div>

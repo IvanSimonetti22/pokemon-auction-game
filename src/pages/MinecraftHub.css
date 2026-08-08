@@ -597,6 +597,7 @@
   display: grid;
   grid-template-columns: 5fr 3fr 3fr;
   gap: 20px;
+  align-items: start;
 }
 
 .sistema-card:hover { transform: translateY(-5px); }
@@ -716,17 +717,57 @@
 
 .effect-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.025);
-  border-radius: 4px;
-  font-size: 0.85rem;
-  gap: 10px;
+  flex-direction: column;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.effect-name { color: #ddd; font-family: var(--mono-font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.effect-ach  { color: #888; font-size: 0.8rem; white-space: nowrap; }
+.effect-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.effect-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.effect-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.effect-ach {
+  font-size: 0.75rem;
+  color: #aaa;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.effect-desc {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 6px;
+  line-height: 1.3;
+}
+
+@keyframes highlightPulse {
+  0% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); }
+  70% { box-shadow: 0 0 0 20px rgba(167, 139, 250, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
+}
+
+.highlight-pulse {
+  animation: highlightPulse 2s cubic-bezier(0.19, 1, 0.22, 1);
+  border-color: #a78bfa !important;
+}
 
 .sistema-features {
   display: flex;

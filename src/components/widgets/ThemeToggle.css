@@ -14,95 +14,99 @@
 .theme-toggle-btn {
     width: 45px;
     height: 45px;
-    border-radius: 50%;
     background: rgba(10, 10, 10, 0.9);
-    border: 2px solid var(--border);
-    color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    transition: all 0.3s ease;
     backdrop-filter: blur(5px);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 .theme-widget:hover .theme-toggle-btn {
-    border-color: var(--accent-gold);
-    transform: scale(1.1) rotate(180deg);
-    background: rgba(30, 30, 30, 0.9);
+    border-color: #a78bfa;
+    color: #a78bfa;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.3);
 }
 
 /* CONTENEDOR DE OPCIONES */
 .theme-options {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(20px) scale(0.8);
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Estado Activo (Hover) */
 .theme-widget:hover .theme-options {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
 }
 
 .theme-opt {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
+    width: 45px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #888;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    
-    /* IMPORTANTE: Necesario para que el tooltip se posicione respecto al botón */
+    font-size: 0.7rem;
+    font-family: monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
     position: relative; 
+    border-radius: 2px;
 }
+
+.theme-opt.opt-overworld { border-left: 3px solid #4CAF50; }
+.theme-opt.opt-nether { border-left: 3px solid #ff5722; }
+.theme-opt.opt-end { border-left: 3px solid #a78bfa; }
 
 .theme-opt:hover {
-    transform: scale(1.25);
-    z-index: 10;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transform: translateX(5px);
 }
+.theme-opt.opt-overworld:hover { border-color: #4CAF50; box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); background: rgba(76, 175, 80, 0.1); }
+.theme-opt.opt-nether:hover { border-color: #ff5722; box-shadow: 0 0 10px rgba(255, 87, 34, 0.4); background: rgba(255, 87, 34, 0.1); }
+.theme-opt.opt-end:hover { border-color: #a78bfa; box-shadow: 0 0 10px rgba(167, 139, 250, 0.4); background: rgba(167, 139, 250, 0.1); }
 
-/* --- TOOLTIP (La etiqueta con el nombre) --- */
+/* --- TOOLTIP --- */
 .theme-opt::after {
-    /* 🔥 MAGIA: Lee el texto del atributo data-tooltip del HTML */
     content: attr(data-tooltip);
-    
     position: absolute;
-    left: 50px; /* Posición a la derecha del botón */
+    left: 55px; 
     top: 50%;
-    transform: translateY(-50%) translateX(-10px); /* Centrado vertical + desplazaminto inicial */
-    
+    transform: translateY(-50%) translateX(-10px); 
     background: rgba(0, 0, 0, 0.9);
     color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    white-space: nowrap; /* Que el texto no salte de línea */
-    
+    padding: 4px 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.65rem;
+    font-family: monospace;
+    letter-spacing: 1px;
+    white-space: nowrap; 
     opacity: 0;
     pointer-events: none;
     transition: all 0.2s ease;
-    
-    /* Decoración: Borde izquierdo del color del tema activo */
-    border-left: 2px solid var(--accent-gold);
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }
 
-/* Mostrar tooltip al pasar el mouse */
+.theme-opt.opt-overworld::after { color: #4CAF50; border-right: 2px solid #4CAF50; }
+.theme-opt.opt-nether::after { color: #ff5722; border-right: 2px solid #ff5722; }
+.theme-opt.opt-end::after { color: #a78bfa; border-right: 2px solid #a78bfa; }
+
 .theme-opt:hover::after {
     opacity: 1;
-    transform: translateY(-50%) translateX(0); /* Se desliza a su lugar */
+    transform: translateY(-50%) translateX(0); 
 }

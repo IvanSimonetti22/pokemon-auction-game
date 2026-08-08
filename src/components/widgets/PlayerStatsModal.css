@@ -73,6 +73,16 @@
   animation: floatSkin 6s ease-in-out infinite;
 }
 
+.adv-particle-badge {
+  font-size: 0.7rem;
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 .player-rank-badge {
   position: absolute;
   bottom: 20px;
@@ -382,27 +392,53 @@
   background: linear-gradient(90deg, rgba(248,113,113,0.5), rgba(248,113,113,0.9));
 }
 
-/* ── Achievement rows ── */
-.adv-row {
+.adv-legend {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 0;
-  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  background: rgba(167, 139, 250, 0.05);
+  border-radius: 6px;
+  border: 1px dashed rgba(167, 139, 250, 0.2);
 }
 
-.adv-info {
+.adv-legend-text {
+  font-size: 0.75rem;
+  color: #a78bfa;
+}
+
+/* ── Achievement rows ── */
+.adv-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 10px 15px;
+}
+
+.adv-left-col {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 130px;
+  gap: 2px;
+}
+
+.adv-mid-col {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  gap: 1px;
+  gap: 6px;
+  align-items: flex-start;
 }
 
-.adv-info .block-detail-name {
+.adv-left-col .block-detail-name {
   white-space: normal;
   overflow: visible;
   text-overflow: unset;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   line-height: 1.2;
 }
 
@@ -428,6 +464,8 @@
 
 .adv-badge {
   flex-shrink: 0;
+  margin-left: auto;
+
   width: 22px;
   height: 22px;
   border-radius: 50%;

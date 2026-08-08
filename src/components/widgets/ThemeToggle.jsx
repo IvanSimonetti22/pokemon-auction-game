@@ -5,37 +5,34 @@ export const ThemeToggle = ({ onThemeChange }) => {
   return (
     <div className="theme-widget">
       <div className="theme-toggle-btn" title="Cambiar Dimensión">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       </div>
 
       <div className="theme-options">
         <button 
-          className="theme-opt" 
+          className="theme-opt opt-overworld" 
           onClick={() => onThemeChange('overworld')} 
-          style={{background:'#4CAF50', color:'#fff'}}
-          data-tooltip="Overworld"  /* <--- ESTO ES LO QUE LEE EL CSS */
+          data-tooltip="OVERWORLD_NODE"
         >
-          🌿
+          OVR
         </button>
 
         <button 
-          className="theme-opt" 
+          className="theme-opt opt-nether" 
           onClick={() => onThemeChange('nether')} 
-          style={{background:'#8B0000', color:'#fff'}}
-          data-tooltip="Nether"
+          data-tooltip="NETHER_NODE"
         >
-          🔥
+          NTH
         </button>
 
         <button 
-          className="theme-opt" 
+          className="theme-opt opt-end" 
           onClick={() => onThemeChange('end')} 
-          style={{background:'#4B0082', color:'#fff'}}
-          data-tooltip="The End"
+          data-tooltip="END_NODE"
         >
-          🔮
+          END
         </button>
       </div>
     </div>

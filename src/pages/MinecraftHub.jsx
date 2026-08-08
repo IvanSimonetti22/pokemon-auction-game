@@ -5,6 +5,7 @@ import CyclicTitle from '../components/ui/CyclicTitle';
 import RainBg from '../components/RainBg';
 import { BorderBeam } from '../components/ui/BorderBeam';
 import { PlayerStatsModal } from '../components/widgets/PlayerStatsModal';
+import { MouseParticleOverlay } from '../components/widgets/MouseParticleOverlay';
 import './MinecraftHub.css';
 
 // ═══════════════════════════════════════════════════
@@ -37,16 +38,16 @@ const SYSTEMS_DATA = [
     id: 'logros', icon: '🏆', title: 'Logros & Visual FX', version: 'v7.3', accent: 'purple',
     command: '/trigger np_menu',
     effects: [
-      { name: '🍃 Aventurero',     ach: 'Hora de Aventura'  },
-      { name: '🌸 Dieta',          ach: 'Dieta Equilibrada' },
-      { name: '❤️ Cobertura',      ach: 'Catálogo Completo' },
-      { name: '🔥 Compromiso',     ach: 'Serio Compromiso'  },
-      { name: '💥 Overkill',       ach: 'Sobre-Exagerado'   },
-      { name: '✨ Postales',       ach: 'Postmortal'        },
-      { name: '🧟 Furia',          ach: 'Doctor Zombi'      },
-      { name: '🧪 Cómo llegamos',  ach: 'Efectos'           },
-      { name: '☁️ Buenas Vistas',  ach: 'Cima del mundo'    },
-      { name: '🐚 Hogar',          ach: 'Faro Completo'     },
+      { name: '🍃 Aventurero',     ach: 'Hora de Aventuras', type: 'tinted_leaves', desc: 'Descubre todos los biomas.' },
+      { name: '🌸 Dieta',          ach: 'Dieta Equilibrada', type: 'heart', desc: 'Come de todo, aunque no sea bueno para ti.' },
+      { name: '❤️ Cobertura',      ach: 'Catálogo Completo', type: 'cherry_leaves', desc: '¡Domestica a todas las variantes de gato!' },
+      { name: '🔥 Compromiso',     ach: 'Serio Compromiso',  type: 'soul_fire_flame', desc: 'Mejora una azada con un lingote de netherita.' },
+      { name: '💥 Overkill',       ach: 'Sobre-Exagerado',   type: 'crit', desc: 'Da en el blanco del objetivo desde 30 metros.' },
+      { name: '✨ Postales',       ach: 'Postmortal',        type: 'totem_of_undying', desc: 'Engaña a la muerte con un tótem de inmortalidad.' },
+      { name: '🧟 Furia',          ach: 'Doctor Zombi',      type: 'happy_villager', desc: 'Debilita y cura a un aldeano zombi.' },
+      { name: '🧪 Cómo llegamos',  ach: 'Efectos',           type: 'witch', desc: 'Ten todos los efectos de pociones a la vez.' },
+      { name: '☁️ Buenas Vistas',  ach: 'Cima del mundo',    type: 'cloud', desc: 'Comercia con un aldeano en el límite de altura.' },
+      { name: '🐚 Hogar',          ach: 'Faro Completo',     type: 'nautilus', desc: 'Construye un faro a su máxima potencia.' },
     ],
   },
   {
@@ -160,12 +161,22 @@ const ModsTab = () => (
 //  TAB: SISTEMAS
 // ═══════════════════════════════════════════════════
 
-const SistemasTab = () => {
-  const [openEffects, setOpenEffects] = useState(false);
+const SistemasTab = ({ onCopy }) => {
+  const [openEffects, setOpenEffects] = useState(true);
+
+  const handleCopyCmd = (cmd) => {
+    onCopy(cmd, 'Comando copiado al portapapeles');
+  };
+
+  const spawnParticles = (type, name) => {
+    window.dispatchEvent(new CustomEvent('spawn-mouse-particles', { detail: { type, duration: 5000 } }));
+    onCopy('', `Equipado: ${name}`); 
+  };
+
   return (
     <div className="sistemas-grid">
       {SYSTEMS_DATA.map(sys => (
-        <Card key={sys.id} className={`sistema-card border-${sys.accent}`}>
+        <Card key={sys.id} id={sys.id === 'logros' ? 'logros-card' : undefined} className={`sistema-card border-${sys.accent}`}>
           <div className="sistema-head">
             <span className="sistema-icon">{sys.icon}</span>
             <div>
@@ -179,7 +190,16 @@ const SistemasTab = () => {
 
           {sys.command && (
             <>
-              <div className="sistema-cmd">
+              <p className="sys-desc" style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#aaa', marginTop: '10px' }}>
+                Al desbloquear estos logros épicos, podrás equiparte partículas cosméticas que te seguirán a todas partes en el servidor. <br/>
+                <strong style={{color: '#a78bfa'}}>Hacé click en cualquiera de los logros abajo para previsualizar sus partículas.</strong>
+              </p>
+              <div 
+                className="sistema-cmd" 
+                onClick={() => handleCopyCmd(sys.command)} 
+                style={{ cursor: 'pointer' }} 
+                title="Click para copiar"
+              >
                 <span className="cmd-prompt">{'>'}</span>
                 <code className="cmd-text">{sys.command}</code>
                 <span className="cmd-cursor" aria-hidden="true" />
@@ -193,9 +213,18 @@ const SistemasTab = () => {
               {openEffects && (
                 <div className="effects-list">
                   {sys.effects.map((ef, i) => (
-                    <div key={i} className="effect-row">
-                      <span className="effect-name">{ef.name}</span>
-                      <span className="effect-ach">{ef.ach}</span>
+                    <div 
+                      key={i} 
+                      className="effect-row" 
+                      onClick={() => spawnParticles(ef.type, ef.name)}
+                      style={{ cursor: 'pointer' }}
+                      title="Click para previsualizar partículas"
+                    >
+                      <div className="effect-main-info">
+                        <span className="effect-name">{ef.name}</span>
+                        <span className="effect-ach">{ef.ach}</span>
+                      </div>
+                      <div className="effect-desc">{ef.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -233,9 +262,15 @@ const STEPS = [
     action: { href: 'https://fabricmc.net/use/installer/', label: '[ RUN fabric_installer.exe ]', cls: 'btn-step-secondary' },
   },
   {
-    num: '02', accent: 'purple', title: 'Descargar Mods Obligatorios',
-    desc: <>Pack oficial. Descomprimir en <code>%appdata%/.minecraft/mods</code>.</>,
-    action: { href: 'https://drive.google.com/drive/folders/1kULPjDKWP4riCJ0YVeqU64BIs1wph52T?usp=sharing', label: '[ DOWNLOAD modpack_v1.zip ]', cls: 'btn-step-primary' },
+    num: '02', accent: 'purple', title: 'Descargar todos los mods',
+    desc: (
+      <>
+        Pack oficial. Descomprimir en <code>%appdata%/.minecraft/mods</code>.
+        <br/>
+        <span style={{fontSize: '0.8rem', color: '#888'}}>Aclaración: Si no querés los mods opcionales, dentro del juego tenés la lista de mods para desactivar los que no quieras.</span>
+      </>
+    ),
+    action: { href: 'https://drive.google.com/file/d/1jGl0fWIxtVp63ihEBozmm0wCcdLV0mPZ/view?usp=sharing', label: '[ DOWNLOAD mods 26.2.rar ]', cls: 'btn-step-primary' },
   },
   {
     num: '03', accent: 'green', title: 'Conectar al Nodo',
@@ -321,7 +356,7 @@ export const MinecraftHub = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState('mods');
   const [modal, setModal]       = useState(null);
   const [playerModal, setPlayerModal] = useState(null);
-  const { showToast, copyToClipboard } = useCopyIp();
+  const { showToast, toastMsg, copyToClipboard } = useCopyIp();
 
   useEffect(() => {
     const fetch$ = async () => {
@@ -338,6 +373,7 @@ export const MinecraftHub = ({ onBack }) => {
 
   return (
     <div className="mc-hub">
+      <MouseParticleOverlay />
       {/* ── Dither Canvas BG ── */}
       <RainBg />
 
@@ -478,7 +514,7 @@ export const MinecraftHub = ({ onBack }) => {
       {/* ── Tab Content ── */}
       <section className="mc-tab-panel">
         {activeTab === 'mods'      && <ModsTab />}
-        {activeTab === 'sistemas'  && <SistemasTab />}
+        {activeTab === 'sistemas'  && <SistemasTab onCopy={copyToClipboard} />}
         {activeTab === 'descargas' && <DescargasTab onCopy={copyToClipboard} />}
         {activeTab === 'satelite'  && <SateliteTab />}
       </section>
@@ -506,11 +542,29 @@ export const MinecraftHub = ({ onBack }) => {
       {playerModal && (
         <PlayerStatsModal 
           player={playerModal} 
-          onClose={() => setPlayerModal(null)} 
+          onClose={() => setPlayerModal(null)}
+          onNavigateToSistemas={() => {
+            setPlayerModal(null);
+            setActiveTab('sistemas');
+            setTimeout(() => {
+              const el = document.getElementById('logros-card');
+              const container = document.querySelector('.hub-container'); // scroll container
+              if (el) {
+                if (container) {
+                  const topPos = el.offsetTop - 50;
+                  container.scrollTo({ top: topPos, behavior: 'smooth' });
+                } else {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                el.classList.add('highlight-pulse');
+                setTimeout(() => el.classList.remove('highlight-pulse'), 2000);
+              }
+            }, 300);
+          }}
         />
       )}
 
-      <Toast active={showToast} />
+      <Toast active={showToast} message={toastMsg || undefined} />
     </div>
   );
 };

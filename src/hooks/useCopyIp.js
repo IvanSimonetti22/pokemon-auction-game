@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 export const useCopyIp = () => {
   const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const IP = "nodo-persistente.baires.cloud";
 
   // Función para reproducir un sonido "Placeholder"
@@ -40,9 +41,10 @@ export const useCopyIp = () => {
         audio.play();
   */
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(IP);
+  const copyToClipboard = (textToCopy = IP, customMsg = "") => {
+    navigator.clipboard.writeText(textToCopy);
     playSound(); // 🔊 Reproducir sonido
+    setToastMsg(customMsg);
     setShowToast(true); // 👇 Mostrar mensaje
     
     // Ocultar mensaje después de 3 segundos
@@ -51,5 +53,5 @@ export const useCopyIp = () => {
     }, 3000);
   };
 
-  return { showToast, copyToClipboard, IP };
+  return { showToast, toastMsg, copyToClipboard, IP };
 };
