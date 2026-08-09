@@ -6,6 +6,7 @@ import RainBg from '../components/RainBg';
 import { BorderBeam } from '../components/ui/BorderBeam';
 import { PlayerStatsModal } from '../components/widgets/PlayerStatsModal';
 import { MouseParticleOverlay } from '../components/widgets/MouseParticleOverlay';
+import { BeforeAfterSlider } from '../components/widgets/BeforeAfterSlider';
 import './MinecraftHub.css';
 
 // ═══════════════════════════════════════════════════
@@ -86,38 +87,28 @@ const TABS = [
   { id: 'sistemas',  label: 'Sistemas',  icon: '⚙️' },
   { id: 'descargas', label: 'Descargas', icon: '📥' },
   { id: 'satelite',  label: 'Satélite',  icon: '🛰️' },
+  { id: 'galeria',   label: 'Galería',   icon: '📸' },
 ];
 
 // ═══════════════════════════════════════════════════
-//  SHARED HOOK & BASE CARD
+
+
+//  BASE CARD
 // ═══════════════════════════════════════════════════
 
-function useSpotlight() {
-  const ref = useRef(null);
-  const onMove = (e) => {
-    if (!ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    ref.current.style.setProperty('--x', `${e.clientX - r.left}px`);
-    ref.current.style.setProperty('--y', `${e.clientY - r.top}px`);
-  };
-  return [ref, onMove];
-}
-
-const Card = ({ className = '', children, onClick, style }) => {
-  const [ref, onMove] = useSpotlight();
+const Card = ({ className = '', children, onClick, style, id }) => {
   return (
     <div
-      ref={ref}
+      id={id}
       className={`mc-card ${className}`}
-      onMouseMove={onMove}
       onClick={onClick}
       style={style}
     >
-      <div className="mc-card-spotlight" aria-hidden="true" />
       {children}
     </div>
   );
 };
+
 
 // ═══════════════════════════════════════════════════
 //  TAB: MODS
@@ -198,7 +189,7 @@ const SistemasTab = ({ onCopy }) => {
                 className="sistema-cmd" 
                 onClick={() => handleCopyCmd(sys.command)} 
                 style={{ cursor: 'pointer' }} 
-                title="Click para copiar"
+                data-fx-tooltip="Click para copiar el comando"
               >
                 <span className="cmd-prompt">{'>'}</span>
                 <code className="cmd-text">{sys.command}</code>
@@ -218,7 +209,7 @@ const SistemasTab = ({ onCopy }) => {
                       className="effect-row" 
                       onClick={() => spawnParticles(ef.type, ef.name)}
                       style={{ cursor: 'pointer' }}
-                      title="Click para previsualizar partículas"
+                      data-fx-tooltip="Click para previsualizar partículas"
                     >
                       <div className="effect-main-info">
                         <span className="effect-name">{ef.name}</span>
@@ -326,7 +317,6 @@ const DescargasTab = ({ onCopy }) => (
 const SateliteTab = () => {
   const [showWarning, setShowWarning] = useState(true);
   const [mapStatus, setMapStatus] = useState('loading'); // 'loading', 'online', 'offline'
-  const [ref, onMove] = useSpotlight(); // Restauramos el efecto visual
 
   useEffect(() => {
     let isMounted = true;
@@ -356,7 +346,7 @@ const SateliteTab = () => {
 
   if (mapStatus === 'offline') {
     return (
-      <div ref={ref} className="satelite-screen" onMouseMove={onMove}>
+      <div className="satelite-screen">
         <div className="satelite-scanlines" aria-hidden="true" />
         <div className="satelite-noise"     aria-hidden="true" />
         <div className="satelite-spotlight" aria-hidden="true" />
@@ -407,7 +397,163 @@ const SateliteTab = () => {
 };
 
 // ═══════════════════════════════════════════════════
-//  MAIN HUB
+//  TAB: GALERÍA
+// ═══════════════════════════════════════════════════
+const GaleriaTab = () => {
+  const [currentShader, setCurrentShader] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentLightbox, setCurrentLightbox] = useState(1);
+
+  const shaderPairs = [
+    { b: "/gallery/shaders/Shaders 1.png", a: "/gallery/shaders/Shaders 2.png", t: "Toma 1" },
+    { b: "/gallery/shaders/Shaders 3.png", a: "/gallery/shaders/Shaders 4.png", t: "Toma 2" },
+    { b: "/gallery/shaders/Shaders 5.png", a: "/gallery/shaders/Shaders 6.png", t: "Toma 3" },
+    { b: "/gallery/shaders/Shaders 7.png", a: "/gallery/shaders/Shaders 8.png", t: "Toma 4" },
+    { b: "/gallery/shaders/Shaders 9.png", a: "/gallery/shaders/Shaders 10.png", t: "Toma 5" },
+    { b: "/gallery/shaders/Shaders 11.png", a: "/gallery/shaders/Shaders 12.png", t: "Toma 6" },
+    { b: "/gallery/shaders/Shaders 13.png", a: "/gallery/shaders/Shaders 14.png", t: "Toma 7A" },
+    { b: "/gallery/shaders/Shaders 13.png", a: "/gallery/shaders/Shaders 15.png", t: "Toma 7B" },
+  ];
+
+  const nextShader = () => setCurrentShader(s => (s + 1) % shaderPairs.length);
+  const prevShader = () => setCurrentShader(s => (s === 0 ? shaderPairs.length - 1 : s - 1));
+
+  const openLightbox = (num) => {
+    setCurrentLightbox(num);
+    setLightboxOpen(true);
+  };
+  const closeLightbox = () => setLightboxOpen(false);
+  const nextLightbox = (e) => { e.stopPropagation(); setCurrentLightbox(s => s === 9 ? 1 : s + 1); };
+  const prevLightbox = (e) => { e.stopPropagation(); setCurrentLightbox(s => s === 1 ? 9 : s - 1); };
+
+  return (
+    <div className="galeria-tab animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      
+      {/* SECCIÓN SHADERS */}
+      <div className="mc-panel" style={{ 
+          padding: '2rem', 
+          borderRadius: '16px', 
+          background: 'linear-gradient(145deg, rgba(30, 20, 40, 0.4) 0%, rgba(10, 5, 20, 0.7) 100%)', 
+          backdropFilter: 'blur(12px)', 
+          border: '1px solid rgba(255,255,255,0.03)', 
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.4)',
+          position: 'relative'
+        }}>
+        <h2 className="mc-section-title" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          ✨ <span>Comparativa</span> Shaders
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '20px', fontSize: '1rem' }}>
+          Desliza la barra central para comparar el juego base con los shaders instalados. ({currentShader + 1} de {shaderPairs.length})
+        </p>
+
+        <div className="shader-carousel-container" style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
+          <button 
+             onClick={prevShader} 
+             style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+             ◀
+          </button>
+          
+          <div style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '12px', width: '100%', overflow: 'hidden' }}>
+            <BeforeAfterSlider 
+              beforeImage={shaderPairs[currentShader].b} 
+              afterImage={shaderPairs[currentShader].a} 
+              alt={shaderPairs[currentShader].t} 
+            />
+          </div>
+          
+          <button 
+             onClick={nextShader} 
+             style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+             ▶
+          </button>
+        </div>
+      </div>
+
+      {/* SECCIÓN GENERAL */}
+      <div className="mc-panel" style={{ 
+          padding: '2rem', 
+          borderRadius: '16px', 
+          background: 'linear-gradient(145deg, rgba(30, 20, 40, 0.4) 0%, rgba(10, 5, 20, 0.7) 100%)', 
+          backdropFilter: 'blur(12px)', 
+          border: '1px solid rgba(255,255,255,0.03)', 
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.4)',
+          position: 'relative'
+        }}>
+        <h2 className="mc-section-title" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          📸 <span>Galería</span> General
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '20px', fontSize: '0.9rem' }}>
+          Si querés subir tus propias capturas a esta galería, hablá con el Admin del servidor.
+        </p>
+        
+        <div className="galeria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+            <div 
+              key={`gen-${num}`} 
+              onClick={() => openLightbox(num)}
+              className="galeria-thumb"
+            >
+              <img 
+                src={`/gallery/general/general ${num}.png`} 
+                alt={`Captura general ${num}`} 
+                loading="lazy"
+              />
+              <div className="thumb-expand-icon">⛶</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* LIGHTBOX MODAL */}
+      {lightboxOpen && (
+        <div 
+          onClick={closeLightbox}
+          className="lightbox-overlay"
+          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', backdropFilter: 'blur(10px)' }}
+        >
+          <div className="lightbox-content" style={{ position: 'relative', width: '90%', maxWidth: '1200px', aspectRatio: '16/9' }} onClick={e => e.stopPropagation()}>
+            <img 
+              src={`/gallery/general/general ${currentLightbox}.png`} 
+              alt="Lightbox" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+            />
+            
+            {/* Controles de la imagen */}
+            <button 
+              onClick={prevLightbox} 
+              style={{ position: 'absolute', left: '-50px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', fontSize: '2rem', padding: '10px 20px', cursor: 'pointer', borderRadius: '8px' }}
+            >◀</button>
+            <button 
+              onClick={nextLightbox} 
+              style={{ position: 'absolute', right: '-50px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', fontSize: '2rem', padding: '10px 20px', cursor: 'pointer', borderRadius: '8px' }}
+            >▶</button>
+            <button 
+              onClick={closeLightbox} 
+              style={{ position: 'absolute', top: '-40px', right: 0, background: 'transparent', border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer' }}
+            >✖</button>
+            <div style={{ position: 'absolute', bottom: '-40px', left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '1.2rem', letterSpacing: '2px' }}>
+              {currentLightbox} / 9
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════
+//  PREMIUM FX COMPONENTS
+// ═══════════════════════════════════════════════════
+
+
+
+// ═══════════════════════════════════════════════════
+//  MAIN COMPONENT
 // ═══════════════════════════════════════════════════
 
 export const MinecraftHub = ({ onBack }) => {
@@ -576,6 +722,7 @@ export const MinecraftHub = ({ onBack }) => {
         {activeTab === 'sistemas'  && <SistemasTab onCopy={copyToClipboard} />}
         {activeTab === 'descargas' && <DescargasTab onCopy={copyToClipboard} />}
         {activeTab === 'satelite'  && <SateliteTab />}
+        {activeTab === 'galeria'   && <GaleriaTab />}
       </section>
 
       {/* ── Info Modal ── */}
