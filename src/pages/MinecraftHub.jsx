@@ -333,8 +333,8 @@ const SateliteTab = () => {
     const checkMapStatus = async () => {
       try {
         // Intenta hacer un fetch silencioso al puerto de BlueMap para ver si responde.
-        // Usamos no-cors para evitar errores de navegador, si el servidor está apagado el fetch tira un catch.
-        await fetch('http://nodopersistente.duckdns.org:8100/', { mode: 'no-cors', cache: 'no-cache' });
+        // Usamos la ruta del proxy '/bluemap/' para saltarnos el bloqueo de Mixed Content de Vercel
+        await fetch('/bluemap/', { mode: 'no-cors', cache: 'no-cache' });
         if (isMounted) setMapStatus('online');
       } catch (err) {
         if (isMounted) setMapStatus('offline');
@@ -374,7 +374,7 @@ const SateliteTab = () => {
             <div className="satelite-reconnect" aria-live="polite" onClick={() => setMapStatus('loading')} style={{cursor: 'pointer'}}>
               <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span> REINTENTAR <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
             </div>
-            <a href="http://nodopersistente.duckdns.org:8100/" target="_blank" rel="noreferrer" className="satelite-reconnect" style={{cursor: 'pointer', textDecoration: 'none', color: 'var(--accent-gold)'}}>
+            <a href="/bluemap/" target="_blank" rel="noreferrer" className="satelite-reconnect" style={{cursor: 'pointer', textDecoration: 'none', color: 'var(--accent-gold)'}}>
               ABRIR EN NUEVA PESTAÑA ↗
             </a>
           </div>
@@ -386,7 +386,7 @@ const SateliteTab = () => {
   return (
     <div className="satelite-screen active-map">
       <iframe 
-        src="http://nodopersistente.duckdns.org:8100/" 
+        src="/bluemap/" 
         title="Mapa Satelital BlueMap"
         className="bluemap-iframe"
       />

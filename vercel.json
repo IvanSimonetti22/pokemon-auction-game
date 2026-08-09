@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/bluemap/:match*",
+      "destination": "http://nodopersistente.duckdns.org:8100/:match*"
+    }
+  ]
+}
