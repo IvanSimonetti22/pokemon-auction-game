@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/bluemap/:match*",
-      "destination": "http://nodopersistente.duckdns.org:8100/:match*"
+      "source": "/bluemap/(.*)",
+      "destination": "http://nodopersistente.duckdns.org:8100/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
