@@ -361,16 +361,22 @@ const SateliteTab = () => {
         <div className="satelite-noise"     aria-hidden="true" />
         <div className="satelite-spotlight" aria-hidden="true" />
         <div className="satelite-content">
-          <p className="satelite-err-code">ERR_CONNECTION_REFUSED</p>
+          <p className="satelite-err-code">ERR_CONNECTION_REFUSED / MIXED_CONTENT</p>
           <h2 className="satelite-title glitch" data-text="SEÑAL PERDIDA">SEÑAL PERDIDA</h2>
           <p className="satelite-desc">
             El satélite cartográfico se encuentra temporalmente fuera de órbita o apagado.
-            Los escaneos 3D volverán a estar operativos pronto.
+            <br /><br />
+            <span style={{color: '#ffaa00', fontSize: '0.85rem'}}>
+              ⚠️ Si estás viendo esto en Vercel (HTTPS), el navegador bloquea la conexión interna al mapa (HTTP) por seguridad.
+            </span>
           </p>
-          <div className="satelite-reconnect" aria-live="polite" onClick={() => setMapStatus('loading')} style={{cursor: 'pointer'}}>
-            <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
-            {' '}REINTENTAR CONEXIÓN{' '}
-            <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '25px', flexWrap: 'wrap' }}>
+            <div className="satelite-reconnect" aria-live="polite" onClick={() => setMapStatus('loading')} style={{cursor: 'pointer'}}>
+              <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span> REINTENTAR <span className="rdot">.</span><span className="rdot">.</span><span className="rdot">.</span>
+            </div>
+            <a href="http://nodopersistente.duckdns.org:8100/" target="_blank" rel="noreferrer" className="satelite-reconnect" style={{cursor: 'pointer', textDecoration: 'none', color: 'var(--accent-gold)'}}>
+              ABRIR EN NUEVA PESTAÑA ↗
+            </a>
           </div>
         </div>
       </div>
