@@ -5,6 +5,10 @@
       "destination": "http://nodopersistente.duckdns.org:8100/$1"
     },
     {
+      "source": "/api/plan/(.*)",
+      "destination": "http://23.175.40.14:25117/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

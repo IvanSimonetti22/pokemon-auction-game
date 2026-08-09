@@ -84,9 +84,17 @@ async function main() {
 
     const serverData = {};
 
+    console.log('⏳  Descargando caché de usuarios...');
+    const usercacheRaw = await downloadFileContent(path.posix.join(SERVER_ROOT, 'usercache.json'));
+    let usercache = [];
+    if (usercacheRaw) {
+      try { usercache = JSON.parse(usercacheRaw); } catch(e) {}
+    }
+
     for (const uuid of uuids) {
       console.log(`⏳  Descargando datos de ${uuid}...`);
-      serverData[uuid] = { stats: null, logros: null };
+      const cached = usercache.find(u => u.uuid === uuid);
+      serverData[uuid] = { stats: null, logros: null, username: cached ? cached.name : null };
 
       const statsRaw = await downloadFileContent(path.posix.join(WORLD, 'stats', `${uuid}.json`));
       if (statsRaw) {

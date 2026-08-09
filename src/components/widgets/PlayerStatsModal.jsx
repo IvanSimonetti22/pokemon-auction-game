@@ -110,7 +110,12 @@ export const PlayerStatsModal = ({ player, onClose, onNavigateToSistemas }) => {
   useEffect(() => {
     if (!name) return;
 
-    const playerData = serverData[id] || {};
+    let playerData = serverData[id];
+    if (!playerData) {
+      // Búsqueda por nombre en caso de que el protocolo Query no haya devuelto el UUID real
+      playerData = Object.values(serverData).find(p => p.username?.toLowerCase() === name.toLowerCase()) || {};
+    }
+    
     const localStats = playerData.stats || { stats: {} };
     const localLogros = playerData.logros || {};
 
@@ -178,7 +183,7 @@ export const PlayerStatsModal = ({ player, onClose, onNavigateToSistemas }) => {
     }));
 
     // Plan API — only for lastSeen
-    fetch(`http://23.175.40.14:25117/v1/player?player=${encodeURIComponent(name)}`)
+    fetch(`/api/plan/v1/player?player=${encodeURIComponent(name)}`)
       .then(r => r.json())
       .then(data => {
         let lastSeenText = isOnline ? 'Conectado ahora' : 'Desconocido';

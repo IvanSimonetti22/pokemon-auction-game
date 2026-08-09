@@ -12,6 +12,11 @@ export default defineConfig({
                 target: 'http://nodopersistente.duckdns.org:8100',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/bluemap/, '')
+            },
+            '/api/plan': {
+                target: 'http://23.175.40.14:25117',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/plan/, '')
             }
         }
     }
