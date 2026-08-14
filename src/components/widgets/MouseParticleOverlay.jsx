@@ -1,19 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import './MouseParticleOverlay.css';
 
-const BASE_URL = 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.4/assets/minecraft/textures/';
-
 const PARTICLE_CONFIGS = {
-  tinted_leaves: { url: BASE_URL + 'block/azalea_leaves.png', gravity: 0.05, life: 100, size: [8, 12], drift: 0.5 },
-  heart: { url: BASE_URL + 'particle/heart.png', gravity: -0.05, life: 80, size: [16, 24], drift: 0.2 },
-  cherry_leaves: { url: BASE_URL + 'particle/cherry_0.png', gravity: 0.03, life: 120, size: [12, 16], drift: 0.8 },
-  soul_fire_flame: { url: BASE_URL + 'particle/soul_fire_flame.png', gravity: -0.1, life: 60, size: [12, 18], drift: 0.1, shrink: true },
-  crit: { url: BASE_URL + 'particle/critical_hit.png', gravity: 0.1, life: 40, size: [12, 16], velocityRange: [-3, 3] },
-  totem_of_undying: { url: BASE_URL + 'item/totem_of_undying.png', gravity: -0.02, life: 90, size: [20, 28], drift: 0.3 },
-  happy_villager: { url: BASE_URL + 'particle/glint.png', tint: '#55ff55', gravity: -0.05, life: 70, size: [16, 24], drift: 0.2 },
-  witch: { url: BASE_URL + 'particle/spell_0.png', tint: '#8a2be2', gravity: 0.05, life: 80, size: [12, 16], drift: 0.5 },
-  cloud: { url: BASE_URL + 'particle/generic_4.png', gravity: -0.02, life: 100, size: [16, 24], shrink: true, drift: 0.2 },
-  nautilus: { url: BASE_URL + 'particle/nautilus.png', gravity: -0.05, life: 80, size: [12, 16], drift: 0.2 }
+  tinted_leaves: { url: '/assets/particles/azalea_leaves.png', gravity: 0.05, life: 100, size: [8, 12], drift: 0.5 },
+  heart: { url: '/assets/particles/heart.png', gravity: -0.05, life: 80, size: [16, 24], drift: 0.2 },
+  cherry_leaves: { url: '/assets/particles/cherry_0.png', gravity: 0.03, life: 120, size: [12, 16], drift: 0.8 },
+  soul_fire_flame: { url: '/assets/particles/soul_fire_flame.png', gravity: -0.1, life: 60, size: [12, 18], drift: 0.1, shrink: true },
+  crit: { url: '/assets/particles/critical_hit.png', gravity: 0.1, life: 40, size: [12, 16], velocityRange: [-3, 3] },
+  totem_of_undying: { url: '/assets/particles/totem_of_undying.png', gravity: -0.02, life: 90, size: [20, 28], drift: 0.3 },
+  happy_villager: { url: '/assets/particles/glint.png', tint: '#55ff55', gravity: -0.05, life: 70, size: [16, 24], drift: 0.2 },
+  witch: { url: '/assets/particles/spell_0.png', tint: '#8a2be2', gravity: 0.05, life: 80, size: [12, 16], drift: 0.5 },
+  cloud: { url: '/assets/particles/generic_4.png', gravity: -0.02, life: 100, size: [16, 24], shrink: true, drift: 0.2 },
+  nautilus: { url: '/assets/particles/nautilus.png', gravity: -0.05, life: 80, size: [12, 16], drift: 0.2 }
 };
 
 export const MouseParticleOverlay = () => {
