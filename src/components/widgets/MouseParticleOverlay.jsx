@@ -121,9 +121,18 @@ export const MouseParticleOverlay = () => {
         ctx.globalAlpha = p.life / p.maxLife;
         
         const img = imagesRef.current[p.type];
-        if (img && (img.complete || img.width > 0)) {
-          // Draw the image centered at (p.x, p.y)
-          ctx.drawImage(img, p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        
+        // Verificamos que la imagen realmente cargó bien y no está "rota"
+        const isCanvas = img instanceof HTMLCanvasElement;
+        const isValid = img && (isCanvas || (img.complete && img.naturalWidth > 0));
+
+        if (isValid) {
+          try {
+            // Draw the image centered at (p.x, p.y)
+            ctx.drawImage(img, p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+          } catch (e) {
+            // Ignorar errores silenciosos de canvas si la imagen falla en medio render
+          }
         }
       });
       
