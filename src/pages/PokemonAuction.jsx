@@ -139,7 +139,7 @@ const STAT_TRANSLATIONS = {
 };
 
 export const PokemonAuction = ({ onBack }) => {
-    const [screen, setScreen] = useState('lobby'); // Iniciamos en 'lobby'
+    const [screen, setScreen] = useState('room_browser'); // Iniciamos en 'room_browser'
     const [nickname, setNickname] = useState('');
     const [players, setPlayers] = useState([]);
 
@@ -182,6 +182,29 @@ export const PokemonAuction = ({ onBack }) => {
     const [viewingIndex, setViewingIndex] = useState(null); // Para saber qué pokemon del inventario es
     const [selectedAbility, setSelectedAbility] = useState('');
     const [abilityPreferences, setAbilityPreferences] = useState({}); // { [index]: 'Nombre Habilidad' }
+
+    // 🔥 ESTADOS PARA ROOM BROWSER 🔥
+    const [roomsList, setRoomsList] = useState([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newRoomName, setNewRoomName] = useState('');
+    const [newRoomPassword, setNewRoomPassword] = useState('');
+
+    const handleCreateRoom = () => {
+        if (!newRoomName.trim()) return alert("El nombre de la sala no puede estar vacío");
+        socket.emit('create_room', { name: newRoomName, password: newRoomPassword, nickname });
+        setShowCreateModal(false);
+        playSound(GAME_SFX.click, 0.5);
+    };
+
+    const handleJoinRoom = (room) => {
+        let password = '';
+        if (room.hasPassword) {
+            password = prompt("Esta sala tiene contraseña. Ingrésala:");
+            if (password === null) return; // Canceló
+        }
+        socket.emit('join_room', { roomId: room.id, password, nickname });
+        playSound(GAME_SFX.click, 0.5);
+    };
 
     const openPokemonDetails = (pokemon, index) => {
         setViewingPokemon(pokemon);
@@ -229,7 +252,15 @@ export const PokemonAuction = ({ onBack }) => {
     useEffect(() => {
         if (!socket.connected) socket.connect();
 
-        socket.on('connect', () => setIsConnected(true));
+        socket.on('connect', () => {
+            setIsConnected(true);
+            socket.emit('get_rooms');
+        });
+        
+        socket.on('rooms_list', (list) => {
+            setRoomsList(list);
+        });
+
         socket.on('disconnect', () => setIsConnected(false));
 
         socket.on('update_players', (data) => {
@@ -249,7 +280,11 @@ export const PokemonAuction = ({ onBack }) => {
         socket.on('lobby_info', (data) => {
             setHostId(data.hostId);
             setGameSettings(data.gameSettings);
-            if (data.gameStatus === 'playing') setScreen('game'); // Si entra tarde y ya juegan
+            if (data.gameStatus === 'playing') {
+                setScreen('game'); // Si entra tarde y ya juegan
+            } else {
+                setScreen('lobby');
+            }
         });
 
         socket.on('settings_updated', (settings) => setGameSettings(settings));
@@ -405,7 +440,10 @@ export const PokemonAuction = ({ onBack }) => {
 
         socket.on('chat_message', (msg) => {
             setMessages(prev => [...prev, msg]);
-            setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+            setTimeout(() => {
+                const chatDiv = document.querySelector('.chat-messages');
+                if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+            }, 100);
         });
 
         socket.on('error_message', (err) => {
@@ -424,7 +462,17 @@ export const PokemonAuction = ({ onBack }) => {
             setRerollCost(data.rerollCost);
         });
 
+        // 🔥 HOTKEY DEV: Ctrl+S para saltar de fase
+        const handleKeyDown = (e) => {
+            if (e.code === 'KeyS' && e.ctrlKey) {
+                e.preventDefault();
+                socket.emit('force_skip');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
         return () => {
+            window.removeEventListener('keydown', handleKeyDown);
             socket.removeAllListeners();
         };
     }, [currentAuction, nickname, viewBackpackOf]);
@@ -436,11 +484,13 @@ export const PokemonAuction = ({ onBack }) => {
         if (onBack) onBack();
     };
 
-    const handleJoinLobby = () => {
-        if (!nickname.trim()) return alert("¡Ponte un nombre!");
-        socket.emit('join_lobby', nickname);
-        setIsJoined(true);
-        playSound(GAME_SFX.click, 0.5); // Usando click como placeholder si select no existe
+    const handleLeaveRoom = () => {
+        socket.emit('leave_game');
+        setScreen('room_browser');
+        setIsJoined(true); // actually, isJoined means "logged in with nickname", so keep it true
+        setHostId(null);
+        socket.emit('get_rooms');
+        playSound(GAME_SFX.click, 0.5);
     };
 
     const handleStartGame = () => {
@@ -600,12 +650,11 @@ export const PokemonAuction = ({ onBack }) => {
 
             <button className="exit-btn-fixed" onClick={handleManualExit}>⬅ SALIR</button>
 
-            {screen === 'lobby' && (
+            {screen === 'room_browser' && (
                 <div className="lobby-container fade-in">
                     <h1 className="lobby-title">SUBASTA <span style={{ color: 'gold' }}>POKÉMON</span></h1>
-
+                    
                     {!isJoined ? (
-                        /* --- PASO 1: PONER NOMBRE --- */
                         <div className="login-card">
                             <h3>¿Cómo te llamarás, Entrenador?</h3>
                             <input
@@ -613,13 +662,58 @@ export const PokemonAuction = ({ onBack }) => {
                                 placeholder="Tu Nickname..."
                                 value={nickname}
                                 onChange={e => setNickname(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleJoinLobby()}
                                 maxLength={12}
                             />
-                            <button onClick={handleJoinLobby}>ENTRAR A LA SALA</button>
+                            <button onClick={() => {
+                                if (!nickname.trim()) return alert("¡Ponte un nombre!");
+                                setIsJoined(true);
+                                socket.emit('get_rooms');
+                                playSound(GAME_SFX.click, 0.5);
+                            }}>CONTINUAR</button>
                         </div>
                     ) : (
-                        /* --- PASO 2: SALA DE ESPERA --- */
+                        <div className="room-browser">
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                <h2>Salas Disponibles</h2>
+                                <button onClick={() => setShowCreateModal(true)} style={{padding: '10px 20px', background: '#ffd700', color: 'black', fontWeight: 'bold', borderRadius: '5px', border: 'none', cursor: 'pointer'}}>+ Crear Sala</button>
+                            </div>
+                            
+                            <div className="rooms-grid" style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                                {roomsList.length === 0 ? <p style={{textAlign: 'center', color: '#ccc'}}>No hay salas disponibles. ¡Crea una!</p> : null}
+                                {roomsList.map(r => (
+                                    <div key={r.id} style={{background: '#2d3436', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #555'}}>
+                                        <div>
+                                            <h3 style={{margin: '0 0 5px 0', color: '#fff'}}>{r.name} {r.hasPassword && '🔒'}</h3>
+                                            <p style={{margin: 0, fontSize: '0.9rem', color: '#aaa'}}>Jugadores: {r.playersCount}</p>
+                                        </div>
+                                        <button onClick={() => handleJoinRoom(r)} style={{padding: '8px 15px', background: '#4CAF50', color: 'white', borderRadius: '5px', border: 'none', cursor: 'pointer'}}>
+                                            Unirse
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {showCreateModal && (
+                        <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999}}>
+                            <div className="login-card" style={{position: 'relative'}}>
+                                <button onClick={() => setShowCreateModal(false)} style={{position: 'absolute', top: '10px', right: '10px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.2rem', cursor: 'pointer'}}>✖</button>
+                                <h3>Crear Nueva Sala</h3>
+                                <input type="text" placeholder="Nombre de la sala..." value={newRoomName} onChange={e => setNewRoomName(e.target.value)} maxLength={20} style={{marginBottom: '10px'}} />
+                                <input type="password" placeholder="Contraseña (Opcional)..." value={newRoomPassword} onChange={e => setNewRoomPassword(e.target.value)} maxLength={20} />
+                                <button onClick={handleCreateRoom} style={{marginTop: '15px'}}>CREAR Y ENTRAR</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {screen === 'lobby' && (
+                <div className="lobby-container fade-in">
+                    <h1 className="lobby-title">SALA <span style={{ color: 'gold' }}>DE ESPERA</span></h1>
+
+                        {/* --- PASO 2: SALA DE ESPERA --- */}
                         <div className="waiting-room">
                             <div className="players-list-lobby">
                                 <h3>Jugadores ({players.filter(p => p).length})</h3>
@@ -671,13 +765,14 @@ export const PokemonAuction = ({ onBack }) => {
                                 </div>
                             </div>
 
-                            <div className="lobby-footer">
+                            <div className="lobby-footer" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                <button onClick={handleLeaveRoom} style={{padding: '10px 20px', background: '#e74c3c', color: 'white', borderRadius: '5px', border: 'none', cursor: 'pointer', fontWeight: 'bold'}}>SALIR DE LA SALA</button>
                                 {socket.id === hostId ? (
                                     <button className="start-game-btn" onClick={handleStartGame}>
                                         ¡INICIAR PARTIDA!
                                     </button>
                                 ) : (
-                                    <p className="waiting-msg">Esperando al líder de la sala...</p>
+                                    <p className="waiting-msg" style={{margin: 0}}>Esperando al líder de la sala...</p>
                                 )}
                             </div>
                         </div>
